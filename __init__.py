@@ -3,14 +3,19 @@
 
 # A pipe-based interface to the gnuplot plotting program.
 
+# Written by Michael Haggerty <mhagger@blizzard.harvard.edu>.
+# Inspired by and partly derived from an earlier version by Konrad
+# Hinsen <hinsen@ibs.ibs.fr>.
+
+# For information about how to use this module, see the documentation
+# string for class gnuplot, and the test code at the bottom of the
+# file.  You can run the test code by typing `python gnuplot.py'
+
 # You should import this file with `import gnuplot', not with `from
 # gnuplot import *'; otherwise you will have a mess of conflicting
 # names.
 
-# Written by Michael Haggerty <mhagger@blizzard.harvard.edu>
-# Derived from earlier version by Konrad Hinsen <hinsen@ibs.ibs.fr>
-
-# New features:
+# Features:
 #  +  A gnuplot session is an instance of class `gnuplot', so multiple
 #     sessions can be open at once:
 #         g1 = gnuplot(); g2 = gnuplot()
@@ -20,60 +25,67 @@
 #  +  Can pass arbitrary commands to the gnuplot command interpreter:
 #         g("set pointsize 2")
 #  +  A gnuplot object knows how to plot three types of `plotitem':
-#     `data', `file', and `func'tion.
-#  +  Any plotitem can have optional `title' and/or `with' suboptions
+#     `data', `file', and `func'tion.  See those classes for
+#     information.
+#  +  Any plotitem can have optional `title' and/or `with' suboptions.
 #  +  Builtin plotitem types:
 #      *  data(array1) -- data from a Python list or NumPy array
-#         (option: `cols')
-#      *  file("filename") -- data from an existing data file (option:
-#         `using')
+#         (permits additional option `cols')
+#      *  file("filename") -- data from an existing data file (permits
+#         additional option `using')
 #      *  func("exp(4.0 * sin(x))") -- functions (passed as a string
 #         for gnuplot to evaluate)
+#  +  Plotitems are implemented as objects that can be assigned to
+#     variables (including their options) and plotted
+#     repeatedly---this also saves much of the overhead of plotting
+#     the same data multiple times.
 #  +  Communication of data between python and gnuplot is via
 #     temporary files, which are deleted automatically when their
-#     associated plotitem is deleted.
-#  +  Plotitems can be created as objects that are kept around and
-#     plotted multiple times---temporary files need only be written
-#     once.
+#     associated plotitem is deleted.  (Communication of commands is
+#     via a pipe.)  The plotitems currently in use by a gnuplot object
+#     are stored in an internal list so that they won't be deleted
+#     prematurely.
 #  +  Can use `replot' method to add datasets to an existing plot.
 #  +  Can make persistent gnuplot windows by using the constructor
-#     option `persist=1'.  (`persist' is no longer the default.)
+#     option `persist=1'.  (`persist' is no longer the default.)  Such
+#     windows stay around even after the gnuplot program is exited.
+#  +  Plotting to a postscript file is via new `hardcopy' method,
+#     which outputs the currently-displayed plot to either a
+#     postscript printer or to a postscript file.
+#  +  There is a `plot' command which is roughly compatible with the
+#     command from the old Gnuplot.py.
 #
 # Restrictions:
-#  -  Only a small fraction of gnuplot functionality has been
-#     implemented as explicit python functions.  However, you can give
-#     arbitrary commands to gnuplot manually; for example:
+#  -  Only a small fraction of gnuplot functionality is implemented as
+#     explicit python functions.  However, you can give arbitrary
+#     commands to gnuplot manually; for example:
 #         g = gnuplot()
 #         g('set data style linespoints')
 #         g('set pointsize 5')
-#     etc.
+#     etc.  I might add a more organized way of setting arbitrary
+#     options.
 #  -  Relies on the Numeric Python extension.  This can be obtained
 #     from LLNL (See ftp://ftp-icf.llnl.gov/pub/python/README.html).
-#     If you're interested in gnuplot, you would probably also be
-#     interested in NumPy.
+#     If you're interested in gnuplot, you would probably also want
+#     NumPy anyway.
 #  -  Only 2-d plots are supported so far.
 #  -  There is no provision for missing data points in array data
 #     (which gnuplot would allow by specifying `?' as a data point).
 #     I can't think of a clean way to implement this since NumPy
-#     doesn't have provisions for NaN.
-#  -  Plotting to a postscript file is via new `hardcopy' method
-#     instead of a option on the `plot' method as in the older
-#     version of gnuplot.
-#  -  Doesn't automatically plot using 1:2, 1:3, 1:4, etc for
-#     multi-columned data as did the old version of gnuplot.  Instead
-#     make a temporary data file then plot that file multiple times
-#     with different `using=' options:
-#         a = temparrayfile(array_nx3)
-#         g.plot(file(a, using=(1,2)), file(a, using=(1,3)))
+#     doesn't seem to support NaN.
 #  -  There is no supported way to change the plotting options of
 #     plotitems after they have been created.
+#  -  Doesn't automatically plot using 1:2, 1:3, 1:4, etc for
+#     multi-columned data as did the old version of Gnuplot.py.
+#     Instead, make a temporary data file then plot that file multiple
+#     times with different `using=' options:
+#         a = temparrayfile(array_nx3)
+#         g.plot(file(a, using=(1,2)), file(a, using=(1,3)))
+#  -  Does not support parallel axis plots, as did the old Gnuplot.py.
 #
 # Bugs:
 #  -  No attempt is made to check for errors reported by gnuplot (but
 #     they will appear on stderr).
-#  -  Does not check whether persistent windows are really supported
-#     by the version of gnuplot used.  Only ask for persistent windows
-#     if your gnuplot accepts the `-persist' flag!
 #  -  All of these classes perform their resource deallocation when
 #     __del__ is called.  If you delete things explicitly, there will
 #     be no problem.  If you don't, an attempt is made to delete
@@ -84,6 +96,27 @@
 
 
 import sys, os, string, tempfile, Numeric
+
+
+# Set after first call of test_persist().  This will be set from None
+# to 0 or 1 upon the first call of test_persist(), then the stored
+# value will be used thereafter.  To avoid the test, type 1 or 0 on
+# the following line corresponding to whether your gnuplot is new
+# enough to understand the -persist option.
+_recognizes_persist = None
+
+# Test if Gnuplot is new enough to know the option -persist.  It it
+# isn't, it will emit an error message with '-persist' in the first
+# line.
+def test_persist():
+    global _recognizes_persist
+    if _recognizes_persist is None:
+        g = os.popen('echo | gnuplot -persist 2>&1', 'r')
+        response = g.readlines()
+        g.close()
+        _recognizes_persist = ((not response)
+                               or (string.find(response[0], '-persist') == -1))
+    return _recognizes_persist
 
 
 # raised for unrecognized option(s):
@@ -351,6 +384,10 @@ class gnuplot:
             self.gnuplot = open(filename, 'w')
         else:
             if persist:
+                if not test_persist():
+                    raise OptionException(
+                        '-persist does not seem to be supported '
+                        'by your version of gnuplot!')
                 self.gnuplot = os.popen('gnuplot -persist', 'w')
             else:
                 self.gnuplot = os.popen('gnuplot', 'w')
@@ -387,7 +424,7 @@ class gnuplot:
         for item in self.itemlist:
             item.pipein(self.gnuplot)
 
-    def plot(self, *data):
+    def plot(self, *data, **kw):
         """Draw a new plot.
 
         plot(item, ...): Clear the current plot and create a new one
@@ -405,13 +442,18 @@ class gnuplot:
             computed by gnuplot).
         Anything else:
             The object is converted to a data() item, and thus plotted
-            as two-column data."""
+            as two-column data.
+
+        If the keyword parameter norefresh=1 is passed, then the plot
+        will be prepared, but not actually executed.  This might be
+        useful in batch mode to create hardcopies without having the
+        plots appear on the screen."""
 
         # remove old files:
         self.itemlist = []
-        apply(self.replot, data)
+        apply(self.replot, data, kw)
 
-    def replot(self, *items):
+    def replot(self, *items, **kw):
         """Replot the data, possibly adding new plotitems.
 
         Replot replots the existing graph.  If arguments are
@@ -427,7 +469,11 @@ class gnuplot:
             else:
                 # assume data is an array:
                 self.itemlist.append(data(item))
-        self.refresh()
+        if kw.has_key('norefresh') and kw['norefresh']:
+            # Do not actually issue the plot command
+            pass
+        else:
+            self.refresh()
 
     def interact(self):
         """Allow user to type arbitrary commands to gnuplot.
@@ -443,6 +489,17 @@ class gnuplot:
                 break
             if line[-1] == "\n": line = line[:-1]
             self(line)
+
+    def clear(self):
+        """Clear the plot window."""
+
+        self('clear')
+
+    def reset(self):
+        """Reset all settings to their defaults."""
+
+        self('reset')
+        self.itemlist = []
 
     def load(self, filename=None):
         """Load a file using gnuplot's `load' command."""
@@ -498,9 +555,62 @@ class gnuplot:
         if color: setterm.append('color')
         self(string.join(setterm))
         self('set output "%s"' % (filename,))
-        self('replot')
+        self.refresh()
         self('set term x11')
         self('set output')
+
+
+# When the plot command is called and persist is not available, the
+# plotters will be stored here to prevent their being closed:
+_gnuplot_processes = []
+
+def plot(*items, **kw):
+    """plot data using gnuplot.
+
+    This command is roughly compatible with old Gnuplot plot command.
+    It can only plot array data.  It is provided for backwards
+    compatibility only.  It is recommended that you use the new
+    gnuplot interface, which is much more flexible.
+
+    Limitations:
+    - If persist is not available, the temporary files are not
+      deleted until final python cleanup.
+
+    """
+
+    # We interpret arrays differently here.  An NxM array is plotted
+    # as M-1 separate datasets, using columns 1:2, 1:3, ..., 1:M.
+    newitems = []
+    for item in items:
+        # assume data is an array:
+        item = Numeric.asarray(item, Numeric.Float)
+        if item.shape[1] == 1:
+            # one column; just store one item for tempfile:
+            newitems.append(data(item, with='lines'))
+        else:
+            # more than one column; store item for each 1:2, 1:3, etc.
+            tempf = temparrayfile(item)
+            for col in range(1, item.shape[1]):
+                newitems.append(file(tempf, using=(1,col+1), with='lines'))
+    items = tuple(newitems)
+    del newitems
+
+    if kw.has_key('file'):
+        g = gnuplot()
+        # setup plot without actually plotting:
+        apply(g.plot, items, {norefresh:1})
+        g.hardcopy(kw['file'])
+        # process will be closed automatically
+    elif test_persist():
+        print 'there are %d items' % len(items)
+        g = gnuplot(persist=1, debug=1)
+        apply(g.plot, items)
+        # process will be closed automatically
+    else:
+        g = gnuplot()
+        apply(g.plot, items)
+        # prevent process from being deleted:
+        _gnuplot_processes.append(g)
 
 
 # Demo code
