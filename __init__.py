@@ -172,6 +172,56 @@ def test_persist():
     return _recognizes_persist
 
 
+def write_array(f, set,
+                item_sep=' ',
+                nest_prefix='', nest_suffix='\n', nest_sep=''):
+    """Write an array of arbitrary dimension to a file.
+
+    A general recursive array writer.  The last four parameters allow a
+    great deal of freedom in choosing the output format of the
+    array.  The defaults for those parameters give output that is
+    gnuplot-readable.  But using, for example, ( ',', '{', '}', ',\\n'
+    ) would output an array in a format that Mathematica could
+    read.  item_sep should not contain '%' (or if it does, it should be
+    escaped to '%%' ) since item_sep is put into a format string.
+
+    """
+
+    if len(set.shape) == 1:
+        (columns,) = set.shape
+        assert columns > 0
+        fmt = string.join(['%s'] * columns, item_sep)
+        f.write(nest_prefix)
+        f.write(fmt % tuple(set.tolist()))
+        f.write(nest_suffix)
+    elif len(set.shape) == 2:
+        # This case could be done with recursion, but `unroll' for
+        # efficiency.
+        (points, columns) = set.shape
+        assert points > 0
+        assert columns > 0
+        fmt = string.join(['%s'] * columns, item_sep)
+        f.write(nest_prefix + nest_prefix)
+        f.write(fmt % tuple(set[0].tolist()))
+        f.write(nest_suffix)
+        for point in set[1:]:
+            f.write(nest_sep + nest_prefix)
+            f.write(fmt % tuple(point.tolist()))
+            f.write(nest_suffix)
+        f.write(nest_suffix)
+    else:
+        # Recurse
+        assert set.shape[0] > 0
+        f.write(nest_prefix)
+        write_array(f, set[0],
+                    item_sep, nest_prefix, nest_suffix, nest_sep)
+        for subset in set[1:]:
+            f.write(nest_sep)
+            write_array(f, subset,
+                        item_sep, nest_prefix, nest_suffix, nest_sep)
+        f.write(nest_suffix)
+
+
 class OptionException(Exception):
     """raised for unrecognized option(s)"""
     pass
@@ -298,56 +348,6 @@ class TempFile(AnyFile):
         os.unlink(self.filename)
 
 
-def write_array(f, set,
-                item_sep=' ',
-                nest_prefix='', nest_suffix='\n', nest_sep=''):
-    """Write an array of arbitrary dimension to a file.
-
-    A general recursive array writer.  The last four parameters allow a
-    great deal of freedom in choosing the output format of the
-    array.  The defaults for those parameters give output that is
-    gnuplot-readable.  But using, for example, ( ',', '{', '}', ',\\n'
-    ) would output an array in a format that Mathematica could
-    read.  item_sep should not contain '%' (or if it does, it should be
-    escaped to '%%' ) since item_sep is put into a format string.
-
-    """
-
-    if len(set.shape) == 1:
-        (columns,) = set.shape
-        assert columns > 0
-        fmt = string.join(['%s'] * columns, item_sep)
-        f.write(nest_prefix)
-        f.write(fmt % tuple(set.tolist()))
-        f.write(nest_suffix)
-    elif len(set.shape) == 2:
-        # This case could be done with recursion, but `unroll' for
-        # efficiency.
-        (points, columns) = set.shape
-        assert points > 0
-        assert columns > 0
-        fmt = string.join(['%s'] * columns, item_sep)
-        f.write(nest_prefix + nest_prefix)
-        f.write(fmt % tuple(set[0].tolist()))
-        f.write(nest_suffix)
-        for point in set[1:]:
-            f.write(nest_sep + nest_prefix)
-            f.write(fmt % tuple(point.tolist()))
-            f.write(nest_suffix)
-        f.write(nest_suffix)
-    else:
-        # Recurse
-        assert set.shape[0] > 0
-        f.write(nest_prefix)
-        write_array(f, set[0],
-                    item_sep, nest_prefix, nest_suffix, nest_sep)
-        for subset in set[1:]:
-            f.write(nest_sep)
-            write_array(f, subset,
-                        item_sep, nest_prefix, nest_suffix, nest_sep)
-        f.write(nest_suffix)
-
-
 class ArrayFile(AnyFile):
     """A file to which, upon creation, an array is written.
 
@@ -377,9 +377,7 @@ class ArrayFile(AnyFile):
     def __init__(self, set, filename=None):
         if not filename:
             filename = tempfile.mktemp()
-        f = open(filename, 'w')
-        write_array(f, set)
-        f.close()
+        write_array(open(filename, 'w'), set)
         AnyFile.__init__(self, filename)
 
 
