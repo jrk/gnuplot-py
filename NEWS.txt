@@ -36,6 +36,15 @@ Version ???:
 * Added a prefer_persist option to serve as the default `persist'
   choice.
 
+* Following a suggestion by Jannie Hofmeyr <jhsh@iafrica.com>, try
+  using "from os import popen" in gp_win32.py if the win32 extensions
+  are not found.  This change should allow Gnuplot.py to work with
+  Python 2.0.  I don't use windows, so let me know if this doesn't
+  work.
+
+* Added a setup.py file so that Gnuplot.py can be installed using
+  Python distutils.
+
 Version 1.4:
 
 * Added support for the Macintosh, thanks to help from Tony Ingraldi.
@@ -140,10 +149,4 @@ Version 1.1 (31 Jan 1999):
   passed three arrays representing the values of x, y, and z.
   Note that the old interpretation is still used if a single
   argument is passed to `Data'.
-
-* Following a suggestion by Jannie Hofmeyr <jhsh@iafrica.com>, try
-  using "from os import popen" in gp_win32.py if the win32 extensions
-  are not found.  This change should allow Gnuplot.py to work with
-  Python 2.0.  I don't use windows, so let me know if this doesn't
-  work.
 
