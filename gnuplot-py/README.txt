@@ -19,12 +19,10 @@ for the demo which is in the function `demo()' at the bottom of
 demo.py.  This should be enough to get you started making simple plots
 of your own.
 
-More detailed documentation is contained in the package itself, as
-documentation strings and comments.  Don't be shy, just open up
-__init__.py with your favorite text editor and take a look.
-Alternatively you can check out the online documentation at the
-Gnuplot.py homepage, which contains the same docstrings but in a
-prettier format.
+Documentation for Gnuplot.py is in the doc/ subdirectory (which is
+generated automatically from the docstrings using happydoc).  And
+don't be shy, just open up the Python files with your favorite text
+editor and take a look.
 
 For a relatively thorough test of Gnuplot.py, type `python test.py'
 which goes systematically through most Gnuplot.py features.
@@ -146,21 +144,12 @@ See the file LICENSE for license info.  Basically Gnuplot is GPL.
 Credits
 -------
 
-Thanks to the following people:
-
-Konrad Hinsen <hinsen@ibs.ibs.fr> wrote the first, procedural
-interface version of Gnuplot.py.
-
-Berthold Hoellmann <se6y095@public.uni-hamburg.de> contributed some
-docstring changes to allow docs to be generated with pythondoc.
-
-Francois Ladouceur <f.ladouceur@virtualphotonics.com> and Craig
-Schardt <lazrnerd@ufl.edu> contributed changes that enable Gnuplot.py
-to work under MS-Windows.
-
-Tony Ingraldi <a.m.ingraldi@larc.nasa.gov> got Gnuplot.py to work on
-the Macintosh.
+See CREDITS.txt for a list of people who have contributed code and/or
+ideas to Gnuplot.py.  Thanks especially to Konrad Hinsen
+<hinsen@ibs.ibs.fr>, who wrote the first, procedural interface version
+of Gnuplot.py.
 
 
+--
 Michael Haggerty
 <mhagger@alum.mit.edu>

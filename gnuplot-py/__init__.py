@@ -166,7 +166,7 @@ Bugs:
 
 """
 
-__version__ = '1.5b1'
+__version__ = '1.5'
 __cvs_version__ = '$Revision$'
 
 # Other modules that should be loaded for 'from Gnuplot import *':
