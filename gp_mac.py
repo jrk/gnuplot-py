@@ -2,8 +2,8 @@
 
 """gp_mac -- an interface to gnuplot for the Macintosh.
 
-Copyright (C) 1999 Michael Haggerty <mhagger@alum.mit.edu> and
-                   Tony Ingraldi
+Copyright (C) 1999 Michael Haggerty <mhagger@alum.mit.edu>
+Thanks to Tony Ingraldi and Noboru Yamamoto for their contributions.
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -103,9 +103,12 @@ class GnuplotProcess:
         self.gnuplot = _GNUPLOT()
 
         # forward write and flush methods:
-        self.write = self.gnuplot.write
-        self.flush = self.gnuplot.flush
+        self.write = self.gnuplot.gnuexec
+        self.close = self.gnuplot.quit
 
+    def flush(self):
+		pass
+		
     def __call__(self, s):
         """Send a command string to gnuplot, followed by newline."""
 
