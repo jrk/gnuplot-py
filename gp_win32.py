@@ -49,6 +49,10 @@ class GnuplotOpts:
     # special reason:
     prefer_inline_data = 0
 
+    # os.mkfifo is apparently not supported under Windows.
+    support_fifo = 0
+    prefer_fifo_data = 0
+
     # The default choice for the 'set term' command (to display on
     # screen):
     default_term = 'windows'

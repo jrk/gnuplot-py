@@ -86,6 +86,14 @@ class GnuplotOpts:
     # big string when the PlotItem is created.
     prefer_inline_data = 0
 
+    # Does Python implement the threading module and os.mkfifo on this
+    # operating system?  If so, the _FIFOFileItem class will be
+    # defined in PlotItem.py.
+    support_fifo = 1
+
+    # Should FIFOs be used to send data to gnuplot by default?
+    prefer_fifo_data = 1
+
     # After a hardcopy is produced, we have to set the terminal type
     # back to `on screen' using gnuplot's `set terminal' command.  The
     # following is the usual setting for Xwindows.  If it is wrong,
