@@ -336,12 +336,15 @@ def write_array(f, set,
             f.write(nest_suffix)
         f.write(nest_suffix)
     else:
+        # Recurse
         assert set.shape[0] > 0
         f.write(nest_prefix)
-        write_array(f, set[0], item_sep, nest_prefix, nest_suffix, nest_sep)
+        write_array(f, set[0],
+                    item_sep, nest_prefix, nest_suffix, nest_sep)
         for subset in set[1:]:
             f.write(nest_sep)
-            write_array(f, subset, item_sep, nest_prefix, nest_suffix, nest_sep)
+            write_array(f, subset,
+                        item_sep, nest_prefix, nest_suffix, nest_sep)
         f.write(nest_suffix)
 
 
@@ -484,7 +487,7 @@ class Data(File):
 
         if len(set) == 1:
             # set was passed as a single structure
-            set = Numeric.asarray(set, Numeric.Float)
+            set = Numeric.asarray(set[0], Numeric.Float)
         else:
             # set was passed column by column (for example, Data(x,y))
             set = Numeric.asarray(set, Numeric.Float)
