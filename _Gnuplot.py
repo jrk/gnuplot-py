@@ -22,7 +22,7 @@ interface to a running gnuplot process.
 
 __cvs_version__ = '$Revision$'
 
-import sys, string
+import sys, string, types
 
 import gp, PlotItems
 
@@ -242,7 +242,7 @@ class Gnuplot:
         for item in items:
             if isinstance(item, PlotItems.PlotItem):
                 self.itemlist.append(item)
-            elif type(item) is type(''):
+            elif type(item) is types.StringType:
                 self.itemlist.append(PlotItems.Func(item))
             else:
                 # assume data is an array:
@@ -399,7 +399,7 @@ class Gnuplot:
 
         if value is None:
             self('set %s [*:*]' % (option,))
-        elif type(value) is type(''):
+        elif type(value) is types.StringType:
             self('set %s %s' % (option, value,))
         else:
             # Must be a tuple:
