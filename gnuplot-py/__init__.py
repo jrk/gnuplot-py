@@ -261,7 +261,15 @@ import Numeric
 if sys.platform == 'win32':
     from win32pipe import popen
 elif sys.platform == 'mac':
-    import gnuplot_Suites
+    try:
+        # If the package has been installed correctly, this should work:
+        from Gnuplot import gnuplot_Suites
+    except:
+        # It may be that the user is just testing out the package by
+        # running 'python __init__.py' it the package's directory.  If
+        # that is the case, the following should work:
+        import gnuplot_Suites
+
     import Required_Suite
     import aetools
     SIGNATURE="GPSE"
