@@ -6,6 +6,24 @@ Gnuplot.py package.
 
 Version ???:
 
+* Broke up the module a bit for better maintainability.  The most
+  commonly-used facilities are still available through "import
+  Gnuplot", but a few more specialized things have been moved to
+  separate modules, in particular funcutils.py and PlotItems.py.
+  __init__.py now just imports things from other modules.
+
+* funcutils.tabulate_function() can be used to evaluate a function
+  on a 1-D or 2-D grid of points (this replaces grid_function,
+  which only worked with 2-D grids).
+
+* Added two helper functions, funcutils.compute_Data and
+  funcutils.compute_GridData, which compute a function's values on
+  a set of points and package the results into a PlotItem.
+
+* GridFunc is no longer an independent class; it is now a factory
+  function that returns a GridData.  GridFunc is deprecated in
+  favor of funcutils.compute_GridData.
+
 * Changed set_option to work from a table, so that it doesn't need to
   be overloaded so often.
 
