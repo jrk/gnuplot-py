@@ -149,6 +149,15 @@ class GnuplotProcess:
 
         self.gnuplot = self.process.getOutputStream()
 
+    def close(self):
+        # ### Does this close the gnuplot process under Java?
+        if self.gnuplot is not None:
+            self.gnuplot.close()
+            self.gnuplot = None
+
+    def __del__(self):
+        self.close()
+
     def write(self, s):
         self.gnuplot.write(s)
 

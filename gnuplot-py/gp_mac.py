@@ -105,8 +105,13 @@ class GnuplotProcess:
 
         self.gnuplot = _GNUPLOT()
 
-        # forward close method:
-        self.close = self.gnuplot.quit
+    def close(self):
+        if self.gnuplot is not None:
+            self.gnuplot.quit()
+            self.gnuplot = None
+
+    def __del__(self):
+        self.close()
 
     def write(self, s):
         """Mac gnuplot apparently requires '\r' to end statements."""

@@ -119,6 +119,14 @@ class GnuplotProcess:
         self.write = self.gnuplot.write
         self.flush = self.gnuplot.flush
 
+    def close(self):
+        if self.gnuplot is not None:
+            self.gnuplot.close()
+            self.gnuplot = None
+
+    def __del__(self):
+        self.close()
+
     def __call__(self, s):
         """Send a command string to gnuplot, followed by newline."""
 
