@@ -30,7 +30,7 @@ from Numeric import NewAxis
 
 try:
     import Gnuplot
-except:
+except ImportError:
     # kludge in case Gnuplot hasn't been installed as a module yet:
     import __init__
     Gnuplot = __init__
