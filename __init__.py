@@ -288,6 +288,31 @@ def write_array(f, set,
         f.write(nest_suffix)
 
 
+def grid_function(f, xvals, yvals):
+    """Compute a function on a grid.
+
+    'xvals' and 'yvals' should be 1-D arrays listing the values of x
+    and y at which f should be tabulated.  f should be a function
+    taking two floating point arguments.  The return value is a matrix
+    M where M[i,j] = f(xvals[i],yvals[j]), which can for example be
+    used in the 'GridData' constructor.
+
+    Note that f is evaluated at each pair of points using a Python
+    loop, which can be slow if the number of points is large.  If
+    speed is an issue, you should if possible compute functions
+    matrix-wise using Numeric's built-in ufuncs.
+
+    """
+
+    m = Numeric.zeros((len(xvals), len(yvals)), Numeric.Float)
+    for xi in range(len(xvals)):
+        x = xvals[xi]
+        for yi in range(len(yvals)):
+            y = yvals[yi]
+            m[xi,yi] = f(x,y)
+    return m
+
+
 class OptionException(Exception):
     """raised for unrecognized option(s)"""
     pass
@@ -694,31 +719,6 @@ class GridData(PlotItem):
             raise OptionException('Cannot modify binary option!')
         else:
             PlotItem.set_option(self, name, value)
-
-
-def grid_function(f, xvals, yvals):
-    """Compute a function on a grid.
-
-    'xvals' and 'yvals' should be 1-D arrays listing the values of x
-    and y at which f should be tabulated.  f should be a function
-    taking two floating point arguments.  The return value is a matrix
-    M where M[i,j] = f(xvals[i],yvals[j]), which can for example be
-    used in the 'GridData' constructor.
-
-    Note that f is evaluated at each pair of points using a Python
-    loop, which can be slow if the number of points is large.  If
-    speed is an issue, you should if possible compute functions
-    matrix-wise using Numeric's built-in ufuncs.
-
-    """
-
-    m = Numeric.zeros((len(xvals), len(yvals)), Numeric.Float)
-    for xi in range(len(xvals)):
-        x = xvals[xi]
-        for yi in range(len(yvals)):
-            y = yvals[yi]
-            m[xi,yi] = f(x,y)
-    return m
 
 
 class Gnuplot:
