@@ -2,20 +2,20 @@
 
 # $Id$
 
+# Copyright (C) 1998-2001 Michael Haggerty <mhagger@alum.mit.edu>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.  This program is distributed in
+# the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details; it is available at <http://www.fsf.org/copyleft/gpl.html>,
+# or by writing to the Free Software Foundation, Inc., 59 Temple Place
+# - Suite 330, Boston, MA 02111-1307, USA.
+
 """funcutils.py -- Subroutines that tabulate a function's values.
-
-Copyright (C) 1998-2001 Michael Haggerty <mhagger@alum.mit.edu>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at
-your option) any later version.  This program is distributed in the
-hope that it will be useful, but WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the GNU General Public License for more details; it is
-available at <http://www.fsf.org/copyleft/gpl.html>, or by writing to
-the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-Boston, MA 02111-1307, USA.
 
 Convenience functions that evaluate a python function on a grid of
 points and tabulate the output to be used with Gnuplot.
@@ -37,7 +37,7 @@ def tabulate_function(f, xvals, yvals=None, typecode=None, ufunc=0):
 
     If f takes one parameter, then xvals should be a 1-D array and
     yvals should be None.  The return value is a Numeric array
-    [f(x[0]), f(x[1]), ..., f(x[-1])].
+    '[f(x[0]), f(x[1]), ..., f(x[-1])]'.
 
     If f takes two parameters, then 'xvals' and 'yvals' should each be
     1-D arrays listing the values of x and y at which 'f' should be
@@ -103,7 +103,7 @@ def compute_Data(xvals, f, ufunc=0, **keyw):
     """Evaluate a function of 1 variable and store the results in a Data.
 
     Computes a function f of one variable on a set of specified points
-    using tabulate_function, then store the results into a Data so
+    using 'tabulate_function', then store the results into a 'Data' so
     that it can be plotted.  After calculation, the data are written
     to a file; no copy is kept in memory.  Note that this is quite
     different than 'Func' (which tells gnuplot to evaluate the
@@ -112,21 +112,24 @@ def compute_Data(xvals, f, ufunc=0, **keyw):
     Arguments:
 
         'xvals' -- a 1-d array with dimension 'numx'
+
         'f' -- the function to plot--a callable object for which
             f(x) returns a number.
+
         'ufunc=<bool>' -- evaluate 'f' as a ufunc?
 
-        Other keyword arguments are passed to the Data constructor.
+    Other keyword arguments are passed through to the Data
+    constructor.
 
     'f' should be a callable object taking one argument.  'f(x)' will
     be computed at all values in xvals.
 
-    If called with 'ufunc=1', then 'f' should be a function that
-    is composed entirely of ufuncs, and it will be passed the
-    xvals and yvals as rectangular matrices.
+    If called with 'ufunc=1', then 'f' should be a function that is
+    composed entirely of ufuncs, and it will be passed the 'xvals' and
+    'yvals' as rectangular matrices.
 
-    Thus if you have a function f, a vector xvals, and a Gnuplot
-    instance called g, you can plot the function by typing
+    Thus if you have a function 'f', a vector 'xvals', and a Gnuplot
+    instance called 'g', you can plot the function by typing
     'g.splot(compute_Data(xvals, f))'.
 
     """
@@ -142,35 +145,37 @@ def compute_Data(xvals, f, ufunc=0, **keyw):
 def compute_GridData(xvals, yvals, f, ufunc=0, **keyw):
     """Evaluate a function of 2 variables and store the results in a GridData.
 
-    Computes a function f of two variables on a rectangular grid using
-    tabulate_function, then store the results into a GridData so that
-    it can be plotted.  After calculation the data are written to a
-    file; no copy is kept in memory.  Note that this is quite
-    different than 'Func' (which tells gnuplot to evaluate the
-    function).
+    Computes a function 'f' of two variables on a rectangular grid
+    using 'tabulate_function', then store the results into a
+    'GridData' so that it can be plotted.  After calculation the data
+    are written to a file; no copy is kept in memory.  Note that this
+    is quite different than 'Func' (which tells gnuplot to evaluate
+    the function).
 
     Arguments:
 
         'xvals' -- a 1-d array with dimension 'numx'
+
         'yvals' -- a 1-d array with dimension 'numy'
+
         'f' -- the function to plot--a callable object for which
-            f(x,y) returns a number.
+            'f(x,y)' returns a number.
+
         'ufunc=<bool>' -- evaluate 'f' as a ufunc?
 
-        Other keyword arguments are passed to the GridData
-        constructor.
+     Other keyword arguments are passed to the 'GridData' constructor.
 
     'f' should be a callable object taking two arguments.
     'f(x,y)' will be computed at all grid points obtained by
     combining elements from 'xvals' and 'yvals'.
 
-    If called with 'ufunc=1', then 'f' should be a function that
-    is composed entirely of ufuncs, and it will be passed the
-    xvals and yvals as rectangular matrices.
+    If called with 'ufunc=1', then 'f' should be a function that is
+    composed entirely of ufuncs, and it will be passed the 'xvals' and
+    'yvals' as rectangular matrices.
 
-    Thus if you have a function f and two vectors xvals and yvals
-    and a Gnuplot instance called g, you can plot the function by
-    typing 'g.splot(compute_GridData(f, xvals, yvals))'.
+    Thus if you have a function 'f' and two vectors 'xvals' and
+    'yvals' and a Gnuplot instance called 'g', you can plot the
+    function by typing 'g.splot(compute_GridData(f, xvals, yvals))'.
 
     """
 

@@ -1,19 +1,19 @@
 # $Id$
 
+# Copyright (C) 1998-2001 Michael Haggerty <mhagger@alum.mit.edu>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.  This program is distributed in
+# the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details; it is available at <http://www.fsf.org/copyleft/gpl.html>,
+# or by writing to the Free Software Foundation, Inc., 59 Temple Place
+# - Suite 330, Boston, MA 02111-1307, USA.
+
 """_Gnuplot.py -- An object that represents a running gnuplot process.
-
-Copyright (C) 1998-2001 Michael Haggerty <mhagger@alum.mit.edu>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at
-your option) any later version.  This program is distributed in the
-hope that it will be useful, but WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the GNU General Public License for more details; it is
-available at <http://www.fsf.org/copyleft/gpl.html>, or by writing to
-the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-Boston, MA 02111-1307, USA.
 
 This file implements the Gnuplot plotter object, which is an abstract
 interface to a running gnuplot process.
@@ -42,9 +42,12 @@ class _GnuplotFile:
     Methods:
 
         '__init__' -- open the file.
+
         '__call__' -- write a gnuplot command to the file, followed by a
             newline.
+
         'write' -- write an arbitrary string to the file.
+
         'flush' -- cause pending output to be written immediately.
 
     """
@@ -70,14 +73,15 @@ class Gnuplot:
     A Gnuplot represents a higher-level interface to a gnuplot
     program.  It can plot 'PlotItem's, which represent each thing to
     be plotted on the current graph.  It keeps a reference to each of
-    the PlotItems used in the current plot, so that they (and their
+    the 'PlotItems' used in the current plot, so that they (and their
     associated temporary files) are not deleted prematurely.
 
     Members:
 
         'itemlist' -- a list of the PlotItems that are associated with
             the current plot.  These are deleted whenever a new plot
-            command is issued via the `plot' method.
+            command is issued via the 'plot' method.
+
         'plotcmd' -- 'plot' or 'splot', depending on what was the last
             plot command.
 
@@ -86,40 +90,55 @@ class Gnuplot:
         '__init__' -- if a filename argument is specified, the
             commands will be written to that file instead of being
             piped to gnuplot.
-        'plot' -- clear the old plot and old PlotItems, then plot the
-            arguments in a fresh plot command.  Arguments can be: a
-            PlotItem, which is plotted along with its internal
-            options; a string, which is plotted as a Func; or anything
-            else, which is plotted as a Data.
+
+        'plot' -- clear the old plot and old 'PlotItems', then plot
+            the arguments in a fresh plot command.  Arguments can be:
+            a 'PlotItem', which is plotted along with its internal
+            options; a string, which is plotted as a 'Func'; or
+            anything else, which is plotted as a 'Data'.
+
         'splot' -- like 'plot', except for 3-d plots.
+
         'hardcopy' -- replot the plot to a postscript file (if
             filename argument is specified) or pipe it to the printer
-            as postscript othewise.  If the option `color' is set to
+            as postscript othewise.  If the option 'color' is set to
             true, then output color postscript.
+
         'replot' -- replot the old items, adding any arguments as
             additional items as in the plot method.
+
         'refresh' -- issue (or reissue) the plot command using the
-            current PlotItems.
+            current 'PlotItems'.
+
         '__call__' -- pass an arbitrary string to the gnuplot process,
             followed by a newline.
+
         'xlabel', 'ylabel', 'title' -- set corresponding plot
             attribute.
+
         'interact' -- read lines from stdin and send them, one by one,
             to the gnuplot interpreter.  Basically you can type
             commands directly to the gnuplot command processor.
-        'load' -- load a file (using the gnuplot `load' command).
+
+        'load' -- load a file (using the gnuplot 'load' command).
+
         'save' -- save gnuplot commands to a file (using gnuplot
-            `save' command) If any of the PlotItems is a temporary
+            'save' command) If any of the 'PlotItem's is a temporary
             file, it will be deleted at the usual time and the save
             file will be pretty useless :-).
+
         'clear' -- clear the plot window (but not the itemlist).
+
         'reset' -- reset all gnuplot settings to their defaults and
             clear the current itemlist.
+
         'set_string' -- set or unset a gnuplot option whose value is a
             string.
-        '_clear_queue' -- clear the current PlotItem list.
+
+        '_clear_queue' -- clear the current 'PlotItem' list.
+
         '_add_to_queue' -- add the specified items to the current
-            PlotItem list.
+            'PlotItem' list.
 
     """
 
@@ -152,10 +171,12 @@ class Gnuplot:
           'filename=<string>' -- if a filename is specified, the
               commands are instead written to that file (e.g., for
               later use using 'load').
+
           'persist=1' -- start gnuplot with the '-persist' option
               (which creates a new plot window for each plot command).
               (This option is not available on older versions of
               gnuplot.)
+
           'debug=1' -- echo the gnuplot commands to stderr as well as
               sending them to gnuplot.
 
@@ -187,7 +208,7 @@ class Gnuplot:
             sys.stderr.write('gnuplot> %s\n' % (s,))
 
     def refresh(self):
-        """Refresh the plot, using the current PlotItems.
+        """Refresh the plot, using the current 'PlotItem's.
 
         Refresh the current plot by reissuing the gnuplot plot command
         corresponding to the current itemlist.
@@ -204,7 +225,7 @@ class Gnuplot:
         self.gnuplot.flush()
 
     def _clear_queue(self):
-        """Clear the PlotItems from the queue."""
+        """Clear the 'PlotItems' from the queue."""
 
         self.itemlist = []
 
@@ -244,8 +265,9 @@ class Gnuplot:
             'Func(string)' (a function that is computed by gnuplot).
 
         Anything else -- The object, which should be convertible to an
-            array, is converted to a 'Data' item, and thus plotted as
-            data.  If the conversion fails, an exception is raised.
+            array, is passed to the 'Data' constructor, and thus
+            plotted as data.  If the conversion fails, an exception is
+            raised.
 
         """
 
@@ -290,7 +312,7 @@ class Gnuplot:
         self.refresh()
 
     def replot(self, *items, **keyw):
-        """Replot the data, possibly adding new PlotItems.
+        """Replot the data, possibly adding new 'PlotItem's.
 
         Replot the existing graph, using the items in the current
         itemlist.  If arguments are specified, they are interpreted as
@@ -435,36 +457,44 @@ class Gnuplot:
         for one hardcopy then the next hardcopy will also be color
         unless you explicitly choose color=0.  Alternately you can
         force all of the options to their defaults by setting
-        mode='default'.  I consider this a bug in gnuplot.
+        mode='default'.  I consider this to be a bug in gnuplot.
 
         Keyword arguments:
 
           'filename=<string>' -- if a filename is specified, save the
               output in that file; otherwise print it immediately
               using the 'default_lpr' configuration option.
+
           'mode=<string>' -- set the postscript submode ('landscape',
               'portrait', 'eps', or 'default').  The default is
               to leave this option unspecified.
+
           'eps=<bool>' -- shorthand for 'mode="eps"'; asks gnuplot to
               generate encapsulated postscript.
+
           'enhanced=<bool>' -- if set (the default), then generate
               enhanced postscript, which allows extra features like
               font-switching, superscripts, and subscripts in axis
               labels.  (Some old gnuplot versions do not support
               enhanced postscript; if this is the case set
               gp.GnuplotOpts.prefer_enhanced_postscript=None.)
+
           'color=<bool>' -- if set, create a plot with color.  Default
               is to leave this option unchanged.
+
           'solid=<bool>' -- if set, force lines to be solid (i.e., not
               dashed).
+
           'duplexing=<string>' -- set duplexing option ('defaultplex',
               'simplex', or 'duplex').  Only request double-sided
               printing if your printer can handle it.  Actually this
               option is probably meaningless since hardcopy() can only
               print a single plot at a time.
+
           'fontname=<string>' -- set the default font to <string>,
               which must be a valid postscript font.  The default is
               to leave this option unspecified.
+
           'fontsize=<double>' -- set the default font size, in
               postscript points.
 

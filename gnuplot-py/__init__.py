@@ -1,58 +1,61 @@
 #! /usr/bin/env python
 # $Id$
 
+# Copyright (C) 1998-2001 Michael Haggerty <mhagger@alum.mit.edu>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.  This program is distributed in
+# the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details; it is available at <http://www.fsf.org/copyleft/gpl.html>,
+# or by writing to the Free Software Foundation, Inc., 59 Temple Place
+# - Suite 330, Boston, MA 02111-1307, USA.
+
 """Gnuplot -- A pipe-based interface to the gnuplot plotting program.
 
 This is the main module of the Gnuplot package.
 
-Copyright (C) 1998-2001 Michael Haggerty <mhagger@alum.mit.edu>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at
-your option) any later version.  This program is distributed in the
-hope that it will be useful, but WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the GNU General Public License for more details; it is
-available at <http://www.fsf.org/copyleft/gpl.html>, or by writing to
-the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-Boston, MA 02111-1307, USA.
-
-Written by Michael Haggerty <mhagger@alum.mit.edu>.  Inspired by and
-partly derived from an earlier version by Konrad Hinsen
-<hinsen@ibs.ibs.fr>.  If you find a problem or have a suggestion,
-please let me know at <mhagger@alum.mit.edu>.  Other feedback would
-also be appreciated.
+Written by "Michael Haggerty", mailto:mhagger@alum.mit.edu.  Inspired
+by and partly derived from an earlier version by "Konrad Hinsen",
+mailto:hinsen@ibs.ibs.fr.  If you find a problem or have a suggestion,
+please "let me know", mailto:mhagger@alum.mit.edu.  Other feedback
+would also be appreciated.
 
 The Gnuplot.py home page is at
 
-    <http://monsoon.harvard.edu/~mhagger/Gnuplot/Gnuplot.html>.
+"Gnuplot.py", http://monsoon.harvard.edu/~mhagger/Gnuplot/Gnuplot.html
 
 
 For information about how to use this module:
 
-1.  Check the README file.
-2.  Look at the example code in demo.py and try running it by typing
-    'python demo.py' or 'python __init__.py'.
-3a. For more details see the extensive documentation strings
-    throughout the python source files, especially this file,
-    _Gnuplot.py, PlotItems.py, and gp_unix.py.
-3b. The docstrings have also been turned into html which can be read
-    at <http://monsoon.harvard.edu/~mhagger/Gnuplot/Gnuplot-doc/>.
-    However, the formatting is not perfect; when in doubt,
-    double-check the docstrings.
+1. Check the README file.
+
+2. Look at the example code in demo.py and try running it by typing
+   'python demo.py' or 'python __init__.py'.
+
+3. For more details see the extensive documentation strings
+   throughout the python source files, especially this file,
+   _Gnuplot.py, PlotItems.py, and gp_unix.py.
+
+4. The docstrings have also been turned into html which can be read
+   "here", http://monsoon.harvard.edu/~mhagger/Gnuplot/Gnuplot-doc/.
+   However, the formatting is not perfect; when in doubt,
+   double-check the docstrings.
 
 You should import this file with 'import Gnuplot', not with 'from
 Gnuplot import *', because the module and the main class have the same
 name, `Gnuplot'.
 
-To obtain the gnuplot plotting program itself, see
-<ftp://ftp.gnuplot.vt.edu/pub/gnuplot/faq/index.html>.  Obviously you
+To obtain the gnuplot plotting program itself, see "the gnuplot FAQ",
+ftp://ftp.gnuplot.vt.edu/pub/gnuplot/faq/index.html.  Obviously you
 need to have gnuplot installed if you want to use Gnuplot.py.
 
 The old command-based interface to gnuplot has been separated out into
 a separate module, oldplot.py.  If you are still using that interface
-you should import Gnuplot.oldplot; otherwise you should stick to the
+you should 'import Gnuplot.oldplot'; otherwise you should stick to the
 more flexible object-oriented interface contained here.
 
 Features:
@@ -61,9 +64,7 @@ Features:
     python.
 
  o  A gnuplot session is an instance of class 'Gnuplot'.  Multiple
-    sessions can be open at once.
-
-    Example:
+    sessions can be open at once.  For example::
 
         g1 = Gnuplot.Gnuplot()
         g2 = Gnuplot.Gnuplot()
@@ -73,20 +74,16 @@ Features:
     correctly.  (Feedback?)
 
  o  The implicitly-generated gnuplot commands can be stored to a file
-    instead of executed immediately.
+    instead of executed immediately::
 
-    Example:
+        g = Gnuplot.Gnuplot('commands.txt')
 
-        g = Gnuplot.Gnuplot('commands.gnuplot')
+    The 'commands.txt' file can then be run later with gnuplot's
+    'load' command.  Beware, however: the plot commands may depend on
+    the existence of temporary files, which will probably be deleted
+    before you use the command file.
 
-    The file can then be run later with gnuplot's 'load' command.
-    Beware, however: the plot commands may depend on the existence of
-    temporary files, which will probably be deleted before you use the
-    command file.
-
- o  Can pass arbitrary commands to the gnuplot command interpreter.
-
-    Example:
+ o  Can pass arbitrary commands to the gnuplot command interpreter::
 
         g('set pointsize 2')
 
@@ -96,7 +93,7 @@ Features:
  o  A Gnuplot object knows how to plot objects of type 'PlotItem'.
     Any PlotItem can have optional 'title' and/or 'with' suboptions.
     Builtin PlotItem types:
-        
+
     * 'Data(array1)' -- data from a Python list or NumPy array
                         (permits additional option 'cols' )
 
@@ -140,17 +137,14 @@ Features:
  o  Should work under Unix, Macintosh, and Windows.
 
 Restrictions:
-    
- -  Relies on the Numeric Python extension.  This can be obtained
-    from LLNL (See ftp://ftp-icf.llnl.gov/pub/python/README.html).
-    If you're interested in gnuplot, you would probably also want
-    NumPy anyway.
+
+ -  Relies on the Numeric Python extension.  This can be obtained from
+    "SourceForge", http://sourceforge.net/projects/numpy/.  If you're
+    interested in gnuplot, you would probably also want NumPy anyway.
 
  -  Only a small fraction of gnuplot functionality is implemented as
     explicit method functions.  However, you can give arbitrary
-    commands to gnuplot manually.
-
-    Example:
+    commands to gnuplot manually::
 
         g = Gnuplot.Gnuplot()
         g('set data style linespoints')

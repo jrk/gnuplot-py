@@ -1,24 +1,24 @@
 # $Id$
 
-"""gp -- an interface to gnuplot used for generic platforms.
+# Copyright (C) 1998,1999 Michael Haggerty <mhagger@alum.mit.edu>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.  This program is distributed in
+# the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details; it is available at <http://www.fsf.org/copyleft/gpl.html>,
+# or by writing to the Free Software Foundation, Inc., 59 Temple Place
+# - Suite 330, Boston, MA 02111-1307, USA.
 
-Copyright (C) 1998,1999 Michael Haggerty <mhagger@alum.mit.edu>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at
-your option) any later version.  This program is distributed in the
-hope that it will be useful, but WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the GNU General Public License for more details; it is
-available at <http://www.fsf.org/copyleft/gpl.html>, or by writing to
-the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-Boston, MA 02111-1307, USA.
+"""gp_unix -- an interface to gnuplot used for unix platforms.
 
 This file implements a low-level interface to a gnuplot program for a
 unix platform (actually it is used for any non-Windows, non-Mac
 system).  This file should be imported through gp.py, which in turn
-should be imported via "import Gnuplot" rather than these low-level
+should be imported via 'import Gnuplot' rather than these low-level
 interfaces.
 
 """
@@ -34,7 +34,7 @@ class GnuplotOpts:
     Store the options in a class to make them easy to import and
     modify en masse.  If you want to modify the options from the
     command line or within a running program, do something like the
-    following:
+    following::
 
         import Gnuplot
         Gnuplot.GnuplotOpts.gnuplot_command = '/bin/mygnuplot'
@@ -150,15 +150,18 @@ class GnuplotProcess:
 
     Members:
 
-    'gnuplot' -- the pipe to the gnuplot command.
+        'gnuplot' -- the pipe to the gnuplot command.
 
     Methods:
 
-    '__init__' -- start up the program.
-    '__call__' -- pass an arbitrary string to the gnuplot program,
-        followed by a newline.
-    'write' -- pass an arbitrary string to the gnuplot program.
-    'flush' -- cause pending output to be written immediately.
+        '__init__' -- start up the program.
+
+        '__call__' -- pass an arbitrary string to the gnuplot program,
+            followed by a newline.
+
+        'write' -- pass an arbitrary string to the gnuplot program.
+
+        'flush' -- cause pending output to be written immediately.
 
     """
 
