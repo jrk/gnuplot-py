@@ -4,6 +4,20 @@ This file describes the changes introduced in each version of the
 Gnuplot.py package.
 
 
+Version ???:
+
+* Changed set_option to work from a table, so that it doesn't need to
+  be overloaded so often.
+
+* Made changes like those submitted by Matthew Martin
+  <r47854@email.sps.mot.com> to allow the `smooth' option.
+
+* Implemented test_persist for each platform to make it easier for
+  users to determine whether the `-persist' option is supported.
+
+* Added a prefer_persist option to serve as the default `persist'
+  choice.
+
 Version 1.4:
 
 * Added support for the Macintosh, thanks to help from Tony Ingraldi.
