@@ -31,8 +31,7 @@ def inform(s):
     sys.stderr.write('%s\n' % s)
 
 
-pythondoc = os.path.join(os.environ['HOME'], 'download', 'python',
-                         'pythondoc-0.4', 'pythondoc')
+pythondoc = 'pythondoc'
 
 module = 'Gnuplot'
 basedir = os.path.join(os.environ['HOME'], 'public_html', 'Gnuplot')
@@ -130,19 +129,11 @@ inform('Making documentation directory')
 cmd('rm -rf %s' % os.path.join(basedir, docdir))
 cmd('mkdir %s' % os.path.join(basedir, docdir))
 
-inform('Looking for modules to document')
-modules = []
-for f in manifest:
-    if re.search(r'\.py$', f):
-        inform('\t%s' % f)
-        modules.append(f)
-
-for f in modules:
-    inform('Creating pythondoc documentation for %s' % (f,))
-    cmd('%s -d %s -f HTML4 -i %s' %
-        (pythondoc,
-         os.path.join(basedir, docdir),
-         os.path.join(os.getcwd(), f)))
+inform('Creating pythondoc documentation')
+cmd('%s -d %s -f HTML4 -i %s' %
+    (pythondoc,
+     os.path.join(basedir, docdir),
+     module))
 
 inform('Making symlink to documentation')
 cmd('ln -fs %s %s' % (docdir,
