@@ -4,6 +4,9 @@ This file describes the changes introduced in each version of the
 Gnuplot.py package.
 
 
+Version ?.?:
+
+
 Version 1.7:
 
 * Relaxed license from GPL to LGPL.

@@ -60,3 +60,9 @@ Gnuplot.py.
 8. Send an announcement to gnuplot-py-users.
 
 9. Send an announcement to comp.lang.python.
+
+10. Append a '+' to the __version__ string in __init__.py to
+    distinguish intermediate CVS releases from official releases.  Add
+    a "Version ?.?:" line to NEWS.txt to receive future change notes.
+    Check the changes into CVS.
+
