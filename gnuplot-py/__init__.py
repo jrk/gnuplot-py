@@ -17,12 +17,15 @@
 # Cannot plot to a postscript file with the `plot' method; use
 # `hardcopy' instead.
 
+# Doesn't plot using 1:2, 1:3, 1:4, etc for multi-columned data as did
+# the old version.  Instead make a data file then the `using=' option.
+
 import sys, os, string, tempfile, Numeric
 
 debug = 0
 
+# raised for unrecognized option(s):
 class OptionException(Exception):
-    #"Unrecognized keyword option(s)!"
     pass
 
 # plotitem represents an item that can be plotted by gnuplot.
@@ -64,18 +67,14 @@ class func(plotitem):
 
 # represents a file that holds data in a format readable by gnuplot.
 #   self.filename -- the filename of the temp file
-#   self.columns -- the number of columns of data in the file
-#   self.points -- the number of points (lines) of data in the file
-class file:
-    def __init__(self, filename, columns, points):
+class anyfile:
+    def __init__(self, filename):
 	self.filename = filename
-	self.columns = columns
-	self.points = points
 
 
 # create a file and write set (which must be a 2-D Numeric
 # array) to the file.
-class arrayfile(file):
+class arrayfile(anyfile):
     def __init__(self, set):
 	# <set> must be a Numeric array
 	assert(len(set.shape) == 2)
@@ -87,14 +86,10 @@ class arrayfile(file):
 	for point in set:
 	    f.write(string.join(map(repr, point.tolist()), ' ') + '\n')
 	f.close()
-	file.__init__(self, filename, columns, points)
+	anyfile.__init__(self, filename)
 
 
-# create a temporary file and write set (which must be a 2-D Numeric
-# array) to the file.  Delete the file when self is deleted.
-#   self.filename -- the filename of the temp file
-#   self.columns -- the number of columns of data in the file
-#   self.points -- the number of points (lines) of data in the file
+# an arrayfile that deletes the referred-to file when it is deleted.
 class temparrayfile(arrayfile):
     def __init__(self, set):
 	arrayfile.__init__(self, set)
@@ -108,28 +103,40 @@ class temparrayfile(arrayfile):
 #   using=<n> -- plot that column against line number
 #   using=<tuple> -- plot using a:b:c:d etc.
 # Other keyword arguments are passed along to plotitem.
-class plotsubfile(plotitem):
+class file(plotitem):
     def __init__(self, file, using=None, **keyw):
-	self.file = file
+	if isinstance(file, anyfile):
+	    self.file = file
+	elif type(file) == type(""):
+	    self.file = anyfile(file)
+	else:
+	    raise OptionException
 	# By default, notitle for these plots:
 	if not keyw.has_key('title'):
 	    keyw['title'] = None
 	apply(plotitem.__init__, (self, '"' + self.file.filename + '"'), keyw)
 	self.using = using
-	if using is None:
+	if self.using is None:
 	    pass
-	elif type(using) == type(""):
-	    self.options.insert(0, "using " + using)
-	elif type(using) == type(()):
+	elif type(self.using) == type(""):
+	    self.options.insert(0, "using " + self.using)
+	elif type(self.using) == type(()):
 	    self.options.insert(0,
-				"using " + string.join(map(repr, using), ':'))
-	elif type(using) == type(1):
-	    self.options.insert(0, "using " + `using`)
+				"using " + string.join(map(repr, self.using),
+						       ':'))
+	elif type(self.using) == type(1):
+	    self.options.insert(0, "using " + `self.using`)
 	else:
-	    raise OptionException, 'using=' + `using`
+	    raise OptionException, 'using=' + `self.using`
 
     def __del__(self):
 	pass
+
+
+class data(file):
+    def __init__(self, set, **keyw):
+	set = Numeric.asarray(set, Numeric.Float)
+	apply(file.__init__, (self, temparrayfile(set)), keyw)
 
 
 # gnuplot plotting object.  A gnuplot basically represents a running
@@ -178,21 +185,15 @@ class gnuplot:
 	apply(self.replot, data)
 
     # replot the data, possibly adding new plotitems:
-    def replot(self, *data):
-    	for item in data:
+    def replot(self, *items):
+    	for item in items:
 	    if isinstance(item, plotitem):
 		self.itemlist.append(item)
 	    elif type(item) is type(""):
 		self.itemlist.append(func(item))
 	    else:
 		# assume data is an array:
-		item = Numeric.asarray(item, Numeric.Float)
-		file = temparrayfile(item)
-		if file.columns == 1:
-		    self.itemlist.append(plotsubfile(file))
-		else:
-		    for i in range(2, file.columns + 1):
-			self.itemlist.append(plotsubfile(file, using=(1,i)))
+		self.itemlist.append(data(item))
 	self.refresh()
 
     def xlabel(self, s=None):
@@ -228,21 +229,21 @@ if __name__ == '__main__':
     # List of (x, y) pairs
     g1.plot([(0.,1),(1.,5),(2.,3),(3.,4)])
 
-    g2 = gnuplot()
-    # List of y values, file output
-    print "Generating postscript file 'junk.ps'"
-    g2.plot([[1], [5], [3], [4]])
-    g2.hardcopy('junk.ps')
 
-    # Two plots; each given by a 2d array
+    # Two plots given by arrays and one by a gnuplot function:
     x = arange(10)
     y1 = x**2
     y2 = (10-x)**2
-    g3 = gnuplot()
-    g3.plot(transpose(array([x, y1])), "x**2", transpose(array([x, y2])))
+    g2 = gnuplot()
+    g2.plot(data(transpose((x, y1)), title="calculated by python"),
+	    func("x**2", title="calculated by gnuplot"),
+	    data(transpose((x, y2)), with="linesp")
+	    )
+    print "Generating postscript file 'junk.ps'"
+    g2.hardcopy('junk.ps')
 
     sys.stdout.write("Press return to continue...\n")
     sys.stdin.readline()
 
-    del g1, g2, g3
+    del g1, g2
 
