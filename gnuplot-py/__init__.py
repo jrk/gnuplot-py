@@ -996,7 +996,8 @@ if __name__ == '__main__':
     g2.plot(Func("x**2", title="calculated by gnuplot"), d)
 
     # Save what we just plotted as a color postscript file:
-    print "\n******** Generating postscript file 'gnuplot_test1.ps' ********\n"
+    print ("\n******** Generating postscript file "
+           "'gnuplot_test_plot.ps' ********\n")
     g2.hardcopy('gnuplot_test_plot.ps', color=1)
 
     # Demonstrate a 3-d plot:
@@ -1010,6 +1011,7 @@ if __name__ == '__main__':
     xm = x[:,NewAxis]
     ym = y[NewAxis,:]
     m = (sin(xm) + 0.1*xm) - ym**2
+    g3('set parametric')
     g3('set data style lines')
     g3('set hidden')
     g3('set contour base')
