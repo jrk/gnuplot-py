@@ -174,6 +174,9 @@ Bugs:
 __version__ = '1.2'
 __cvs_version__ = '$Revision$'
 
+# Other modules that should be loaded for 'from Gnuplot import *':
+__all__ = ['oldplot']
+
 import sys
 
 # ############ Configuration variables (optional): #####################
@@ -395,8 +398,12 @@ def grid_function(f, xvals, yvals, typecode=None, ufunc=0):
     if ufunc:
         return f(xvals[:,Numeric.NewAxis], yvals[Numeric.NewAxis,:])
     else:
-        ### The typecode used here isn't really right.
-        m = Numeric.zeros((len(xvals), len(yvals)), xvals.typecode())
+        if typecode is None:
+            # choose a typecode based on what '+' would return:
+            typecode = (Numeric.zeros((1,), xvals.typecode()) +
+                        Numeric.zeros((1,), yvals.typecode())).typecode()
+
+        m = Numeric.zeros((len(xvals), len(yvals)), typecode)
         for xi in range(len(xvals)):
             x = xvals[xi]
             for yi in range(len(yvals)):
