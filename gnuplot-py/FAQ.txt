@@ -83,7 +83,7 @@ Q2:
 
 Does Gnuplot.py work under Jython/Java?
 
-A1:
+A2:
 
 Partly.  Version 1.7 added the low-level interface gp_java.py for
 communicating with gnuplot using the Java libraries, and that part
@@ -96,4 +96,28 @@ However, JNumeric is still at beta level, and operation under Jython
 hasn't been tested much at all, so feedback is welcome!
 
 ======================================================================
+
+Q3:
+
+[from Tate Wilson]
+
+I am trying to set up your gnuplot/python package on my mac (osX).
+The readme file says I need to convert the files to mac text files.
+The coverter I usually use, maclink, won't handle these files.  Can
+you give me a hint how to convert the files or where to look for help?
+
+A3:
+
+I don't know.  But the same user later reported what worked for him:
+
+I did have to convert the files.  It may not be true for all mac
+Python users, but I suspect it is.  I'm using a graphical Python
+development environment called "Python IDE for mac" which may have its
+own pickiness, but still, it wouldn't even recognize the files in your
+package as being the type it could open.  I tried a few different file
+converters with no luck.  Then I just opened all the files with
+BBedit, changed something so I would be prompted to save it on closing
+(like add and remove a letter), and closed BBedit.  Then all the files
+were 'mac' files and the Python interpreter recognised them.
+
 
