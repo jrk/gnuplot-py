@@ -30,8 +30,8 @@ setup (
     author='Michael Haggerty',
     author_email='mhagger@alum.mit.edu',
     url='http://gnuplot-py.sourceforge.net',
-    license='GPL',
-    licence='GPL', # Spelling error in distutils
+    license='LGPL',
+    licence='LGPL', # Spelling error in distutils
 
     # Description of the package in the distribution
     package_dir={'Gnuplot' : '.'},
