@@ -22,6 +22,9 @@ import os, string, tempfile, Numeric
 
 # plotitem represents an item that can be plotted by gnuplot.
 class plotitem:
+    def __init__(self, **keyw):
+	pass
+
     # return a list of the `plot' command(s) necessary to print out
     # this item:
     def commands(self):
@@ -41,16 +44,20 @@ class plotfunc(plotitem):
 	return [self.funcstring]
 
 
-class plotfile(plotitem):
+# create a temporary file and write set (which must be a 2-D Numeric
+# array) to the file.  Delete the file when self is deleted.
+#   self.filename -- the filename of the temp file
+#   self.columns -- the number of columns of data in the file
+#   self.points -- the number of points (lines) of data in the file
+class temparrayfile:
     def __init__(self, set):
-	# ensure that the argument is a Numeric array:
-	set = Numeric.asarray(set, Numeric.Float)
+	# <set> must be a Numeric array
+	assert(len(set.shape) == 2)
+	(self.points, self.columns) = set.shape
+	assert(self.points > 0)
+	assert(self.columns > 0)
 	self.filename = tempfile.mktemp()
 	file = open(self.filename, 'w')
-	assert(len(set.shape) == 2)
-	(points,self.len) = set.shape
-	assert(points > 0)
-	assert(self.len > 0)
 	for point in set:
 	    file.write(string.join(map(repr, point.tolist()), ' ') + '\n')
 	file.close()
@@ -58,15 +65,30 @@ class plotfile(plotitem):
     def __del__(self):
 	os.unlink(self.filename)
 
+
+# <file> is a temparrayfile
+# Keyword arguments recognized:
+#   using=<n> -- plot that column against line number
+#   using=<tuple> -- plot using a:b:c:d etc.
+# Other keyword arguments are passed along to plotitem.
+class plotsubfile(plotitem):
+    def __init__(self, file, using=None, **keyw):
+	self.file = file
+	if using is None:
+	    self.using = ""
+	elif type(using) == type(""):
+	    self.using = " using " + using
+	elif type(using) == type(()):
+	    self.using = " using " + string.join(map(repr, using), ':')
+	elif type(using) == type(1):
+	    self.using = " using " + `using`
+	apply(plotitem.__init__, (self,), keyw)
+
+    def __del__(self):
+	pass
+
     def commands(self):
-    	if self.len == 1:
-    	    return ['"' + self.filename + '" notitle']
-	else:
-	    c = ['"' + self.filename + '" using 1:2 notitle']
-	    # for additional columns, filename can be abbreviated to '""':
-	    for i in range(3, self.len + 1):
-    		c.append('"" using 1:' + `i` + ' notitle')
-	    return c
+	return ['"' + self.file.filename + '"' + self.using + ' notitle']
 
 
 # gnuplot plotting object.  A gnuplot basically represents a running
@@ -115,10 +137,19 @@ class gnuplot:
     # replot the data, possibly adding new plotitems:
     def replot(self, *data):
     	for item in data:
-	    if type(item) is type(""):
+	    if isinstance(item, plotitem):
+		self.itemlist.append(item)
+	    elif type(item) is type(""):
 		self.itemlist.append(plotfunc(item))
 	    else:
-		self.itemlist.append(plotfile(item))
+		# assume data is an array:
+		item = Numeric.asarray(item, Numeric.Float)
+		file = temparrayfile(item)
+		if file.columns == 1:
+		    self.itemlist.append(plotsubfile(file))
+		else:
+		    for i in range(2, file.columns + 1):
+			self.itemlist.append(plotsubfile(file, using=(1,i)))
 	self.refresh()
 
     def xlabel(self, s=None):
