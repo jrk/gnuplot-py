@@ -34,6 +34,8 @@
 # <http://www.cs.dartmouth.edu/gnuplot_info.html>.
 
 # Features:
+#  +  Allows the creation of two or three dimensional plots from
+#     python by piping commands to the `gnuplot' program.
 #  +  A gnuplot session is an instance of class `Gnuplot', so multiple
 #     sessions can be open at once:
 #         g1 = Gnuplot.Gnuplot(); g2 = Gnuplot.Gnuplot()
@@ -41,8 +43,9 @@
 #     instead of executed immediately:
 #         g = Gnuplot.Gnuplot("commands.gnuplot")
 #     The file can then be run later with gnuplot's `load' command.
-#     Note, however, that this option does not cause the life of any
-#     temporary data files to be extended.
+#     Beware, however, if the plot commands depend on the existence of
+#     temporary files, because they might be deleted before you use
+#     the command file.
 #  +  Can pass arbitrary commands to the gnuplot command interpreter:
 #         g("set pointsize 2")
 #  +  A Gnuplot object knows how to plot objects of type `PlotItem'.
@@ -91,7 +94,6 @@
 #         g('set pointsize 5')
 #     etc.  I might add a more organized way of setting arbitrary
 #     options.
-#  -  Only 2-d plots are supported so far.
 #  -  There is no provision for missing data points in array data
 #     (which gnuplot would allow by specifying `?' as a data point).
 #     I can't think of a clean way to implement this; maybe one could
@@ -128,6 +130,12 @@ import sys, os, string, tempfile, Numeric
 # the following line corresponding to whether your gnuplot is new
 # enough to understand the -persist option.
 _recognizes_persist = None
+
+# After a hardcopy is produced, we have to set the terminal type back
+# to `on screen'.  If you are using unix, then `x11' is probably
+# correct.  If not, change the following line to the terminal type you
+# use.
+_default_term = 'x11'
 
 # Test if gnuplot is new enough to know the option -persist.  It it
 # isn't, it will emit an error message with '-persist' in the first
@@ -249,15 +257,19 @@ class TempFile(AnyFile):
         os.unlink(self.filename)
 
 
-# A very general recursive array writer.  The defaults for the last
-# four parameters give output that is gnuplot-readable.  But using,
-# for example, (',', '{', '}', ',\n') would output an array in a
-# format that Mathematica could read.  item_sep should not contain '%'
-# (or if it does, it should be escaped to '%%') since item_sep is put
-# into a format string.
 def write_array(f, set,
                 item_sep=' ',
                 nest_prefix='', nest_suffix='\n', nest_sep=''):
+    """Write an array of arbitrary dimension to a file
+
+    A general recursive array writer.  The last four parameters allow
+    a great deal of freedom in choosing the output format of the
+    array.  The defaults for those parameters give output that is
+    gnuplot-readable.  But using, for example, (',', '{', '}', ',\n')
+    would output an array in a format that Mathematica could read.
+    item_sep should not contain '%' (or if it does, it should be
+    escaped to '%%') since item_sep is put into a format string."""
+
     if len(set.shape) == 1:
         (columns,) = set.shape
         assert columns > 0
@@ -295,13 +307,14 @@ class ArrayFile(AnyFile):
 
     When an ArrayFile is constructed, it creates a file and fills it
     with the contents of a 2-d or 3-d Numeric array in the format
-    expected by gnuplot; for 2-d,
+    expected by gnuplot.  Specifically, for 2-d, the file organization
+    is
 
       set[0,0] set[0,1] ...
       set[1,0] set[1,1] ...
       etc.
 
-    for 3-d,
+    for 3-d, it is
 
       set[0,0,0] set[0,0,1] ...
       set[0,1,0] set[0,1,1] ...
@@ -331,7 +344,7 @@ class TempArrayFile(ArrayFile, TempFile):
 
 
 class File(PlotItem):
-    """A PlotItem representing a DataFile.
+    """A PlotItem representing a file that contains gnuplot data.
 
     File is a PlotItem that represents a file that should be plotted
     by gnuplot.  <file> can be either a string holding the filename of
@@ -394,8 +407,8 @@ class Data(File):
     numbered in the python style (starting from 0), not the gnuplot
     style (starting from 1).
 
-    The data are written to the temp file; no copy is kept in
-    memory."""
+    The data are immediately written to the temp file; no copy is kept
+    in memory."""
 
     def __init__(self, set, cols=None, **keyw):
         set = Numeric.asarray(set, Numeric.Float)
@@ -405,7 +418,7 @@ class Data(File):
 
 
 class GridData(File):
-    """Holds data representing a function of two variables.
+    """Holds data representing a function of two variables for use in splot.
 
     Arguments:
         data -- a 2-d array with dimensions (numx,numy)
@@ -413,11 +426,11 @@ class GridData(File):
         yvals -- a 1-d array with dimension (numy)
 
     data is meant to hold the values of a function f(x,y) tabulated on
-    a grid of points, such that data[i,j] = f(xvals[i], yvals[j]).
-    These data are written to a datafile in the format ('x y f(x,y)'
-    triplets) that can be used by gnuplot's splot command.  Thus if
-    you have three arrays in the above format and a Gnuplot instance
-    called g, you can plot your data by typing
+    a grid of points, such that data[i,j] == f(xvals[i], yvals[j]).
+    These data are written to a datafile as 'x y f(x,y)' triplets that
+    can be used by gnuplot's splot command.  Thus if you have three
+    arrays in the above format and a Gnuplot instance called g, you
+    can plot your data by typing
 
         g.splot(Gnuplot.GridData(data,xvals,yvals))
 
@@ -735,7 +748,7 @@ class Gnuplot:
         self(string.join(setterm))
         self.set_string('output', filename)
         self.refresh()
-        self('set term x11')
+        self('set term %s' % _default_term)
         self.set_string('output')
 
 
