@@ -678,7 +678,7 @@ class GridData(PlotItem):
             apply(PlotItem.__init__, (self, '"%s"' % self.file.filename), keyw)
 
             # Include the command-line option to read in binary data:
-            self._options['binary'] = (binary, 'binary')
+            self._options['binary'] = (1, 'binary')
         else:
             set = Numeric.transpose(
                 Numeric.array(
@@ -1106,8 +1106,9 @@ def plot(*items, **keyw):
         _gnuplot_processes.append(g)
 
 
-# Demo code
-if __name__ == '__main__':
+def demo():
+    """Demonstrate the package."""
+
     from Numeric import *
     import sys
 
@@ -1119,7 +1120,7 @@ if __name__ == '__main__':
     g1('set data style linespoints') # give gnuplot an arbitrary command
     # Plot a list of (x, y) pairs (tuples or a Numeric array would
     # also be OK):
-    g1.plot([[0.,1.1], [1.,5.8], [2.,3.3], [3.,4.2]])
+    g1.plot([[0,1.1], [1,5.8], [2,3.3], [3,4.2]])
 
     # Plot one dataset from an array and one via a gnuplot function;
     # also demonstrate the use of item-specific options:
@@ -1128,8 +1129,8 @@ if __name__ == '__main__':
     y1 = x**2
     # Notice how this plotitem is created here but used later?  This
     # is convenient if the same dataset has to be plotted multiple
-    # times, because the data need only be written to a temporary file
-    # once.
+    # times.  It is also more efficient because the data need only be
+    # written to a temporary file once.
     d = Data(x, y1,
              title='calculated by python',
              with='points 3 3')
@@ -1139,10 +1140,16 @@ if __name__ == '__main__':
     # Plot a function alongside the Data PlotItem defined above:
     g2.plot(Func('x**2', title='calculated by gnuplot'), d)
 
-    # Save what we just plotted as a color postscript file:
+    # Save what we just plotted as a color postscript file.
+
+    # With the enhanced postscript option, it is possible to show `x
+    # squared' with a superscript (plus much, much more; see `help set
+    # term postscript' in the gnuplot docs).  If your gnuplot doesn't
+    # support enhanced mode, set `enhanced=0' below.
+    g2.ylabel('x^2') # take advantage of enhanced postscript mode
     print ('\n******** Generating postscript file '
            '"gnuplot_test_plot.ps" ********\n')
-    g2.hardcopy('gnuplot_test_plot.ps', color=1)
+    g2.hardcopy('gnuplot_test_plot.ps', enhanced=1, color=1)
 
     # Demonstrate a 3-d plot:
     g3 = Gnuplot(debug=1)
@@ -1163,11 +1170,11 @@ if __name__ == '__main__':
     g3.ylabel('y')
     # The `binary=1' option would cause communication with gnuplot to
     # be in binary format, which is considerably faster and uses less
-    # disk space.  (Unfortunately gnuplot only allows binary format
-    # for GridData being passed to splot.)  `binary=1' is the default,
-    # but here we disable binary because older versions of gnuplot
-    # don't allow binary data.  Change this to `binary=1' (or omit the
-    # binary option) to get the advantage of binary format.
+    # disk space.  (This only works with the splot command due to
+    # limitations of gnuplot.)  `binary=1' is the default, but here we
+    # disable binary because older versions of gnuplot don't allow
+    # binary data.  Change this to `binary=1' (or omit the binary
+    # option) to get the advantage of binary format.
     g3.splot(GridData(m,x,y, binary=0))
 
     # Delay so the user can see the plots:
@@ -1193,4 +1200,9 @@ if __name__ == '__main__':
         y1 = x**2
         y2 = (10-x)**2
         plot(transpose(array([x, y1])), transpose(array([x, y2])))
+
+
+if __name__ == '__main__':
+    demo()
+
 
