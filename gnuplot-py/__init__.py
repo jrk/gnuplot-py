@@ -1,11 +1,9 @@
 #!/usr/local/bin/python -t
 # $Id$
 
-# Gnuplot.py -- A pipe-based interface to the gnuplot plotting program.
+"""Gnuplot.py -- A pipe-based interface to the gnuplot plotting program.
 
-# Copyright (C) 1998 Michael Haggerty <mhagger@blizzard.harvard.edu>.
-
-"""A pipe-based interface to the gnuplot plotting program.
+Copyright (C) 1998,1999 Michael Haggerty
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
