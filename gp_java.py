@@ -127,7 +127,14 @@ class GnuplotProcess:
                        'by your version of gnuplot!')
             command.append('-persist')
 
-        self.process = Runtime.getRuntime().exec(command)
+        # This is a kludge: distutils wants to import everything it
+        # sees when making a distribution, and if we just call exec()
+        # normally that causes a SyntaxError in CPython because "exec"
+        # is a keyword.  Therefore, we call the exec() method
+        # indirectly.
+        #self.process = Runtime.getRuntime().exec(command)
+        exec_method = getattr(Runtime.getRuntime(), 'exec')
+        self.process = exec_method(command)
 
         self.outprocessor = OutputProcessor(
             'gnuplot standard output processor',
