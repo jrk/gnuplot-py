@@ -6,7 +6,53 @@
 # Written by Michael Haggerty <mhagger@blizzard.harvard.edu>
 # Derived from earlier version by Konrad Hinsen <hinsen@ibs.ibs.fr>
 
-import os, string, tempfile
+# New restrictions: can only plot 2-d numeric arrays or python
+# sequences which are convertable (via Numeric.asarray) to such.
+
+# Does not try to make persistent windows; instead simply leaves
+# gnuplot running for as long as the gnuplot object is in existence.
+
+import os, string, tempfile, Numeric
+
+class plottable:
+    def __init__(self):
+	pass
+
+    def __del__(self):
+	pass
+
+    def commands(self):
+	return []
+
+class plotfile:
+    def __init__(self, set):
+	# ensure that the argument is a Numeric array:
+	set = Numeric.asarray(set, Float)
+	self.filename = tempfile.mktemp()
+	file = open(self.filename, 'w')
+	assert(len(set.shape) == 2)
+	(points,self.len) = set.shape
+	assert(points > 0)
+	assert(self.len > 0)
+	for point in set:
+	    file.write(string.join(map(repr, point.tolist()), ' ') + '\n')
+	file.close()
+
+    def __del__(self):
+	os.unlink(self.filename)
+
+    # return a list of the `plot' command(s) necessary to print out
+    # this item:
+    def commands(self):
+    	if self.len == 1:
+    	    return ['"' + self.filename + '" notitle']
+	else:
+	    c = ['"' + self.filename + '" using 1:2 notitle']
+	    # for additional columns, filename can be abbreviated to '""':
+	    for i in range(3, self.len + 1):
+    		c.append('"" using 1:' + `i` + ' notitle')
+	    return c
+
 
 # gnuplot plotting object:
 class gnuplot:
@@ -16,12 +62,11 @@ class gnuplot:
 	else:
 	    self.gnuplot = open(filename, 'w')
 	self('set terminal x11')
-    	self.filelist = []
+    	self.itemlist = []
 
     def rmfiles(self):
-	for file in self.filelist:
-	    os.unlink(file)
-	self.filelist = []
+	# Should delete plotfile objects automatically:
+	self.itemlist = []
 
     def __del__(self):
 	self('quit')
@@ -35,69 +80,50 @@ class gnuplot:
     def plot(self, *data, **keywords):
 	# remove old files:
 	self.rmfiles()
-    	plotlist = []
     	for set in data:
-    	    filename = tempfile.mktemp()
-    	    file = open(filename, 'w')
-    	    is_sequence = self._isSequence(set[0])
-    	    for point in set:
-    		if is_sequence:
-    		    for coordinate in point:
-    			file.write(`coordinate` + ' ')
-    		else:
-    		    file.write(`point`)
-    		file.write('\n')
-    	    file.close()
-    	    if is_sequence:
-    		plotlist.append((filename, len(set[0])))
-    	    else:
-    		plotlist.append((filename, 1))
-    	    self.filelist.append(filename)
-    	command = 'plot '
-    	for item in plotlist:
-    	    filename, n = item
-    	    if n == 1:
-    		command = command + '"' + filename + '" notitle, '
-    	    else:
-    		for i in range(n-1):
-    		    command = command + '"' + filename + \
-    			      '" using 1:' + `i+2` + ' notitle, '
-    	command = command[:-2]
+    	    self.itemlist.append(plotfile(set))
+	plotcmds = []
+	for item in self.itemlist:
+	    plotcmds = plotcmds + item.commands()
+    	command = 'plot ' + string.join(plotcmds, ', ')
     	if keywords.has_key('file'):
-    	    self('set terminal postscript')
+    	    self('set terminal postscript enhanced')
     	    self('set output "' + keywords['file'] + '"')
     	    self(command)
 	    self('set terminal x11')
 	    self('set output')
     	else:
-	    self('set terminal x11')
 	    self(command)
 
     def xlabel(self, s=None):
 	if s==None:
-	    self("set ylabel")
+	    self('set ylabel')
 	else:
-	    self("set xlabel '" + s + "'")
+	    self('set xlabel "' + s + '"')
 
     def ylabel(self, s=None):
 	if s==None:
-	    self("set ylabel")
+	    self('set ylabel')
 	else:
-	    self("set ylabel '" + s + "'")
+	    self('set ylabel "' + s + '"')
+
+    def hardcopy(self, filename = '| lpr'):
+	g('set term postscript enhanced')
+	g('set output "' + filename + '"')
+	g('replot')
+	g('set term x11')
+	g('set output')
 
     def replot(self):
-	self("replot")
+	self('replot')
 
-    def _isSequence(self, object):
-	n = -1
-	try: n = len(object)
-	except: pass
-	return n >= 0
 
 #
 # Demo code
 #
 if __name__ == '__main__':
+    from Numeric import *
+    import sys
 
     g1 = gnuplot()
     # List of (x, y) pairs
@@ -105,13 +131,18 @@ if __name__ == '__main__':
 
     g2 = gnuplot()
     # List of y values, file output
-    g2.plot([1, 5, 3, 4], file = 'junk.ps')
+    print "Generating postscript file 'junk.ps'"
+    g2.plot([[1], [5], [3], [4]], file = 'junk.ps')
 
     # Two plots; each given by a 2d array
-    from Numeric import *
     x = arange(10)
     y1 = x**2
     y2 = (10-x)**2
     g3 = gnuplot()
     g3.plot(transpose(array([x, y1])), transpose(array([x, y2])))
+
+    sys.stdout.write("Press return to continue...\n")
+    sys.stdin.readline()
+
+    del g1, g2, g3
 
