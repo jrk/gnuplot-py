@@ -133,9 +133,17 @@ class file(plotitem):
 	pass
 
 
+# create a plotitem out of a numeric array.  Recognizes one special
+# (internal) option:
+#    cols=<tuple>
+# which outputs only the specified columns of the array to the file.
+# Columns are of course numbered in the python style, not the gnuplot
+# style.
 class data(file):
-    def __init__(self, set, **keyw):
+    def __init__(self, set, cols=None, **keyw):
 	set = Numeric.asarray(set, Numeric.Float)
+	if cols is not None:
+	    set = Numeric.take(set, cols, 1)
 	apply(file.__init__, (self, temparrayfile(set)), keyw)
 
 
