@@ -5,11 +5,11 @@
 <body>
 <h1>Gnuplot.py</h1>
 
-<a href="Gnuplot-1.1a.tar.gz">Gnuplot.py</a> is a Python module that
+<a href="Gnuplot.tar.gz">Gnuplot.py</a> is a Python module that
 interfaces to <a
-href="http://www.cs.dartmouth.edu/gnuplot_info.html">gnuplot</a>, the
-popular plotting program.  It allows you to use gnuplot from within
-Python to plot arrays of data from memory, data from files, or
+href="ftp://ftp.gnuplot.vt.edu/pub/gnuplot/faq/index.html">gnuplot</a>,
+the popular plotting program.  It allows you to use gnuplot from
+within Python to plot arrays of data from memory, data from files, or
 mathematical functions.  If you use Python to perform computations or
 as `glue' for numerical programs, you can use this module to plot data
 on the fly as they are computed.  And the combination with Python
@@ -32,11 +32,13 @@ to program new types of plottable items by deriving from the
 
 <h2>News</h2>
 
-Version 1.1a has been released (9 Apr 1999).  This version just
-addresses a couple of minor portability issues.
+<a href="Gnuplot-1.1a.tar.gz">Version 1.1a</a> has been released (9
+Apr 1999).  This version just addresses a couple of minor portability
+issues.
 
-<p>
-Version 1.1 has been released (31 Jan 1999).  New features:
+<p> <a href="Gnuplot-1.1.tar.gz">Version 1.1</a> has been released (31
+Jan 1999).  New features:
+
 <ul>
   <li> 3-D plots are now supported through the new `splot' method:
        <ul>
@@ -70,24 +72,26 @@ Version 1.1 has been released (31 Jan 1999).  New features:
 
 <h2>Documentation</h2>
 
-Thanks to <a
+I think the best quick way to learn how to use Gnuplot.py is to run
+the simple demonstration by typing `python Gnuplot.py', then to look
+at the bottom of the Gnuplot.py file to see the commands that create
+the demo.  One of the examples is probably similar to what you want to
+do.
+
+<p> Thanks to <a
 href="http://starship.skyport.net/crew/danilo/pythondoc/">
 pythondoc</a>, there is now some <a href="Gnuplot-doc/"> online
 documentation </a> for Gnuplot.py, extracted from the module's
 docstrings.  Alternatively, you can look at the docstrings in
 Gnuplot.py yourself by opening the file in an editor.
 
-<p> There is also a demonstration that you can run by typing `python
-Gnuplot.py', then look at the bottom of the Gnuplot.py file to see how
-the demonstration works.
-
 <p> To get good use out of Gnuplot.py, you will want to know something
 about gnuplot, for which a good source is the gnuplot help (run
 gnuplot then type `help', or read it online at <a
-href="http://www.cs.dartmouth.edu/gnuplot/gnuplot.html">this
-website</a>).  You might also want to check out Bernhard Reiter's <a
-href="http://www.usf.Uni-Osnabrueck.DE/~breiter/tools/gnuplot/index.en.html">gnuplot
-information page</a>, which has many more links.
+href="http://www.cs.dartmouth.edu/gnuplot/gnuplot.html"> this website
+</a>).  You might also want to check out Bernhard Reiter's <a
+href="http://www.usf.Uni-Osnabrueck.DE/~breiter/tools/gnuplot/index.en.html">
+gnuplot information page </a>, which has many more links.
 
 <h2>Installation</h2>
 
@@ -95,7 +99,7 @@ Before installing Gnuplot.py, first make sure that you have working
 versions of
 <ul>
   <li> the <a
-       href="http://www.cs.dartmouth.edu/gnuplot_info.html">gnuplot</a>
+       href="ftp://ftp.gnuplot.vt.edu/pub/gnuplot/">gnuplot</a>
        program,
   <li> <a href="http://www.python.org">Python</a>, and
   <li> the <a
@@ -105,14 +109,16 @@ versions of
 To install Gnuplot.py:
 <ol>
   <li> Download <a
-       href="Gnuplot-1.1a.tar.gz">Gnuplot-1.1a.tar.gz</a>.
+       href="Gnuplot.tar.gz">Gnuplot.tar.gz</a>.
   <li> Gunzip and untar it, which will create a directory called
-       ``Gnuplot-1.1a''.  (For now, the directory only contains one
-       file, ``Gnuplot.py''.)
+       ``Gnuplot-<i>version</i>'' where <i>version</i> is the
+       Gnuplot.py version number.  (For now, the directory only
+       contains one file, ``Gnuplot.py''.)
   <li> To test the package, change to that directory and type ``python
        Gnuplot.py''.
   <li> Copy Gnuplot.py into a directory that is in your PYTHONPATH, or
-       add the ``Gnuplot-1.1a'' directory to your PYTHONPATH.
+       add the ``Gnuplot-<i>version</i>'' directory to your
+       PYTHONPATH.
 </ol>
 If you don't have gunzip or tar, you can download Gnuplot.py directly
 from <a href="Gnuplot.py">here</a>.
@@ -153,6 +159,6 @@ Written by <a href="http://monsoon.harvard.edu/~mhagger/">Michael
 Haggerty</a> (email <a href="mailto:mhagger@blizzard.harvard.edu">
 &lt;<i>mhagger@blizzard.harvard.edu</i>&gt;</a>)<br>
 <!-- hhmts start -->
-Last modified: Fri Jul 30 22:18:11 1999
+Last modified: Mon Aug  2 21:16:36 1999
 <!-- hhmts end -->
 </body> </html>
