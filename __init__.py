@@ -1,7 +1,11 @@
-#!/usr/local/bin/python -tO
+#!/usr/local/bin/python -t
 # $Id$
 
-# A more complicated gnuplot interface.
+# A pipe-based interface to the gnuplot plotting program.
+
+# You should import this file with `import gnuplot', not with `from
+# gnuplot import *'; otherwise you will have a mess of conflicting
+# names.
 
 # Written by Michael Haggerty <mhagger@blizzard.harvard.edu>
 # Derived from earlier version by Konrad Hinsen <hinsen@ibs.ibs.fr>
@@ -36,8 +40,17 @@
 #     option `persist=1'.  (`persist' is no longer the default.)
 #
 # Restrictions:
+#  -  Only a small fraction of gnuplot functionality has been
+#     implemented as explicit python functions.  However, you can give
+#     arbitrary commands to gnuplot manually; for example:
+#         g = gnuplot()
+#         g('set data style linespoints')
+#         g('set pointsize 5')
+#     etc.
 #  -  Relies on the Numeric Python extension.  This can be obtained
 #     from LLNL (See ftp://ftp-icf.llnl.gov/pub/python/README.html).
+#     If you're interested in gnuplot, you would probably also be
+#     interested in NumPy.
 #  -  Only 2-d plots are supported so far.
 #  -  There is no provision for missing data points in array data
 #     (which gnuplot would allow by specifying `?' as a data point).
@@ -62,11 +75,12 @@
 #     by the version of gnuplot used.  Only ask for persistent windows
 #     if your gnuplot accepts the `-persist' flag!
 #  -  All of these classes perform their resource deallocation when
-#     __del__ is called.  If you delete things explicitly, there is no
-#     problem.  If you don't, an attempt is made to delete remaining
-#     objects when the interpreter is exited, but this is not
-#     completely reliable, so sometimes temporary files will be left
-#     around.
+#     __del__ is called.  If you delete things explicitly, there will
+#     be no problem.  If you don't, an attempt is made to delete
+#     remaining objects when the interpreter is exited, but this is
+#     not completely reliable, so sometimes temporary files will be
+#     left around.  If anybody knows how to fix this problem, please
+#     let me know.
 
 
 import sys, os, string, tempfile, Numeric
@@ -127,7 +141,7 @@ class plotitem:
             return self.basecommand
 
     # if the plot command requires data to be put on stdin (i.e.,
-    # `plot ""'), this method will put that data there.
+    # `plot "-"'), this method should put that data there.
     def pipein(self, file):
         pass
 
