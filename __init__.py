@@ -126,12 +126,17 @@ Bugs:
 __version__ = '1.1a'
 __cvs_version__ = 'CVS version $Revision$'
 
+import sys
+
 # ############ Configuration variables (optional): #####################
 
 # Command to start up the gnuplot program.  If your version of gnuplot
 # is run otherwise, specify the correct command here.  You could also
 # append command-line options here if you wish.
-_gnuplot_command = 'gnuplot'
+if sys.platform == 'win32':
+    _gnuplot_command = 'pgnuplot.exe'
+else:
+    _gnuplot_command = 'gnuplot'
 
 # Recent versions of gnuplot (at least for Xwindows) allow a
 # `-persist' command-line option when starting up gnuplot.  When this
@@ -144,7 +149,11 @@ _gnuplot_command = 'gnuplot'
 # yourself; if you leave it with the value None then the first time
 # you create a Gnuplot object it will try to detect automatically
 # whether your version accepts this option.
-_recognizes_persist = None
+if sys.platform == 'win32':
+    # wgnuplot doesn't accept this option, so don't bother testing for it:
+    _recognizes_persist = 0
+else:
+    _recognizes_persist = None
 
 # Recent versions of gnuplot allow you to specify a `binary' option to
 # the splot command for grid data, which means that the data file is
@@ -162,7 +171,10 @@ _recognizes_binary_splot = 1
 # to `on screen'.  If you are using unix, then `x11' is probably
 # correct.  If not, change the following line to the terminal type you
 # prefer to use for on-screen work.
-_default_term = 'x11'
+if sys.platform == 'win32':
+    _default_term = 'windows'
+else:
+    _default_term = 'x11'
 
 # Gnuplot can plot to a printer by using "set output '| ...'" where
 # ... is the name of a program that sends its stdin to a printer.  On
@@ -174,7 +186,7 @@ _default_lpr = '| lpr'
 
 # ############ End of configuration options ############################
 
-import sys, os, string, tempfile, Numeric
+import os, string, tempfile, Numeric
 
 if sys.platform == 'win32':
     from win32pipe import popen
@@ -546,7 +558,8 @@ class File(PlotItem):
             self.file = AnyFile(file)
         else:
             raise OptionException
-        apply(PlotItem.__init__, (self, '"%s"' % self.file.filename), keyw)
+        # Use single-quotes so that pgnuplot can handle DOS filenames:
+        apply(PlotItem.__init__, (self, "'%s'" % self.file.filename), keyw)
 
     def set_option(self, using=_unset, binary=_unset, **keyw):
         if using is not _unset:
@@ -634,7 +647,7 @@ class Data(PlotItem):
         # the temporary filename as the title).
         if not keyw.has_key('title'):
             keyw['title'] = None
-        apply(PlotItem.__init__, (self, '"%s"' % self.file.filename), keyw)
+        apply(PlotItem.__init__, (self, "'%s'" % self.file.filename), keyw)
 
     def set_option(self, cols=_unset, **keyw):
         if cols is not _unset:
@@ -754,7 +767,7 @@ class GridData(PlotItem):
             # avoid using the temporary filename as the title:
             if not keyw.has_key('title'):
                 keyw['title'] = None
-            apply(PlotItem.__init__, (self, '"%s"' % self.file.filename), keyw)
+            apply(PlotItem.__init__, (self, "'%s'" % self.file.filename), keyw)
 
             # Include the command-line option to read in binary data:
             self._options['binary'] = (1, 'binary')
@@ -775,7 +788,7 @@ class GridData(PlotItem):
             # avoid using the temporary filename as the title:
             if not keyw.has_key('title'):
                 keyw['title'] = None
-            apply(PlotItem.__init__, (self, '"%s"' % self.file.filename), keyw)
+            apply(PlotItem.__init__, (self, "'%s'" % self.file.filename), keyw)
             self._options['binary'] = (0, None)
 
     def set_option(self, binary=_unset, **keyw):
@@ -1042,12 +1055,12 @@ class Gnuplot:
     def load(self, filename):
         """Load a file using gnuplot's `load' command."""
 
-        self('load "%s"' % (filename,))
+        self("load '%s'" % (filename,))
 
     def save(self, filename):
         """Save the current plot commands using gnuplot's `save' command."""
 
-        self('save "%s"' % (filename,))
+        self("save '%s'" % (filename,))
 
     def set_string(self, option, s=None):
         """Set a string option, or if s is omitted, unset the option."""
@@ -1240,9 +1253,8 @@ def demo():
 
     # Delay so the user can see the plots:
     sys.stderr.write('Three plots should have appeared on your screen '
-                     '(they may be overlapping).\n'
-                     'Please press return to continue...\n')
-    sys.stdin.readline()
+                     '(they may be overlapping).\n')
+    raw_input('Please press return to continue...\n')
 
     # ensure processes and temporary files are cleaned up:
     del g1, g2, g3, d
