@@ -302,10 +302,10 @@ class _FileItem(PlotItem):
 
         self.filename = filename
 
-        # Use single-quotes so that pgnuplot can handle DOS filenames:
         apply(PlotItem.__init__, (self,), keyw)
 
     def get_base_command_string(self):
+        # Use single-quotes so that pgnuplot can handle DOS filenames:
         return '\'%s\'' % (self.filename,)
 
     def set_option_colonsep(self, name, value):
