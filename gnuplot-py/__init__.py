@@ -253,23 +253,34 @@ class ArrayFile(AnyFile):
     """A file to which, upon creation, an array is written.
 
     When an ArrayFile is constructed, it creates a file and fills it
-    with the contents of a 2-d Numeric array in the format expected by
-    gnuplot (i.e., whitespace-separated columns).  The filename can be
-    specified, otherwise a random filename is chosen.  The file is NOT
-    deleted automatically."""
+    with the contents of a 2-d or 3-d Numeric array in the format
+    expected by gnuplot (i.e., whitespace-separated columns).  The
+    filename can be specified, otherwise a random filename is chosen.
+    The file is NOT deleted automatically."""
 
     def __init__(self, set, filename=None):
-        # <set> must be a Numeric array
-        assert(len(set.shape) == 2)
-        (points, columns) = set.shape
-        assert(points > 0)
-        assert(columns > 0)
         if not filename:
             filename = tempfile.mktemp()
-        f = open(filename, 'w')
-        for point in set:
-            f.write(string.join(map(repr, point.tolist())) + '\n')
-        f.close()
+        if len(set.shape) == 2:
+            (points, columns) = set.shape
+            assert(points > 0)
+            assert(columns > 0)
+            f = open(filename, 'w')
+            for point in set:
+                f.write(string.join(map(repr, point.tolist())) + '\n')
+            f.close()
+        elif len(set.shape) == 3:
+            (numx, numy, columns) = set.shape
+            assert(numx > 0 and numy > 0)
+            assert(columns > 0)
+            f = open(filename, 'w')
+            for subset in set:
+                for point in subset:
+                    f.write(string.join(map(repr, point.tolist())) + '\n')
+                f.write('\n')
+            f.close()
+        else:
+            raise DataException('Array data must be 2- or 3-dimensional')
         AnyFile.__init__(self, filename)
 
 
@@ -363,6 +374,8 @@ class Gnuplot:
                     command is issued via the `plot' method.
         debug -- if this flag is set, commands sent to gnuplot will also
                  be echoed to stderr.
+        plotcmd -- 'plot' or 'splot', depending on what was the last plot
+                   command.
 
     Methods:
         __init__ -- if a filename argument is specified, the commands
@@ -430,6 +443,7 @@ class Gnuplot:
                 self.gnuplot = os.popen('gnuplot', 'w')
         self._clear_queue()
         self.debug = debug
+        self.plotcmd = 'plot'
 
     def __del__(self):
         self('quit')
@@ -457,7 +471,7 @@ class Gnuplot:
         plotcmds = []
         for item in self.itemlist:
             plotcmds.append(item.command())
-        self('plot ' + string.join(plotcmds, ', '))
+        self(self.plotcmd + ' ' + string.join(plotcmds, ', '))
         for item in self.itemlist:
             item.pipein(self.gnuplot)
 
@@ -505,6 +519,34 @@ class Gnuplot:
             is raised."""
 
         # remove old files:
+        self.plotcmd = 'plot'
+        self._clear_queue()
+        self._add_to_queue(items)
+        self.refresh()
+
+    def splot(self, *items, **kw):
+        """Draw a new three-dimensional plot.
+
+        splot(item, ...): Clear the current plot and create a new one
+        containing the specified items.  Arguments can be of the
+        following types:
+
+        PlotItem (e.g., Data, File, Func):
+            This is the most flexible way to call plot because the
+            PlotItems can contain suboptions.  Moreover, PlotItems can
+            be saved to variables so that their lifetime is longer
+            than one plot command--thus they can be replotted with
+            minimal overhead.
+        string (i.e., "sin(x)"):
+            The string is interpreted as a Func() (a function that is
+            computed by gnuplot).
+        Anything else:
+            The object is converted to a Data() item, and thus plotted
+            as two-column data.  If the conversion fails, an exception
+            is raised."""
+
+        # remove old files:
+        self.plotcmd = 'splot'
         self._clear_queue()
         self._add_to_queue(items)
         self.refresh()
