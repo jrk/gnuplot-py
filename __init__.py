@@ -199,7 +199,7 @@ else:
 # yourself; if you leave it with the value None then the first time
 # you create a Gnuplot object it will try to detect automatically
 # whether your version accepts this option.
-if sys.platform == 'win32':
+if sys.platform in ['win32', 'mac']:
     # wgnuplot doesn't accept this option, so don't bother testing for it:
     _recognizes_persist = 0
 else:
@@ -233,6 +233,8 @@ _prefer_inline_data = 0
 # prefer to use for on-screen work.
 if sys.platform == 'win32':
     _default_term = 'windows'
+elif sys.platform == 'mac':
+    _default_term = 'macintosh'
 else:
     _default_term = 'x11'
 
@@ -242,7 +244,10 @@ else:
 # computer it may be something different (like `lp'); you can set that
 # by changing the variable below.  You can also use the following
 # variable to add options to the print command.
-_default_lpr = '| lpr'
+if sys.platform in ['win32', 'mac']:
+    _default_lpr = None
+else:
+    _default_lpr = '| lpr'
 
 # ############ End of configuration options ############################
 
@@ -255,6 +260,19 @@ import Numeric
 
 if sys.platform == 'win32':
     from win32pipe import popen
+elif sys.platform == 'mac':
+    import gnuplot_Suites
+    import Required_Suite
+    import aetools
+    SIGNATURE="GPSE"
+
+    class GNUPLOT(aetools.TalkTo,
+                  Required_Suite.Required_Suite,
+                  gnuplot_Suites.gnuplot_Suite,
+                  gnuplot_Suites.odds_and_ends,
+                  gnuplot_Suites.Standard_Suite,
+                  gnuplot_Suites.Miscellaneous_Events):
+        pass
 else:
     from os import popen
 
@@ -1133,7 +1151,10 @@ class Gnuplot:
                         'by your version of gnuplot!')
                 self.gnuplot = popen('%s -persist' % _gnuplot_command, 'w')
             else:
-                self.gnuplot = popen(_gnuplot_command, 'w')
+                if sys.platform == 'mac':
+                    self.gnuplot = GNUPLOT(SIGNATURE, start=1)
+                else:
+                    self.gnuplot = popen(_gnuplot_command, 'w')
         self._clear_queue()
         self.debug = debug
         self.plotcmd = 'plot'
@@ -1368,6 +1389,9 @@ class Gnuplot:
         """
 
         if filename is None:
+            assert _default_lpr is not None, \
+                   OptionException('_default_lpr is not set, so you can only '
+                                   'print to a file.')
             filename = _default_lpr
         setterm = ['set', 'terminal', 'postscript']
         if eps: setterm.append('eps')

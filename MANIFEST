@@ -8,3 +8,4 @@ __init__.py		# The main module
 demo.py			# Demonstrate elementary Gnuplot.py features
 test.py			# More thorough test of most Gnuplot.py features
 oldplot.py		# Optional module for backwards compatibility
+gnuplot_Suites.py	# Module needed for running on the Macintosh
