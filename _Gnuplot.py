@@ -373,6 +373,31 @@ class Gnuplot:
         else:
             self('set %s "%s"' % (option, s))
 
+    def set_label(self, option, s=None, offset=None, font=None):
+        """Set or clear a label option, which can include an offset or font.
+
+        If offset is specified, it should be a tuple of two integers
+        or floats.
+
+        If font is specified, it is appended to the command as a
+        string in double quotes.  Its interpretation is
+        terminal-dependent; for example, for postscript it might be
+        'Helvetica,14' for 14 point Helvetica.
+
+        """
+
+        cmd = ['set', option]
+        if s is not None:
+            cmd.append('"%s"' % (s,))
+
+            if offset is not None:
+                cmd.append('%s,%s' % offset)
+
+            if font is not None:
+                cmd.append('"%s"' % (font,))
+
+        self(string.join(cmd))
+
     def set_boolean(self, option, value):
         """Set an on/off option.  It is assumed that the way to turn
         the option on is to type `set <option>' and to turn it off,
@@ -416,20 +441,20 @@ class Gnuplot:
                 raise 'option %s is not supported' % (k,)
             getattr(self, 'set_%s' % type)(k, v)
 
-    def xlabel(self, s=None):
+    def xlabel(self, s=None, offset=None, font=None):
         """Set the plot's xlabel."""
 
-        self.set_string('xlabel', s)
+        self.set_label('xlabel', s, offset=offset, font=font)
 
-    def ylabel(self, s=None):
+    def ylabel(self, s=None, offset=None, font=None):
         """Set the plot's ylabel."""
 
-        self.set_string('ylabel', s)
+        self.set_label('ylabel', s, offset=offset, font=font)
 
-    def title(self, s=None):
+    def title(self, s=None, offset=None, font=None):
         """Set the plot's title."""
 
-        self.set_string('title', s)
+        self.set_label('title', s, offset=offset, font=font)
 
     def hardcopy(self, filename=None, terminal='postscript', **keyw):
         """Create a hardcopy of the current plot.
