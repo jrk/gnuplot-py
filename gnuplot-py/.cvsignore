@@ -1,5 +1,6 @@
 *.pyc
 *.pyo
+*.class
 build
 dist
 doc
