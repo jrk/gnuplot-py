@@ -139,3 +139,31 @@ inform('Making symlink to documentation')
 cmd('ln -fs %s %s' % (docdir,
                       os.path.join(basedir, '%s-doc' % (module,))))
 
+doctarfile = '%s-doc-%s.tar.gz' % (module, version)
+inform('Doc tar file will be named %s' % doctarfile)
+
+inform('Removing old doc tar file')
+cmd('rm -f %s' % (os.path.join(basedir, doctarfile),))
+
+inform('Bundling documentation as a tar file')
+cmd('tar -C %s -cvzf %s %s' %
+    (basedir, os.path.join(basedir, doctarfile), docdir))
+
+inform('Making symlink to documentation tar file')
+cmd('ln -fs %s %s' % (doctarfile,
+                      os.path.join(basedir, '%s-doc.tar.gz' % (module,))))
+
+doczipfile = '%s-doc-%s.zip' % (module, version)
+inform('Doc zip file will be named %s' % doczipfile)
+
+inform('Removing old doc zip file')
+cmd('rm -f %s' % (os.path.join(basedir, doczipfile),))
+
+inform('Bundling documentation as a zip file')
+cmd('(cd %s && zip -r -9 %s %s)' %
+    (basedir, doczipfile, docdir))
+
+inform('Making symlink to doc zip file')
+cmd('ln -fs %s %s' % (doczipfile,
+                      os.path.join(basedir, '%s-doc.zip' % (module,))))
+
