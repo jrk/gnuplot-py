@@ -48,8 +48,8 @@ class GnuplotOpts:
 # ############ End of configuration options ############################
 
 
-# The Macintosh doesn't support pipes so communication is via a
-# different mechanism.
+# The Macintosh doesn't support pipes so communication is via
+# AppleEvents.
 
 import gnuplot_Suites
 import Required_Suite
