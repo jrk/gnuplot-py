@@ -49,8 +49,14 @@ def wait(str=None, prompt='Press return to show results...\n'):
 def main():
     """Exercise the Gnuplot module."""
 
+    print (
+        'This program exercises many of the features of Gnuplot.py.  The\n'
+        'commands that are actually sent to gnuplot are printed for your\n'
+        'enjoyment.'
+        )
+
     wait('Popping up a blank gnuplot window on your screen.')
-    g = Gnuplot.Gnuplot()
+    g = Gnuplot.Gnuplot(debug=1)
     g.clear()
 
     # Make a temporary file:
