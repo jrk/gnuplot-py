@@ -74,34 +74,26 @@ Installation on Windows
 
 I don't run Windows, but thanks to the help of users there is now a
 way to use Gnuplot.py on that platform.  Any feedback or additional
-suggestions having to do with Windows would be especially appreciated,
-especially if you know how to make Gnuplot.py work under Windows
-without having to install pgnuplot.exe.
+suggestions having to do with Windows would be especially appreciated.
 
 First make sure you have the quasi-standard Win32 extensions
 installed.  This can be obtained from the main Windows download page:
 
     http://www.python.org/download/download_windows.html
 
-Because the MS-Windows gnuplot executable (wgnuplot.exe) doesn't
+Because the main MS-Windows gnuplot executable (wgnuplot.exe) doesn't
 accept commands on standard input, Gnuplot.py cannot communicate with
-it directly.  However, there is a simple little self-contained program
-called `pgnuplot.exe' that accepts commands on stdin and passes them
-to wgnuplot.  So to run Gnuplot.py on Windows, first install
-pgnuplot.exe.  You can get its C program source (pgnuplot.c) from a
-recent beta version of gnuplot (version 3.7.0.8, for example) or by
-downloading `testing/windows-stdin.zip' from one of the gnuplot
-archives (e.g.,
+it directly.  However, there is a simple little program called
+`pgnuplot.exe' that accepts commands on stdin and passes them to
+wgnuplot.  So to run Gnuplot.py on Windows, you need to make sure that
+pgnuplot.exe is installed.  It comes with the latest version of
+gnuplot (3.7.1).  Or (if you don't want to install the latest version
+of gnuplot) you can get pgnuplot.exe by downloading
+`testing/windows-stdin.zip' from one of the gnuplot archives (e.g.,
 <ftp://ftp.gnuplot.vt.edu/pub/gnuplot/testing/windows-stdin.zip>).
-You will have to compile pgnuplot.c yourself as the binary does not
-seem to be available on the net.
 
-Here's the good news: you can use pgnuplot.exe with older versions of
-gnuplot; you do not have to install the beta version of gnuplot in
-order to use pgnuplot.exe.
-
-After pgnuplot.exe is installed, install Gnuplot.py as described
-in the previous section.
+Assuming pgnuplot.exe is installed, install Gnuplot.py as described in
+the previous section.
 
 
 Installation on the Macintosh
