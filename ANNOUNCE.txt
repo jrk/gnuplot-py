@@ -61,7 +61,7 @@ Footnotes:
 [1] Python <http://www.python.org> is an excellent object-oriented
     scripting/rapid development language that is also especially good
     at gluing programs together.
-[2] gnuplot <http://www.gnuplot.org/> is a free, popular, very
+[2] gnuplot <http://www.gnuplot.info/> is a free, popular, very
     portable plotting program with a command-line interface.  It can
     make 2-d and 3-d plots and can output to myriad printers and
     graphics terminals.
