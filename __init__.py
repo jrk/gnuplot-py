@@ -55,6 +55,9 @@ Features:
         g1 = Gnuplot.Gnuplot()
         g2 = Gnuplot.Gnuplot()
 
+    Note that due to a limitation in pgnuplot, opening multiple
+    simultaneous sessions under windows may not work correctly.
+
  o  The implicitly-generated gnuplot commands can be stored to a file
     instead of executed immediately.
 
@@ -1309,21 +1312,21 @@ def demo():
     """Demonstrate the package."""
 
     from Numeric import *
-    import sys
 
     # A straightforward use of gnuplot.  The `debug=1' switch is used
     # in these examples so that the commands that are sent to gnuplot
     # are also output on stderr.
-    g1 = Gnuplot(debug=1)
-    g1.title('A simple example') # (optional)
-    g1('set data style linespoints') # give gnuplot an arbitrary command
+    g = Gnuplot(debug=1)
+    g.title('A simple example') # (optional)
+    g('set data style linespoints') # give gnuplot an arbitrary command
     # Plot a list of (x, y) pairs (tuples or a Numeric array would
     # also be OK):
-    g1.plot([[0,1.1], [1,5.8], [2,3.3], [3,4.2]])
+    g.plot([[0,1.1], [1,5.8], [2,3.3], [3,4.2]])
+    raw_input('Please press return to continue...\n')
 
+    g.reset()
     # Plot one dataset from an array and one via a gnuplot function;
     # also demonstrate the use of item-specific options:
-    g2 = Gnuplot(debug=1)
     x = arange(10, typecode=Float)
     y1 = x**2
     # Notice how this plotitem is created here but used later?  This
@@ -1333,11 +1336,12 @@ def demo():
     d = Data(x, y1,
              title='calculated by python',
              with='points 3 3')
-    g2.title('Data can be computed by python or gnuplot')
-    g2.xlabel('x')
-    g2.ylabel('x squared')
+    g.title('Data can be computed by python or gnuplot')
+    g.xlabel('x')
+    g.ylabel('x squared')
     # Plot a function alongside the Data PlotItem defined above:
-    g2.plot(Func('x**2', title='calculated by gnuplot'), d)
+    g.plot(Func('x**2', title='calculated by gnuplot'), d)
+    raw_input('Please press return to continue...\n')
 
     # Save what we just plotted as a color postscript file.
 
@@ -1345,13 +1349,13 @@ def demo():
     # squared' with a superscript (plus much, much more; see `help set
     # term postscript' in the gnuplot docs).  If your gnuplot doesn't
     # support enhanced mode, set `enhanced=0' below.
-    g2.ylabel('x^2') # take advantage of enhanced postscript mode
-    print ('\n******** Generating postscript file '
-           '"gp_test.ps" ********\n')
-    g2.hardcopy('gp_test.ps', enhanced=1, color=1)
+    g.ylabel('x^2') # take advantage of enhanced postscript mode
+    g.hardcopy('gp_test.ps', enhanced=1, color=1)
+    print ('\n******** Saved plot to postscript file "gp_test.ps" ********\n')
+    raw_input('Please press return to continue...\n')
 
+    g.reset()
     # Demonstrate a 3-d plot:
-    g3 = Gnuplot(debug=1)
     # set up x and y values at which the function will be tabulated:
     x = arange(35)/2.0
     y = arange(30)/10.0 - 1.5
@@ -1361,12 +1365,13 @@ def demo():
     xm = x[:,NewAxis]
     ym = y[NewAxis,:]
     m = (sin(xm) + 0.1*xm) - ym**2
-    g3('set parametric')
-    g3('set data style lines')
-    g3('set hidden')
-    g3('set contour base')
-    g3.xlabel('x')
-    g3.ylabel('y')
+    g('set parametric')
+    g('set data style lines')
+    g('set hidden')
+    g('set contour base')
+    g.title('An example of a surface plot')
+    g.xlabel('x')
+    g.ylabel('y')
     # The `binary=1' option would cause communication with gnuplot to
     # be in binary format, which is considerably faster and uses less
     # disk space.  (This only works with the splot command due to
@@ -1374,17 +1379,15 @@ def demo():
     # disable binary because older versions of gnuplot don't allow
     # binary data.  Change this to `binary=1' (or omit the binary
     # option) to get the advantage of binary format.
-    g3.splot(GridData(m,x,y, binary=0))
+    g.splot(GridData(m,x,y, binary=0))
 
     # Delay so the user can see the plots:
-    sys.stderr.write('Three plots should have appeared on your screen '
-                     '(they may be overlapping).\n')
     raw_input('Please press return to continue...\n')
 
     # Explicit delete shouldn't be necessary, but if you are having
     # trouble with temporary files being left behind, uncomment the
     # following:
-    #del g1, g2, g3, d
+    #del g, d
 
 
 if __name__ == '__main__':
