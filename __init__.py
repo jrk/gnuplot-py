@@ -1,25 +1,37 @@
 #!/usr/local/bin/python -t
 # $Id$
 
-# A pipe-based interface to the gnuplot plotting program.  To obtain
-# gnuplot itself, see <http://www.cs.dartmouth.edu/gnuplot_info.html>.
+# Gnuplot.py -- A pipe-based interface to the gnuplot plotting program.
+
+# Copyright (C) 1998 Michael Haggerty <mhagger@blizzard.harvard.edu>.
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.  This program is distributed in
+# the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details; it is available at <http://www.fsf.org/copyleft/gpl.html>,
+# or by writing to the Free Software Foundation, Inc., 59 Temple Place
+# - Suite 330, Boston, MA 02111-1307, USA.
 
 # Written by Michael Haggerty <mhagger@blizzard.harvard.edu>.
 # Inspired by and partly derived from an earlier version by Konrad
-# Hinsen <hinsen@ibs.ibs.fr>.
+# Hinsen <hinsen@ibs.ibs.fr>.  If you find a problem or have a
+# suggestion, please let me know at <mhagger@blizzard.harvard.edu>.
+# Other feedback is also welcome.
 
-# This module is provided with no warranties whatsoever.  However, if
-# you find a problem or have a suggestion, please let me know at
-# <mhagger@blizzard.harvard.edu>.  Any feedback is welcome.
-
-# For information about how to use this module, see the documentation
-# string for class Gnuplot, and the test code at the bottom of the
-# file.  You can run the test code by typing `python Gnuplot.py'
+# For information about how to use this module, see the comments
+# below, the documentation string for class Gnuplot, and the test code
+# at the bottom of the file.  You can run the test code by typing
+# `python Gnuplot.py'.
 
 # You should import this file with `import Gnuplot', not with `from
 # Gnuplot import *'; otherwise you will have problems with conflicting
-# names (namely the Gnuplot module name conflicting with the Gnuplot
-# class name.
+# names (specifically, the Gnuplot module name conflicts with the
+# Gnuplot class name).  To obtain gnuplot itself, see
+# <http://www.cs.dartmouth.edu/gnuplot_info.html>.
 
 # Features:
 #  +  A gnuplot session is an instance of class `Gnuplot', so multiple
@@ -33,17 +45,16 @@
 #     temporary data files to be extended.
 #  +  Can pass arbitrary commands to the gnuplot command interpreter:
 #         g("set pointsize 2")
-#  +  A Gnuplot object knows how to plot three types of `PlotItem':
-#     `Data', `File', and `Func'tion.  See those classes for
-#     information.
-#  +  Any PlotItem can have optional `title' and/or `with' suboptions.
-#  +  Builtin PlotItem types:
+#  +  A Gnuplot object knows how to plot objects of type `PlotItem'.
+#     Any PlotItem can have optional `title' and/or `with' suboptions.
+#     Builtin PlotItem types:
 #      *  Data(array1) -- data from a Python list or NumPy array
 #         (permits additional option `cols')
 #      *  File("filename") -- data from an existing data file (permits
 #         additional option `using')
 #      *  Func("exp(4.0 * sin(x))") -- functions (passed as a string
 #         for gnuplot to evaluate)
+#     See those classes for more details.
 #  +  PlotItems are implemented as objects that can be assigned to
 #     variables (including their options) and plotted
 #     repeatedly---this also saves much of the overhead of plotting
