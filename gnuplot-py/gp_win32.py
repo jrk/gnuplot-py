@@ -31,11 +31,11 @@ class GnuplotOpts:
     #
     # If pgnuplot is in a subdirectory with spaces in its name, extra
     # quoting is required for windows for it to launch gnuplot.
-    # Moreover, any backslashes in the filename have to be escaped by
-    # writing them as "\\".  Example:
+    # Moreover, it is suggested to use a raw string to avoid having to
+    # quote backslashes in the filename.  Example:
     #
-    #     gnuplot_command = '"C:\\Program Files\\gp371w32\\pgnuplot.exe"'
-    gnuplot_command = 'pgnuplot.exe'
+    #     gnuplot_command = r'"C:\Program Files\gp371w32\pgnuplot.exe"'
+    gnuplot_command = r'pgnuplot.exe'
 
     # The '-persist' option is not supported on windows:
     recognizes_persist = 0
