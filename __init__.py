@@ -125,24 +125,43 @@ Bugs:
 __version__ = '1.1a'
 __cvs_version__ = 'CVS version $Revision$'
 
-import sys, os, string, tempfile, Numeric
+# ############ Configuration variables (optional): #####################
 
-if sys.platform == 'win32':
-    from win32pipe import popen
-else:
-    from os import popen
+# Command to start up the gnuplot program.  If your version of gnuplot
+# is run with some command other than `gnuplot', specify the correct
+# command here.  You could also append command-line options here if
+# you wish.
+_gnuplot_command = 'gnuplot'
 
-# Set after first call of test_persist().  This will be set from None
-# to 0 or 1 upon the first call of test_persist(), then the stored
-# value will be used thereafter.  To avoid the test, type 1 or 0 on
-# the following line corresponding to whether your gnuplot is new
-# enough to understand the -persist option.
+# Recent versions of gnuplot (at least for Xwindows) allow a
+# `-persist' command-line option when starting up gnuplot.  When this
+# option is specified, graph windows remain on the screen even after
+# you quit gnuplot (type `q' in the window to close it).  This can be
+# handy but unfortunately it is not supported by older versions of
+# gnuplot.  The following configuration variable specifies whether the
+# user's version of gnuplot recognizes this option or not.  You can
+# set this variable to 1 (supports -persist) or 0 (doesn't support)
+# yourself; if you leave it with the value None then the first time
+# you create a Gnuplot object it will try to detect automatically
+# whether your version accepts this option.
 _recognizes_persist = None
+
+# Recent versions of gnuplot allow you to specify a `binary' option to
+# the splot command for grid data, which means that the data file is
+# to be read in binary format.  This option saves substantial time
+# writing and reading the file, and can also save substantial disk
+# space and therefore it is the default for that type of plot.  But if
+# you have an older version of gnuplot (or you prefer text format) you
+# can disable the binary option in either of two ways: (a) set the
+# following variable to 0; (b) pass `binary=0' to the GridData
+# constructor.  (Note that the demo uses binary=0 to maximize
+# portability.)
+_recognizes_binary_splot = 1
 
 # After a hardcopy is produced, we have to set the terminal type back
 # to `on screen'.  If you are using unix, then `x11' is probably
 # correct.  If not, change the following line to the terminal type you
-# use.
+# prefer to use for on-screen work.
 _default_term = 'x11'
 
 # Gnuplot can plot to a printer by using "set output '| ...'" where
@@ -153,18 +172,31 @@ _default_term = 'x11'
 # variable to add options to the print command.
 _default_lpr = '| lpr'
 
-def test_persist():
-    """Test and report whether gnuplot recognizes the option '-persist'.
+# ############ End of configuration options ############################
 
-    Test if gnuplot is new enough to know the option '-persist'.  It it
-    isn't, it will emit an error message with '-persist' in the first
-    line.
+import sys, os, string, tempfile, Numeric
+
+if sys.platform == 'win32':
+    from win32pipe import popen
+else:
+    from os import popen
+
+
+def test_persist():
+    """Determine whether gnuplot recognizes the option '-persist'.
+
+    If the configuration variable _recognizes_persist is set (i.e., to
+    something other than None), return that value.  Otherwise, try to
+    determine whether the installed version of gnuplot recognizes the
+    -persist option.  (If it doesn't, it should emit an error message
+    with '-persist' in the first line.)  Then set _recognizes_persist
+    accordingly for future use.
 
     """
 
     global _recognizes_persist
     if _recognizes_persist is None:
-        g = popen('echo | gnuplot -persist 2>&1', 'r')
+        g = popen('echo | %s -persist 2>&1' % _gnuplot_command, 'r')
         response = g.readlines()
         g.close()
         _recognizes_persist = ((not response)
@@ -340,14 +372,17 @@ class AnyFile:
     An AnyFile represents a file, but presumably one that holds data
     in a format readable by gnuplot.  This class simply remembers the
     filename; the existence and format of the file are not checked
-    whatsoever.  Note that this is not a PlotItem, though it is used by
-    the 'File' PlotItem.  Members:
+    whatsoever.  If no filename is specfied, a random one is created.
+    Note that this is not a PlotItem, though it is used by the 'File'
+    PlotItem.  Members:
 
-    'self.filename' -- the filename of the file
+        self.filename -- the filename of the file
 
     """
 
-    def __init__(self, filename):
+    def __init__(self, filename=None):
+        if filename is None:
+            filename = tempfile.mktemp()
         self.filename = filename
 
 
@@ -357,7 +392,10 @@ class TempFile(AnyFile):
     A TempFile points to a file.  The file is deleted automatically
     when the TempFile object is deleted.
 
-    WARNING: whatever filename you pass to this constructor **WILL BE
+    The constructor is inherited from AnyFile.  It can be passed a
+    filename or nothing (in which case a random filename is chosen).
+
+    WARNING: whatever filename you pass to the constructor **WILL BE
     DELETED** when the TempFile object is deleted, even if it was a
     pre-existing file! This is intended to be used as a parent class of
     TempArrayFile.
@@ -395,10 +433,8 @@ class ArrayFile(AnyFile):
     """
 
     def __init__(self, set, filename=None):
-        if not filename:
-            filename = tempfile.mktemp()
-        write_array(open(filename, 'w'), set)
         AnyFile.__init__(self, filename)
+        write_array(open(self.filename, 'w'), set)
 
 
 class TempArrayFile(ArrayFile, TempFile):
@@ -528,9 +564,17 @@ class GridData(File):
     plotted by Gnuplot.  The data are written to a file but not stored
     in memory.
 
+    If binary=1 is passed to the constructor, the data will be passed
+    to gnuplot in binary format and the `binary' option added to the
+    splot command line.  Binary format is faster and usually saves
+    disk space but is not human-readable.  If your version of gnuplot
+    doesn't support binary format (it is a recently-added feature), it
+    can be disabled by setting the configuration variable
+    _recognizes_binary_splot=0 at the top of this file.
+
     """
 
-    def __init__(self, data, xvals=None, yvals=None, **keyw):
+    def __init__(self, data, xvals=None, yvals=None, binary=1, **keyw):
         """GridData constructor.
 
         Arguments:
@@ -572,13 +616,31 @@ class GridData(File):
             assert len(yvals.shape) == 1
             assert yvals.shape[0] == numy
 
-        set = Numeric.transpose(
-            Numeric.array(
-                (Numeric.transpose(Numeric.resize(xvals, (numy, numx))),
-                 Numeric.resize(yvals, (numx, numy)),
-                 data)), (1,2,0))
-
-        apply(File.__init__, (self, TempArrayFile(set)), keyw)
+        if binary and _recognizes_binary_splot:
+            # write file in binary format
+            mout = Numeric.zeros((numx + 1, numy + 1), Numeric.Float32)
+            mout[0,0] = numy
+            mout[0,1:] = yvals.astype(Numeric.Float32)
+            mout[1:,0] = xvals.astype(Numeric.Float32)
+            try:
+                # try copying without the additional copy implied by astype():
+                mout[1:,1:] = data
+            except:
+                # if that didn't work then downcasting from double
+                # must be necessary:
+                mout[1:,1:] = data.astype(Numeric.Float32)
+            f = TempFile()
+            open(f.filename, 'wb').write(mout.tostring())
+            apply(File.__init__, (self, f), keyw)
+            # Include the command-line option to read in binary data:
+            self.options.insert(0, 'binary')
+        else:
+            set = Numeric.transpose(
+                Numeric.array(
+                    (Numeric.transpose(Numeric.resize(xvals, (numy, numx))),
+                     Numeric.resize(yvals, (numx, numy)),
+                     data)), (1,2,0))
+            apply(File.__init__, (self, TempArrayFile(set)), keyw)
 
 
 def grid_function(f, xvals, yvals):
@@ -694,9 +756,9 @@ class Gnuplot:
                     raise OptionException(
                         '-persist does not seem to be supported '
                         'by your version of gnuplot!')
-                self.gnuplot = popen('gnuplot -persist', 'w')
+                self.gnuplot = popen('%s -persist' % _gnuplot_command, 'w')
             else:
-                self.gnuplot = popen('gnuplot', 'w')
+                self.gnuplot = popen(_gnuplot_command, 'w')
         self._clear_queue()
         self.debug = debug
         self.plotcmd = 'plot'
@@ -1044,7 +1106,14 @@ if __name__ == '__main__':
     g3('set contour base')
     g3.xlabel('x')
     g3.ylabel('y')
-    g3.splot(GridData(m,x,y))
+    # The `binary=1' option would cause communication with gnuplot to
+    # be in binary format, which is considerably faster and uses less
+    # disk space.  (Unfortunately gnuplot only allows binary format
+    # for GridData being passed to splot.)  `binary=1' is the default,
+    # but here we disable binary because older versions of gnuplot
+    # don't allow binary data.  Change this to `binary=1' (or omit the
+    # binary option) to get the advantage of binary format.
+    g3.splot(GridData(m,x,y, binary=0))
 
     # Delay so the user can see the plots:
     sys.stderr.write('Three plots should have appeared on your screen '
