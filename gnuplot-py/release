@@ -7,7 +7,7 @@ import sys, os, string, re
 import tempfile
 tempfile.mktemp() # initializes tempfile.tempdir
 
-debug = 1
+debug = 0
 
 class CmdError(Exception):
     pass
@@ -36,9 +36,14 @@ pythondoc = os.path.join(os.environ['HOME'], 'download', 'python',
 
 module = 'Gnuplot'
 basedir = os.path.join(os.environ['HOME'], 'public_html', 'Gnuplot')
-htmlfile = os.path.join(basedir, '%s.html' % (module,))
+htmlfile = '%s.html' % (module,)
 
 comment_re = re.compile(r'\s+\#.*$')
+
+# Allow for debugging (no actions taken) with the -d option:
+if sys.argv[1] == '-d':
+    debug = 1
+    del sys.argv[1]
 
 [version] = sys.argv[1:]
 inform('Creating version "%s"' % version)
@@ -101,7 +106,7 @@ inform('Searching %s for files that need to be available' %
                  htmlfile)
 link_re = re.compile(r'\bhref\=\"([^\"\/]+)\"', re.IGNORECASE)
 html = open(htmlfile, 'r').read()
-localfiles = {}
+localfiles = { htmlfile : 1 }
 searchpos = 0
 while 1:
     m = link_re.search(html, searchpos)
@@ -111,7 +116,9 @@ while 1:
     if f in manifest and not localfiles.has_key(f):
         localfiles[f] = 1
         inform('\t%s' % f)
-        cmd('cp -p %s %s' % (f, basedir))
+
+for f in localfiles.keys():
+    cmd('cp -p %s %s' % (f, basedir))
 
 inform('Deleting temporary directory')
 cmd('rm -rf %s' % (stagingdir,))
