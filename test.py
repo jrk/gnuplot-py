@@ -26,8 +26,10 @@ from Numeric import *
 import Gnuplot
 gp = Gnuplot # abbreviation
 
-def wait(str='Press return to show results...\n'):
-    raw_input(str)
+def wait(str=None, prompt='Press return to show results...\n'):
+    if str is not None:
+        print str
+    raw_input(prompt)
 
 
 def main():
@@ -46,86 +48,66 @@ def main():
     print
 
     ############### test Func ########################################
-    print 'Plot a gnuplot-generated function'
-    wait()
+    wait('Plot a gnuplot-generated function')
     g.plot(gp.Func('sin(x)'))
 
-    print 'Set title and axis labels and try replot()'
-    wait()
+    wait('Set title and axis labels and try replot()')
     g.title('Title')
     g.xlabel('x')
     g.ylabel('y')
     g.replot()
 
-    print 'Style linespoints'
-    wait()
+    wait('Style linespoints')
     g.plot(gp.Func('sin(x)', with='linespoints'))
-    print 'title=None'
-    wait()
+    wait('title=None')
     g.plot(gp.Func('sin(x)', title=None))
-    print 'title="Sine of x"'
-    wait()
+    wait('title="Sine of x"')
     g.plot(gp.Func('sin(x)', title='Sine of x'))
 
     print 'Change Func attributes after construction:'
     f = gp.Func('sin(x)')
-    print 'Original'
-    wait()
+    wait('Original')
     g.plot(f)
-    print 'Style linespoints'
-    wait()
+    wait('Style linespoints')
     f.set_option(with='linespoints')
     g.plot(f)
-    print 'title=None'
-    wait()
+    wait('title=None')
     f.set_option(title=None)
     g.plot(f)
-    print 'title="Sine of x"'
-    wait()
+    wait('title="Sine of x"')
     f.set_option(title='Sine of x')
     g.plot(f)
 
     ############### test File ########################################
-    print 'Generate a File from a filename'
-    wait()
+    wait('Generate a File from a filename')
     g.plot(gp.File(file1.filename))
-    print 'Generate a File given a TempFile object'
-    wait()
+    wait('Generate a File given a TempFile object')
     g.plot(gp.File(file1))
 
-    print 'Style lines'
-    wait()
+    wait('Style lines')
     g.plot(gp.File(file1.filename, with='lines'))
-    print 'using=1, using=(1,)'
-    wait()
+    wait('using=1, using=(1,)')
     g.plot(gp.File(file1.filename, using=1, with='lines'),
            gp.File(file1.filename, using=(1,), with='points'))
-    print 'using=(1,2), using="1:3"'
-    wait()
+    wait('using=(1,2), using="1:3"')
     g.plot(gp.File(file1.filename, using=(1,2)),
            gp.File(file1.filename, using='1:3'))
-    print 'title=None'
-    wait()
+    wait('title=None')
     g.plot(gp.File(file1.filename, title=None))
-    print 'title="title"'
-    wait()
+    wait('title="title"')
     g.plot(gp.File(file1.filename, title='title'))
 
     print 'Change File attributes after construction:'
     f = gp.File(file1.filename)
-    print 'Original'
-    wait()
+    wait('Original')
     g.plot(f)
-    print 'Style linespoints'
-    wait()
+    wait('Style linespoints')
     f.set_option(with='linespoints')
     g.plot(f)
-    print 'using=(1,3)'
-    wait()
+    wait('using=(1,3)')
     f.set_option(using=(1,3))
     g.plot(f)
-    print 'title=None'
-    wait()
+    wait('title=None')
     f.set_option(title=None)
     g.plot(f)
 
@@ -135,47 +117,47 @@ def main():
     y2 = Numeric.sin(x)
     d = Numeric.transpose((x,y1,y2))
 
-    print 'Plot Data, specified column-by-column'
-    wait()
-    g.plot(gp.Data(x,y2))
-    print 'Plot Data, specified by an array'
-    wait()
-    g.plot(gp.Data(d))
-    print 'with="lp 4 4"'
-    wait()
+    wait('Plot Data, specified column-by-column')
+    g.plot(gp.Data(x,y2, inline=0))
+    wait('Same thing, inline data')
+    g.plot(gp.Data(x,y2, inline=1))
+
+    wait('Plot Data, specified by an array')
+    g.plot(gp.Data(d, inline=0))
+    wait('Same thing, inline data')
+    g.plot(gp.Data(d, inline=1))
+    wait('with="lp 4 4"')
     g.plot(gp.Data(d, with='lp 4 4'))
-    print 'cols=0'
-    wait()
+    wait('cols=0')
     g.plot(gp.Data(d, cols=0))
-    print 'cols=(0,1), cols=(0,2)'
-    wait()
-    g.plot(gp.Data(d, cols=(0,1)),
-           gp.Data(d, cols=(0,2)))
-    print 'title=None'
-    wait()
+    wait('cols=(0,1), cols=(0,2)')
+    g.plot(gp.Data(d, cols=(0,1), inline=0),
+           gp.Data(d, cols=(0,2), inline=0))
+    wait('Same thing, inline data')
+    g.plot(gp.Data(d, cols=(0,1), inline=1),
+           gp.Data(d, cols=(0,2), inline=1))
+    wait('Change title and replot()')
+    g.title('New title')
+    g.replot()
+    wait('title=None')
     g.plot(gp.Data(d, title=None))
-    print 'title="Cosine of x"'
-    wait()
+    wait('title="Cosine of x"')
     g.plot(gp.Data(d, title='Cosine of x'))
 
     ############### test HardCopy ####################################
-    print 'testing hardcopy'
-    wait()
-    print '******** Generating postscript file ' \
-          '"gp_test.ps" ********'
+    wait('testing hardcopy')
+    print '******** Generating postscript file "gp_test.ps" ********'
     g.hardcopy('gp_test.ps', enhanced=1, color=1)
-    print 'Listing file'
-    os.system('ls -la gp_test.ps')
 
     ############### test shortcuts ###################################
-    print 'plot Func and Data using shortcuts'
-    wait()
+    wait('plot Func and Data using shortcuts')
     g.plot('sin(x)', d)
 
     ############### test splot #######################################
-    print 'testing splot:'
-    wait()
-    g.splot(gp.Data(d, with='linesp'))
+    wait('testing splot:')
+    g.splot(gp.Data(d, with='linesp', inline=0))
+    wait('Same thing, inline data')
+    g.splot(gp.Data(d, with='linesp', inline=1))
 
     ############### test GridData ####################################
     print 'testing GridData:'
@@ -188,28 +170,27 @@ def main():
     xm = x[:,NewAxis]
     ym = y[NewAxis,:]
     m = (sin(xm) + 0.1*xm) - ym**2
-    print 'a function of two variables from a GridData file'
-    wait()
+    wait('a function of two variables from a GridData file')
     g('set parametric')
     g('set data style lines')
     g('set hidden')
     g('set contour base')
     g.xlabel('x')
     g.ylabel('y')
-    g.splot(gp.GridData(m,x,y, binary=0))
+    g.splot(gp.GridData(m,x,y, binary=0, inline=0))
+    wait('Same thing, inline data')
+    g.splot(gp.GridData(m,x,y, binary=0, inline=1))
 
-    print 'The same thing using binary mode'
-    wait()
+    wait('The same thing using binary mode')
     g.splot(gp.GridData(m,x,y, binary=1))
 
-    print 'And now for a little fun'
-    wait()
-    for view in range(0,90,5):
+    wait('And now rotate it a bit')
+    for view in range(35,70,5):
         g('set view 60, %d' % view)
         g.replot()
         time.sleep(1.0)
 
-    wait('Press return to end the test.\n')
+    wait(prompt='Press return to end the test.\n')
 
 
 if __name__ == '__main__':
