@@ -63,6 +63,9 @@ class GnuplotOpts:
     # this option.
     recognizes_persist = None # test automatically on first use
 
+    # What should be the default if persist is not specified?
+    prefer_persist = 0
+
     # Recent versions of gnuplot allow you to specify a `binary'
     # option to the splot command for grid data, which means that the
     # data file is to be read in binary format.  This option saves
@@ -160,7 +163,7 @@ class GnuplotProcess:
 
     """
 
-    def __init__(self, persist=0):
+    def __init__(self, persist=None):
         """Start a gnuplot process.
 
         Create a 'GnuplotProcess' object.  This starts a gnuplot
@@ -175,6 +178,8 @@ class GnuplotProcess:
 
         """
 
+        if persist is None:
+            persist = GnuplotOpts.prefer_persist
         if persist:
             if not test_persist():
                 raise ('-persist does not seem to be supported '

@@ -60,6 +60,11 @@ import Required_Suite
 import aetools
 
 
+# Mac doesn't recognize persist.
+def test_persist():
+    return 0
+
+
 class _GNUPLOT(aetools.TalkTo,
                Required_Suite.Required_Suite,
                gnuplot_Suites.gnuplot_Suite,

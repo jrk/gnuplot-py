@@ -66,6 +66,11 @@ class GnuplotOpts:
 from win32pipe import popen
 
 
+# Mac doesn't recognize persist.
+def test_persist():
+    return 0
+
+
 class GnuplotProcess:
     """Unsophisticated interface to a running gnuplot program.
 
