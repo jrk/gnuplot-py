@@ -47,6 +47,14 @@ Version x.x:
   prefer_fifo_data, to the gp_*.py files to switch the new feature on
   and off.
 
+* Started adding support for running Gnuplot.py under Jython/Java.
+  Added gp_java.py, which is a functioning low-level interface to
+  gnuplot via java.lang.Process objects.  The rest might work, too, if
+  you have JNumeric <http://jnumerical.sourceforge.net/> installed.
+  (Gnuplot.py relies on the Numeric library; JNumeric is the Jython
+  equivalent.)  If I find the time I might try to produce a version
+  that doesn't require Numeric at all, under either Python or Jython.
+
 * Removed the oldplot.py module: (1) I doubt anybody is still using
   it. (2) It seems to be broken anyway. (3) I don't have the energy to
   fix or maintain it.  Let me know if I'm wrong about point 1.
