@@ -1,0 +1,93 @@
+$Id$
+
+This file describes the changes introduced in each version of the
+Gnuplot.py package.
+
+
+Version X.X:
+
+* Converted to package format.  The main file is now called
+  __init__.py, so that it can be loaded by typing 'import Gnuplot'.
+
+* Passing GridData a callable function was basically broken because of
+  the kludgey way of overloading the argument.  Instead that
+  functionality has been moved to a new PlotItem class called
+  'GridFunc'.
+
+* Added a new keyword argument, 'ufunc', to grid_function and to
+  GridFunc.  If that argument is nonzero, then the function is
+  evaluated matrix-wise (in that case it must be composed only of
+  ufunctions or ufunction-like routines).
+
+* Fixed a 'typecode' problem with grid_function (typecode is
+  apparently a positional, not a keyword, argument in the Numeric
+  library).
+
+
+Version 1.2 (8 Aug 1999):
+
+* Support for MS Windows, using the `pgnuplot.exe' program.
+  Thanks go especially to Craig Schardt for help with this.
+
+* Support for using binary files to send grid data to splot.
+  This saves a lot of time and usually saves space compared with
+  the old text files.  (Only works with recent versions of
+  gnuplot.)
+
+* Support for sending data to gnuplot as `inline data' (i.e., "plot
+  '-'").  This method should be faster than the alternate method,
+  temporary files.  (Only works with recent versions of gnuplot.)
+
+* Allows PlotItem options to be modified after the PlotItem is
+  constructed.
+
+* Simplified the PlotItem inheritance hierarchy (Data and GridData are
+  no longer derived from File).
+
+* Added several configuration options (see top of Gnuplot.py).
+
+* Separated function-based interface into a separate file
+  (Gnuplot_plot.py).
+
+* Added a test module, Gnuplot_test.py, which tests most of the
+  features of Gnuplot.py.
+
+* A README file, lots of documentation changes, etc.
+
+
+Version 1.1a (9 Apr 1999):
+
+This version just addresses a couple of minor portability issues.
+
+
+Version 1.1 (31 Jan 1999):
+
+* 3-D plots are now supported through the new 'splot' method:
+  + To create a scatter plot, pass splot a 2-D array containing
+    (x,y,z) triplets;
+  + To create a grid plot, pass a 3-D array consisting of a 2-D array
+    of (x,y,z) triplets; or
+  + Use the new `GridData' PlotItem to plot gridded data (data
+    tabulated on a rectangular grid).
+
+* It is now easier to pass data to gnuplot.  The 'Data' PlotItem now
+  accepts multiple arguments representing subsequent 'columns' of the
+  dataset; e.g., what used to be written as
+
+      g = Gnuplot.Gnuplot()
+      x = Numeric.arange(100)/10.0
+      y = x**2
+      # Create an array of (x,y) pairs:
+      g.plot(Gnuplot.Data(Numeric.transpose((x, y))))
+
+  can now be shortened to
+
+      # Plot y vs. x directly:
+      g.plot(Gnuplot.Data(x, y))
+
+  (both examples plot x squared vs. x).  Similarly, splot can be
+  passed three arrays representing the values of x, y, and z.
+  Note that the old interpretation is still used if a single
+  argument is passed to `Data'.
+
+
