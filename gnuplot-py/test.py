@@ -144,7 +144,7 @@ def main():
     wait('title="Cosine of x"')
     g.plot(gp.Data(d, title='Cosine of x'))
 
-    ############### test HardCopy ####################################
+    ############### test hardcopy ####################################
     wait('testing hardcopy')
     print '******** Generating postscript file "gp_test.ps" ********'
     g.hardcopy('gp_test.ps', enhanced=1, color=1)
@@ -159,7 +159,7 @@ def main():
     wait('Same thing, inline data')
     g.splot(gp.Data(d, with='linesp', inline=1))
 
-    ############### test GridData ####################################
+    ############### test GridData and GridFunc #######################
     print 'testing GridData:'
     # set up x and y values at which the function will be tabulated:
     x = arange(35)/2.0
@@ -183,6 +183,9 @@ def main():
 
     wait('The same thing using binary mode')
     g.splot(gp.GridData(m,x,y, binary=1))
+
+    wait('The same thing using GridFunc to tabulate function')
+    g.splot(gp.GridFunc(lambda x,y: sin(x) + 0.1*x - y**2, x,y, binary=1))
 
     wait('And now rotate it a bit')
     for view in range(35,70,5):
