@@ -79,3 +79,21 @@ To prevent this problem, there are several possibilities:
 
 ======================================================================
 
+Q2:
+
+Does Gnuplot.py work under Jython/Java?
+
+A1:
+
+Partly.  Version 1.7 added the low-level interface gp_java.py for
+communicating with gnuplot using the Java libraries, and that part
+seems to work.
+
+However, Gnuplot.py relies on the Python Numeric library, which is a C
+library.  The Jython equivalent, called JNumeric
+<http://jnumerical.sourceforge.net/>, therefore has to be installed.
+However, JNumeric is still at beta level, and operation under Jython
+hasn't been tested much at all, so feedback is welcome!
+
+======================================================================
+
