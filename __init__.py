@@ -893,7 +893,11 @@ class Gnuplot:
         self.plotcmd = 'plot'
 
     def __del__(self):
-        self('quit')
+        # pgnuplot (on windows) sends `exit' to gnuplot itself, and if
+        # we send it also pgnuplot seems to hang.  On Unix, gnuplot
+        # closes when the pipe is closed anyway, so `exit' isn't
+        # necessary.  So we just omit that step:
+        #self('exit')
         self.gnuplot.close()
 
     def __call__(self, s):
