@@ -41,27 +41,27 @@ Features:
     python by piping commands to the 'gnuplot' program.
  o  A gnuplot session is an instance of class 'Gnuplot', so multiple
     sessions can be open at once:
-        'g1 = Gnuplot.Gnuplot(); g2 = Gnuplot.Gnuplot()'
+        g1 = Gnuplot.Gnuplot(); g2 = Gnuplot.Gnuplot()
  o  The implicitly-generated gnuplot commands can be stored to a file
     instead of executed immediately:
-        'g = Gnuplot.Gnuplot("commands.gnuplot")'
+        g = Gnuplot.Gnuplot('commands.gnuplot')
     The file can then be run later with gnuplot's 'load' command.
     Beware, however, if the plot commands depend on the existence of
     temporary files, because they might be deleted before you use
     the command file.
  o  Can pass arbitrary commands to the gnuplot command interpreter:
-        'g("set pointsize 2")'
+        g('set pointsize 2')
  o  A Gnuplot object knows how to plot objects of type 'PlotItem'.
     Any PlotItem can have optional `title' and/or 'with' suboptions.
     Builtin PlotItem types:
         
-    * 'Data(array1)' -- data from a Python list or NumPy array
+    * "Data(array1)" -- data from a Python list or NumPy array
                       (permits additional option 'cols' )
-    * 'File("filename")' -- data from an existing data file (permits
+    * "File('filename')" -- data from an existing data file (permits
                       additional option 'using' )
-    * 'Func("exp(4.0 * sin(x))")' -- functions (passed as a string
+    * "Func('exp(4.0 * sin(x))')" -- functions (passed as a string
                       for gnuplot to evaluate)
-    * 'GridData(m, x, y)' -- data tabulated on a grid of (x,y) values
+    * "GridData(m, x, y)" -- data tabulated on a grid of (x,y) values
                       (usually to be plotted in 3-D)
 
     See those classes for more details.
@@ -122,8 +122,8 @@ Bugs:
     let me know.
 """
 
-__version__ = "1.1a"
-__cvs_version__ = "CVS version $Revision$"
+__version__ = '1.1a'
+__cvs_version__ = 'CVS version $Revision$'
 
 import sys, os, string, tempfile, Numeric
 
@@ -141,7 +141,7 @@ _recognizes_persist = None
 # use.
 _default_term = 'x11'
 
-# Gnuplot can plot to a printer by using `set output "| ..."' where
+# Gnuplot can plot to a printer by using "set output '| ...'" where
 # ... is the name of a program that sends its stdin to a printer.  On
 # my machine the appropriate program is `lpr', as set below.  On your
 # computer it may be something different (like `lp'); you can set that
@@ -248,11 +248,11 @@ class Func(PlotItem):
     The argument to the contructor is a string which is a expression.
     Example:
 
-        g.plot(Func("sin(x)", with="line 3"))
+        g.plot(Func('sin(x)', with='line 3'))
 
     or the shorthand example:
 
-        g.plot("sin(x)")
+        g.plot('sin(x)')
 
     """
 
@@ -419,7 +419,7 @@ class File(PlotItem):
             # title.)
             if isinstance(file, TempFile) and not keyw.has_key('title'):
                 keyw['title'] = None
-        elif type(file) == type(""):
+        elif type(file) == type(''):
             self.file = AnyFile(file)
         else:
             raise OptionException
@@ -427,14 +427,14 @@ class File(PlotItem):
         self.using = using
         if self.using is None:
             pass
-        elif type(self.using) == type(""):
-            self.options.insert(0, "using " + self.using)
+        elif type(self.using) == type(''):
+            self.options.insert(0, 'using ' + self.using)
         elif type(self.using) == type(()):
             self.options.insert(0,
-                                "using " +
+                                'using ' +
                                 string.join(map(repr, self.using), ':'))
         elif type(self.using) == type(1):
-            self.options.insert(0, "using " + `self.using`)
+            self.options.insert(0, 'using ' + `self.using`)
         else:
             raise OptionException('using=' + `self.using`)
 
@@ -687,11 +687,11 @@ class Gnuplot:
 
         """
 
-        self.gnuplot.write(s + "\n")
+        self.gnuplot.write(s + '\n')
         self.gnuplot.flush()
         if self.debug:
             # also echo to stderr for user to see:
-            sys.stderr.write("gnuplot> %s\n" % (s,))
+            sys.stderr.write('gnuplot> %s\n' % (s,))
 
     def refresh(self):
         """Refresh the plot, using the current PlotItems.
@@ -726,7 +726,7 @@ class Gnuplot:
         for item in items:
             if isinstance(item, PlotItem):
                 self.itemlist.append(item)
-            elif type(item) is type(""):
+            elif type(item) is type(''):
                 self.itemlist.append(Func(item))
             else:
                 # assume data is an array:
@@ -746,7 +746,7 @@ class Gnuplot:
                    lifetime is longer than one plot command--thus they
                    can be replotted with minimal overhead.
 
-        'string' (i.e., "sin(x)") -- The string is interpreted as
+        'string' (i.e., 'sin(x)') -- The string is interpreted as
                  'Func(string)' (a function that is computed by
                  gnuplot).
 
@@ -776,7 +776,7 @@ class Gnuplot:
                 longer than one plot command--thus they can be
                 replotted with minimal overhead.
 
-        'string' (i.e., "sin(x*y)") -- The string is interpreted as a
+        'string' (i.e., 'sin(x*y)') -- The string is interpreted as a
                 'Func()' (a function that is computed by gnuplot).
 
         Anything else -- The object is converted to a Data() item, and
@@ -814,13 +814,13 @@ class Gnuplot:
 
         """
 
-        sys.stderr.write("Press C-d to end interactive input\n")
+        sys.stderr.write('Press C-d to end interactive input\n')
         while 1:
-            sys.stderr.write("gnuplot>>> ")
+            sys.stderr.write('gnuplot>>> ')
             line = sys.stdin.readline()
             if not line:
                 break
-            if line[-1] == "\n": line = line[:-1]
+            if line[-1] == '\n': line = line[:-1]
             self(line)
 
     def clear(self):
@@ -940,7 +940,7 @@ def plot(*items, **keyw):
                 for col in range(1, item.shape[1]):
                     newitems.append(File(tempf, using=(1,col+1), with='lines'))
         else:
-            raise DataException("Data array must be 1 or 2 dimensional")
+            raise DataException('Data array must be 1 or 2 dimensional')
     items = tuple(newitems)
     del newitems
 
@@ -987,17 +987,17 @@ if __name__ == '__main__':
     # times, because the data need only be written to a temporary file
     # once.
     d = Data(x, y1,
-             title="calculated by python",
-             with="points 3 3")
+             title='calculated by python',
+             with='points 3 3')
     g2.title('Data can be computed by python or gnuplot')
     g2.xlabel('x')
     g2.ylabel('x squared')
     # Plot a function alongside the Data PlotItem defined above:
-    g2.plot(Func("x**2", title="calculated by gnuplot"), d)
+    g2.plot(Func('x**2', title='calculated by gnuplot'), d)
 
     # Save what we just plotted as a color postscript file:
-    print ("\n******** Generating postscript file "
-           "'gnuplot_test_plot.ps' ********\n")
+    print ('\n******** Generating postscript file '
+           '"gnuplot_test_plot.ps" ********\n')
     g2.hardcopy('gnuplot_test_plot.ps', color=1)
 
     # Demonstrate a 3-d plot:
@@ -1020,9 +1020,9 @@ if __name__ == '__main__':
     g3.splot(GridData(m,x,y))
 
     # Delay so the user can see the plots:
-    sys.stderr.write("Three plots should have appeared on your screen "
-                     "(they may be overlapping).\n"
-                     "Please press return to continue...\n")
+    sys.stderr.write('Three plots should have appeared on your screen '
+                     '(they may be overlapping).\n'
+                     'Please press return to continue...\n')
     sys.stdin.readline()
 
     # ensure processes and temporary files are cleaned up:
@@ -1034,7 +1034,7 @@ if __name__ == '__main__':
 	plot([(0.,1),(1.,5),(2.,3),(3.,4)])
 
 	# List of y values, file output
-        print "\n            Generating postscript file 'gnuplot_test2.ps'\n"
+        print '\n            Generating postscript file "gnuplot_test2.ps"\n'
 	plot([1, 5, 3, 4], file='gnuplot_test2.ps')
 
 	# Two plots; each given by a 2d array
