@@ -31,3 +31,6 @@ suggestions for automating the tabulation of function values.
 Jannie Hofmeyr <jhsh@iafrica.com> suggested using "from os import
 popen" in gp_win32.py for versions of Python subsequent to 2.0.
 
+Berthold Hoellmann <bhoel@starship.python.net> submitted a setup.py
+file to be used with Python distutils.
+
