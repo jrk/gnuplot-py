@@ -24,6 +24,8 @@ the Gnuplot package, see test.py.
 __cvs_version__ = '$Revision$'
 
 
+from Numeric import *
+
 try:
     # If the package has been installed correctly, this should work:
     import Gnuplot, Gnuplot.funcutils
@@ -39,8 +41,6 @@ except ImportError:
 
 def demo():
     """Demonstrate the Gnuplot package."""
-
-    from Numeric import *
 
     # A straightforward use of gnuplot.  The `debug=1' switch is used
     # in these examples so that the commands that are sent to gnuplot

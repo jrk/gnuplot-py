@@ -16,6 +16,8 @@ Version 1.6:
   DataError.  Moved both to Errors.py and derive both from
   Errors.Error.
 
+* Moved import statement in demo.py to global scope for Python 2.2.
+
 
 Version 1.5:
 
