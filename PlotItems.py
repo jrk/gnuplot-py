@@ -277,19 +277,19 @@ class TempFile(AnyFile):
         os.unlink(self.filename)
 
 
-class file(plotitem):
-    """a plotitem representing a file that contains gnuplot data."""
+class File(PlotItem):
+    """A PlotItem representing a file that contains gnuplot data."""
 
-    _option_list = plotitem._option_list.copy()
+    _option_list = PlotItem._option_list.copy()
     _option_list.update({
         'smooth' : lambda self, smooth: self.set_string_option(
-            'smooth', smooth, none, 'smooth %s'),
+            'smooth', smooth, None, 'smooth %s'),
         'using' : lambda self, using: self.set_option_using(using),
         'binary' : lambda self, binary: self.set_option_binary(binary),
         })
 
     def __init__(self, file, **keyw):
-        """construct a file object.
+        """Construct a File object.
 
         <file> can be either a string holding the filename of an
         existing file, or it can be an object of any class derived
