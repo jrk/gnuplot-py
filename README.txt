@@ -71,11 +71,12 @@ rename it to "Gnuplot".
 
 There are some configuration options that can be set near the top of
 the platform-dependent files gp-unix.py (Unix), gp_mac.py (Macintosh),
-gp_macosx.py (Mac OS X), and gp_win32.py (Windows).  (Obviously, you
-should change the file corresponding to your platform.)  See the
-extensive comments in gp_unix.py for a description of the meaning of
-each configuration variable.  Sensible values are already chosen, so
-it is quite possible that you don't have to change anything.
+gp_macosx.py (Mac OS X), gp_win32.py (Windows), and gp_java.py
+(Jython/Java).  (Obviously, you should change the file corresponding
+to your platform.)  See the extensive comments in gp_unix.py for a
+description of the meaning of each configuration variable.  Sensible
+values are already chosen, so it is quite possible that you don't have
+to change anything.
 
 Import the main part of the package into your python programs using
 `import Gnuplot'.  Some other features can be found in the modules
