@@ -1,0 +1,142 @@
+#! /usr/bin/env python
+# $Id$
+
+"""Create a release of the Gnuplot.py package."""
+
+import sys, os, string, re
+import tempfile
+tempfile.mktemp() # initializes tempfile.tempdir
+
+debug = 1
+
+class CmdError(Exception):
+    pass
+
+
+def cmd(s):
+    if debug:
+        sys.stdout.write('%s\n' % s)
+    else:
+        status = os.system(s)
+        exit_signal = status & 0x7f
+        if exit_signal:
+            raise 'Command killed by signal'
+        exit_status = (status & 0xff00) >> 8
+        if exit_status:
+            raise CmdError(`exit_status`)
+
+
+def inform(s):
+    sys.stderr.write('%s\n' % s)
+
+
+pythondoc = os.path.join(os.environ['HOME'], 'download', 'python',
+                         'pythondoc-0.4', 'pythondoc')
+
+module = 'Gnuplot'
+basedir = os.path.join(os.environ['HOME'], 'public_html', 'Gnuplot')
+htmlfile = os.path.join(basedir, 'index.html')
+
+comment_re = re.compile(r'\s+\#.*$')
+
+[version] = sys.argv[1:]
+inform('Creating version "%s"' % version)
+
+manifest = []
+inform('Files to be included in release:')
+for l in open('MANIFEST', 'r').readlines():
+    l = string.strip(l)
+    l = comment_re.sub('', l)
+    manifest.append(l)
+    inform('\t%s' % (l,))
+
+cvstag = 'v_' + re.sub(r'\.', '_', version)
+inform('Adding tag %s to CVS archive' % cvstag)
+cmd('cvs tag %s' % cvstag)
+
+basename = '%s-%s' % (module, version)
+stagingdir = os.path.join(tempfile.tempdir, basename)
+
+inform('Creating temporary directory %s' % stagingdir)
+
+cmd('mkdir %s' % stagingdir)
+inform('Copying files')
+for f in manifest:
+    cmd('cp -p %s %s' % (f, stagingdir))
+
+tarfile = '%s-%s.tar.gz' % (module, version)
+inform('Tar file will be named %s' % tarfile)
+
+inform('Removing old tar file')
+cmd('rm -f %s' % (os.path.join(basedir, tarfile),))
+
+inform('Creating tar file')
+cmd('tar -C %s -cvzf %s %s' %
+    (tempfile.tempdir,
+     os.path.join(basedir, tarfile),
+     basename))
+
+inform('Making symlink to tar file')
+cmd('ln -fs %s %s' % (tarfile,
+                      os.path.join(basedir, '%s.tar.gz' % (module,))))
+
+zipfile = '%s-%s.zip' % (module, version)
+inform('Zip file will be named %s' % zipfile)
+
+inform('Removing old zip file')
+cmd('rm -f %s' % (os.path.join(basedir, zipfile),))
+
+inform('Creating zip file')
+cmd('(cd %s && zip -r -9 %s %s)' %
+    (tempfile.tempdir,
+     os.path.join(basedir, zipfile),
+     basename))
+
+inform('Making symlink to zip file')
+cmd('ln -fs %s %s' % (zipfile,
+                      os.path.join(basedir, '%s.zip' % (module,))))
+
+inform('Searching %s for files that need to be available' %
+                 htmlfile)
+link_re = re.compile(r'\bhref\=\"([^\"\/]+)\"', re.IGNORECASE)
+html = open(htmlfile, 'r').read()
+localfiles = {}
+searchpos = 0
+while 1:
+    m = link_re.search(html, searchpos)
+    if not m: break
+    searchpos = m.end()
+    f = m.group(1)
+    if f in manifest and not localfiles.has_key(f):
+        localfiles[f] = 1
+        inform('\t%s' % f)
+        cmd('cp -p %s %s' % (f, basedir))
+
+inform('Deleting temporary directory')
+cmd('rm -rf %s' % (stagingdir,))
+
+docdir = '%s-doc-%s' % (module, version)
+inform('Documentation will be put in directory %s' % docdir)
+
+inform('Making documentation directory')
+cmd('rm -rf %s' % os.path.join(basedir, docdir))
+cmd('mkdir %s' % os.path.join(basedir, docdir))
+
+inform('Looking for modules to document')
+modules = []
+for f in manifest:
+    if re.search(r'\.py$', f):
+        inform('\t%s' % f)
+        modules.append(f)
+
+for f in modules:
+    inform('Creating pythondoc documentation for %s' % (f,))
+    cmd('%s -d %s -f HTML4 -i %s' %
+        (pythondoc,
+         os.path.join(basedir, docdir),
+         os.path.join(os.getcwd(), f)))
+
+inform('Making symlink to documentation')
+cmd('ln -fs %s %s' % (docdir,
+                      os.path.join(basedir, '%s-doc' % (module,))))
+

@@ -36,17 +36,16 @@ def wait(str=None, prompt='Press return to show results...\n'):
 def main():
     """Exercise the Gnuplot module."""
 
+    wait('Popping up a blank gnuplot window on your screen.')
+    g = gp.Gnuplot()
+    g.clear()
+
     # Make a temporary file:
     file1 = gp.TempFile() # will be deleted upon exit
     f = open(file1.filename, 'w')
     for x in arange(100)/5. - 10.:
         f.write('%s %s %s\n' % (x, math.cos(x), math.sin(x)))
     f.close()
-
-    g = gp.Gnuplot()
-    g.clear()
-    print 'A blank gnuplot screen should have appeared on your screen.'
-    print
 
     ############### test Func ########################################
     wait('Plot a gnuplot-generated function')
