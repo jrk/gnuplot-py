@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#!/usr/local/bin/python -t -O
 # $Id$
 
 # A more complicated gnuplot interface.
@@ -9,12 +9,12 @@
 # New features:
 #  +  A gnuplot session is an instance of class `gnuplot', so multiple
 #     sessions can be open at once:
-# 	  g = gnuplot()
+#         g = gnuplot()
 #  +  The implicitly-generated gnuplot commands can be stored to a file
 #     instead of executed immediately:
-# 	  g = gnuplot("commands.gnuplot")
+#         g = gnuplot("commands.gnuplot")
 #  +  Can pass arbitrary commands to the gnuplot command interpreter:
-# 	  g("set pointsize 2")
+#         g("set pointsize 2")
 #  +  A gnuplot object knows how to plot three types of `plotitem':
 #     `data', `file', and `func'tion.
 #  +  Any plotitem can have optional `title' and/or `with' suboptions
@@ -83,34 +83,34 @@ class OptionException(Exception):
 #             not requested)
 class plotitem:
     def __init__(self, basecommand, **keyw):
-	self.basecommand = basecommand
-	self.options = []
-	if keyw.has_key('title'):
-	    self.title = keyw['title']
-	    del keyw['title']
-	    if self.title is None:
-		self.options.append('notitle')
-	    else:
-		self.options.append('title "' + self.title + '"')
-	if keyw.has_key('with'):
-	    self.with = keyw['with']
-	    del keyw['with']
-	    self.options.append('with ' + self.with)
-	if keyw:
-	    raise OptionException, keyw
+        self.basecommand = basecommand
+        self.options = []
+        if keyw.has_key('title'):
+            self.title = keyw['title']
+            del keyw['title']
+            if self.title is None:
+                self.options.append('notitle')
+            else:
+                self.options.append('title "' + self.title + '"')
+        if keyw.has_key('with'):
+            self.with = keyw['with']
+            del keyw['with']
+            self.options.append('with ' + self.with)
+        if keyw:
+            raise OptionException, keyw
 
     # return the `plot' command, with options, necessary to print out
     # this item:
     def command(self):
-	if self.options:
-	    return self.basecommand + ' ' + string.join(self.options, ' ')
-	else:
-	    return self.basecommand
+        if self.options:
+            return self.basecommand + ' ' + string.join(self.options, ' ')
+        else:
+            return self.basecommand
 
     # if the plot command requires data to be put on stdin (i.e.,
     # `plot ""'), this method will put that data there.
     def pipein(self, file):
-	pass
+        pass
 
 
 # represents a mathematical expression that is to be computed by
@@ -123,7 +123,7 @@ class plotitem:
 #     g.plot("sin(x)")
 class func(plotitem):
     def __init__(self, funcstring, **keyw):
-	apply(plotitem.__init__, (self, funcstring), keyw)
+        apply(plotitem.__init__, (self, funcstring), keyw)
 
 
 # An anyfile represents any kind of file, but presumably one that
@@ -134,7 +134,7 @@ class func(plotitem):
 #   self.filename -- the filename of the file
 class anyfile:
     def __init__(self, filename):
-	self.filename = filename
+        self.filename = filename
 
 
 # A temp_file is a file that is deleted when the python object is
@@ -144,7 +144,7 @@ class anyfile:
 # of temparrayfile.
 class temp_file(anyfile):
     def __del__(self):
-	os.unlink(self.filename)
+        os.unlink(self.filename)
 
 
 # When an arrayfile is constructed, it creates a file and fills it
@@ -153,25 +153,25 @@ class temp_file(anyfile):
 # is chosen.  The file is NOT deleted automatically.
 class arrayfile(anyfile):
     def __init__(self, set, filename=None):
-	# <set> must be a Numeric array
-	assert(len(set.shape) == 2)
-	(points, columns) = set.shape
-	assert(points > 0)
-	assert(columns > 0)
-	if not filename:
-	    filename = tempfile.mktemp()
-	f = open(filename, 'w')
-	for point in set:
-	    f.write(string.join(map(repr, point.tolist()), ' ') + '\n')
-	f.close()
-	anyfile.__init__(self, filename)
+        # <set> must be a Numeric array
+        assert(len(set.shape) == 2)
+        (points, columns) = set.shape
+        assert(points > 0)
+        assert(columns > 0)
+        if not filename:
+            filename = tempfile.mktemp()
+        f = open(filename, 'w')
+        for point in set:
+            f.write(string.join(map(repr, point.tolist()), ' ') + '\n')
+        f.close()
+        anyfile.__init__(self, filename)
 
 
 # Just like an arrayfile except that the file is deleted automatically
 # when the python object is deleted.
 class temparrayfile(arrayfile, temp_file):
     def __init__(self, set, filename=None):
-	arrayfile.__init__(self, set, filename)
+        arrayfile.__init__(self, set, filename)
 
 
 # file is a plotitem that represents a file that should be plotted by
@@ -189,31 +189,31 @@ class temparrayfile(arrayfile, temp_file):
 # plotitem is `notitle'.
 class file(plotitem):
     def __init__(self, file, using=None, **keyw):
-	if isinstance(file, anyfile):
-	    self.file = file
-	    # If no title is specified, then use `notitle' for
-	    # temp_files (to avoid using the temporary filename as the
-	    # title.)
-	    if isinstance(file, temp_file) and not keyw.has_key('title'):
-		keyw['title'] = None
-	elif type(file) == type(""):
-	    self.file = anyfile(file)
-	else:
-	    raise OptionException
-	apply(plotitem.__init__, (self, '"' + self.file.filename + '"'), keyw)
-	self.using = using
-	if self.using is None:
-	    pass
-	elif type(self.using) == type(""):
-	    self.options.insert(0, "using " + self.using)
-	elif type(self.using) == type(()):
-	    self.options.insert(0,
-				"using " +
-				string.join(map(repr, self.using), ':'))
-	elif type(self.using) == type(1):
-	    self.options.insert(0, "using " + `self.using`)
-	else:
-	    raise OptionException, 'using=' + `self.using`
+        if isinstance(file, anyfile):
+            self.file = file
+            # If no title is specified, then use `notitle' for
+            # temp_files (to avoid using the temporary filename as the
+            # title.)
+            if isinstance(file, temp_file) and not keyw.has_key('title'):
+                keyw['title'] = None
+        elif type(file) == type(""):
+            self.file = anyfile(file)
+        else:
+            raise OptionException
+        apply(plotitem.__init__, (self, '"' + self.file.filename + '"'), keyw)
+        self.using = using
+        if self.using is None:
+            pass
+        elif type(self.using) == type(""):
+            self.options.insert(0, "using " + self.using)
+        elif type(self.using) == type(()):
+            self.options.insert(0,
+                                "using " +
+                                string.join(map(repr, self.using), ':'))
+        elif type(self.using) == type(1):
+            self.options.insert(0, "using " + `self.using`)
+        else:
+            raise OptionException, 'using=' + `self.using`
 
 
 # Create a plotitem out of a Python numeric array (or something that
@@ -227,10 +227,10 @@ class file(plotitem):
 # memory.
 class data(file):
     def __init__(self, set, cols=None, **keyw):
-	set = Numeric.asarray(set, Numeric.Float)
-	if cols is not None:
-	    set = Numeric.take(set, cols, 1)
-	apply(file.__init__, (self, temparrayfile(set)), keyw)
+        set = Numeric.asarray(set, Numeric.Float)
+        if cols is not None:
+            set = Numeric.take(set, cols, 1)
+        apply(file.__init__, (self, temparrayfile(set)), keyw)
 
 
 # gnuplot plotting object.  A gnuplot represents a running gnuplot
@@ -271,93 +271,93 @@ class data(file):
 #                 color postscript.
 class gnuplot:
     def __init__(self, filename=None, persist=0, debug=0):
-	if filename == None:
-	    if persist:
-		self.gnuplot = os.popen('gnuplot -persist', 'w')
-	    else:
-		self.gnuplot = os.popen('gnuplot', 'w')
-	else:
-	    # put gnuplot commands into a file:
-	    self.gnuplot = open(filename, 'w')
-    	self.itemlist = []
-	self.debug = debug
+        if filename == None:
+            if persist:
+                self.gnuplot = os.popen('gnuplot -persist', 'w')
+            else:
+                self.gnuplot = os.popen('gnuplot', 'w')
+        else:
+            # put gnuplot commands into a file:
+            self.gnuplot = open(filename, 'w')
+        self.itemlist = []
+        self.debug = debug
 
     def __del__(self):
-	self('quit')
-	self.gnuplot.close()
+        self('quit')
+        self.gnuplot.close()
 
     # send a string to the gnuplot process, followed by a newline:
     def __call__(self, s):
-	self.gnuplot.write(s + "\n")
-	self.gnuplot.flush()
-	if self.debug:
-	    sys.stderr.write("gnuplot> " + s + "\n")
+        self.gnuplot.write(s + "\n")
+        self.gnuplot.flush()
+        if self.debug:
+            sys.stderr.write("gnuplot> " + s + "\n")
 
     # refresh the plot, using the current plotitems:
     def refresh(self):
-	plotcmds = []
-	for item in self.itemlist:
-	    plotcmds.append(item.command())
-	self('plot ' + string.join(plotcmds, ', '))
-	for item in self.itemlist:
-	    item.pipein(self.gnuplot)
+        plotcmds = []
+        for item in self.itemlist:
+            plotcmds.append(item.command())
+        self('plot ' + string.join(plotcmds, ', '))
+        for item in self.itemlist:
+            item.pipein(self.gnuplot)
 
     # call the gnuplot `plot' command:
     def plot(self, *data):
-	# remove old files:
-	self.itemlist = []
-	apply(self.replot, data)
+        # remove old files:
+        self.itemlist = []
+        apply(self.replot, data)
 
     # replot the data, possibly adding new plotitems:
     def replot(self, *items):
-    	for item in items:
-	    if isinstance(item, plotitem):
-		self.itemlist.append(item)
-	    elif type(item) is type(""):
-		self.itemlist.append(func(item))
-	    else:
-		# assume data is an array:
-		self.itemlist.append(data(item))
-	self.refresh()
+        for item in items:
+            if isinstance(item, plotitem):
+                self.itemlist.append(item)
+            elif type(item) is type(""):
+                self.itemlist.append(func(item))
+            else:
+                # assume data is an array:
+                self.itemlist.append(data(item))
+        self.refresh()
 
     def interact(self):
-	sys.stderr.write("Press C-d to end interactive input\n")
-	while 1:
-	    sys.stderr.write("gnuplot>>> ")
-	    line = sys.stdin.readline()
-	    if line == "":
-		break
-	    if line[-1] == "\n": line = line[:-1]
-	    self(line)
+        sys.stderr.write("Press C-d to end interactive input\n")
+        while 1:
+            sys.stderr.write("gnuplot>>> ")
+            line = sys.stdin.readline()
+            if line == "":
+                break
+            if line[-1] == "\n": line = line[:-1]
+            self(line)
 
     def load(self, filename=None):
-	if filename is None:
-	    self.interact()
-	else:
-	    self('load "' + filename + '"')
+        if filename is None:
+            self.interact()
+        else:
+            self('load "' + filename + '"')
 
     def save(self, filename):
-	self('save "' + filename + '"')
+        self('save "' + filename + '"')
 
     def xlabel(self, s=None):
-	if s==None:
-	    self('set ylabel')
-	else:
-	    self('set xlabel "' + s + '"')
+        if s==None:
+            self('set ylabel')
+        else:
+            self('set xlabel "' + s + '"')
 
     def ylabel(self, s=None):
-	if s==None:
-	    self('set ylabel')
-	else:
-	    self('set ylabel "' + s + '"')
+        if s==None:
+            self('set ylabel')
+        else:
+            self('set ylabel "' + s + '"')
 
     def hardcopy(self, filename = '| lpr', color = 0):
-	if color: self('set term postscript enhanced color')
-	else: self('set term postscript enhanced')
-	self('set output "' + filename + '"')
-	self('replot')
-	self('set term x11')
-	self('set output')
+        if color: self('set term postscript enhanced color')
+        else: self('set term postscript enhanced')
+        self('set output "' + filename + '"')
+        self('replot')
+        self('set term x11')
+        self('set output')
 
 
 #
@@ -378,9 +378,9 @@ if __name__ == '__main__':
     y1 = x**2
     y2 = (10-x)**2
     g2.plot(data(transpose((x, y1)), title="calculated by python"),
-	    func("x**2", title="calculated by gnuplot"),
-	    data(transpose((x, y2)), with="linesp")
-	    )
+            func("x**2", title="calculated by gnuplot"),
+            data(transpose((x, y2)), with="linesp")
+            )
     print "Generating postscript file 'junk.ps'"
     g2.hardcopy('junk.ps', color=1)
 
