@@ -33,9 +33,8 @@ Installation
 
 Obviously, you must have the gnuplot program if Gnuplot.py is to be of
 any use to you.  Gnuplot can be obtained via
-<http://www.cs.dartmouth.edu/gnuplot_info.html>.  You also need
-Python's Numerical extension, which is available from
-<http://numpy.sourceforge.net>.
+<http://www.gnuplot.info>.  You also need Python's Numerical
+extension, which is available from <http://numpy.sourceforge.net>.
 
 Gnuplot.py uses Python distutils
 <http://www.python.org/doc/current/inst/inst.html> and can be
