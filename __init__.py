@@ -1256,8 +1256,10 @@ def demo():
                      '(they may be overlapping).\n')
     raw_input('Please press return to continue...\n')
 
-    # ensure processes and temporary files are cleaned up:
-    del g1, g2, g3, d
+    # Explicit delete shouldn't be necessary, but if you are having
+    # trouble with temporary files being left behind, uncomment the
+    # following:
+    #del g1, g2, g3, d
 
     # Enable the following code to test the old-style gnuplot interface
     if 0:
