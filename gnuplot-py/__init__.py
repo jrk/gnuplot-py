@@ -173,8 +173,8 @@ __cvs_version__ = '$Revision$'
 __all__ = ['utils', 'funcutils', 'oldplot', ]
 
 from gp import GnuplotOpts, GnuplotProcess, test_persist
-from PlotItems import OptionException, DataException, \
-     PlotItem, Func, File, Data, GridData
+from Errors import Error, OptionError, DataError
+from PlotItems import PlotItem, Func, File, Data, GridData
 from _Gnuplot import Gnuplot
 
 
