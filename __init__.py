@@ -351,9 +351,12 @@ class gnuplot:
     def ylabel(self, s=None): self.set_string('ylabel', s)
     def title(self, s=None): self.set_string('title', s)
 
-    def hardcopy(self, filename = '| lpr', color = 0):
-        if color: self('set term postscript enhanced color')
-        else: self('set term postscript enhanced')
+    def hardcopy(self, filename = '| lpr', eps = 0, color = 0):
+        setterm = ['set', 'term', 'postscript']
+        if eps: setterm.append('eps')
+        setterm.append('enhanced')
+        if color: setterm.append('color')
+        self(string.join(setterm))
         self('set output "%s"' % (filename,))
         self('replot')
         self('set term x11')
