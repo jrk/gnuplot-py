@@ -19,7 +19,6 @@ gp_mac.py
 gp_macosx.py
 gp_unix.py
 gp_win32.py
-oldplot.py
 setup.cfg
 setup.py
 termdefs.py
@@ -37,7 +36,6 @@ utils.py
 ./gp_macosx.py
 ./gp_unix.py
 ./gp_win32.py
-./oldplot.py
 ./termdefs.py
 ./test.py
 ./utils.py
@@ -105,7 +103,6 @@ doc/Gnuplot/gp_win32.py.html
 doc/Gnuplot/gp_win32_GnuplotOpts.py.html
 doc/Gnuplot/gp_win32_GnuplotProcess.py.html
 doc/Gnuplot/index.html
-doc/Gnuplot/oldplot.py.html
 doc/Gnuplot/setup.py.html
 doc/Gnuplot/termdefs.py.html
 doc/Gnuplot/termdefs_Arg.py.html
