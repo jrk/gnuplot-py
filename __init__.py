@@ -292,7 +292,7 @@ class gnuplot:
         self.gnuplot.flush()
         if self.debug:
             # also echo to stderr for user to see:
-            sys.stderr.write("gnuplot> " + s + "\n")
+            sys.stderr.write("gnuplot> %s\n" % (s,))
 
     # refresh the plot, using the current plotitems:
     def refresh(self):
@@ -335,27 +335,26 @@ class gnuplot:
         if filename is None:
             self.interact()
         else:
-            self('load "' + filename + '"')
+            self('load "%s"' % (filename,))
 
     def save(self, filename):
-        self('save "' + filename + '"')
+        self('save "%s"' % (filename,))
 
-    def xlabel(self, s=None):
-        if s==None:
-            self('set ylabel')
+    # Set a string option, or if s is omitted, unset the option.
+    def set_string(self, option, s=None):
+        if s is None:
+            self('set %s' % (option,))
         else:
-            self('set xlabel "' + s + '"')
+            self('set %s "%s"' % (option, s))
 
-    def ylabel(self, s=None):
-        if s==None:
-            self('set ylabel')
-        else:
-            self('set ylabel "' + s + '"')
+    def xlabel(self, s=None): self.set_string('xlabel', s)
+    def ylabel(self, s=None): self.set_string('ylabel', s)
+    def title(self, s=None): self.set_string('title', s)
 
     def hardcopy(self, filename = '| lpr', color = 0):
         if color: self('set term postscript enhanced color')
         else: self('set term postscript enhanced')
-        self('set output "' + filename + '"')
+        self('set output "%s"' % (filename,))
         self('replot')
         self('set term x11')
         self('set output')
