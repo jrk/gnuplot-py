@@ -271,14 +271,14 @@ class data(file):
 #                 color postscript.
 class gnuplot:
     def __init__(self, filename=None, persist=0, debug=0):
-        if filename == None:
+        if filename:
+            # put gnuplot commands into a file:
+            self.gnuplot = open(filename, 'w')
+        else:
             if persist:
                 self.gnuplot = os.popen('gnuplot -persist', 'w')
             else:
                 self.gnuplot = os.popen('gnuplot', 'w')
-        else:
-            # put gnuplot commands into a file:
-            self.gnuplot = open(filename, 'w')
         self.itemlist = []
         self.debug = debug
 
@@ -291,6 +291,7 @@ class gnuplot:
         self.gnuplot.write(s + "\n")
         self.gnuplot.flush()
         if self.debug:
+            # also echo to stderr for user to see:
             sys.stderr.write("gnuplot> " + s + "\n")
 
     # refresh the plot, using the current plotitems:
@@ -325,7 +326,7 @@ class gnuplot:
         while 1:
             sys.stderr.write("gnuplot>>> ")
             line = sys.stdin.readline()
-            if line == "":
+            if not line:
                 break
             if line[-1] == "\n": line = line[:-1]
             self(line)
