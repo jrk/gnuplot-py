@@ -11,18 +11,6 @@ anyway.  Of course if anybody else wants to take one up...
   missing values is that (I think) gnuplot can still put a mesh on a
   surface even if the surface has holes.
 
-* Add a more systematic way of setting arbitrary gnuplot options.  One
-  cute possibility that occurred to me (maybe too cute?) would be to
-  implement a magic Gnuplot.set object that could be used like:
-
-      g = Gnuplot.Gnuplot()
-      g.set.data.style('linespoints', 1, 2)
-      g.set.pointsize(2.0)
-
-  which I think could be accomplished with __setattr__ and
-  __getattr__.  But this is not a high priority; it's easy enough to
-  use the __call__ method to set arbitrary options.
-
 * Figure out how to suck gnuplot error messages back into Python and
   turn them into exceptions.  This would be tricky: for one thing, not
   all gnuplot output is indicative of an error.  Moreover,
@@ -37,4 +25,8 @@ anyway.  Of course if anybody else wants to take one up...
   single Gnuplot instance, each one behaving much like a Gnuplot
   object.  Or maybe treat sub-windows as a kind of meta-PlotItem that
   can itself contain PlotItems.
+
+* Add a way to use Gnuplot without Numeric.  This would probably not
+  require too much work, and would also be convenient for Jython users
+  since JNumeric is not as far along as Numeric.
 
