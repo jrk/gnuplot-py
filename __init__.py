@@ -2,7 +2,7 @@
 # $Id$
 
 # A pipe-based interface to the gnuplot plotting program.  To obtain
-# gnuplot, see <http://www.cs.dartmouth.edu/gnuplot_info.html>.
+# gnuplot itself, see <http://www.cs.dartmouth.edu/gnuplot_info.html>.
 
 # Written by Michael Haggerty <mhagger@blizzard.harvard.edu>.
 # Inspired by and partly derived from an earlier version by Konrad
@@ -14,15 +14,23 @@
 
 # For information about how to use this module, see the documentation
 # string for class Gnuplot, and the test code at the bottom of the
-# file.  You can run the test code by typing `python gnuplot.py'
+# file.  You can run the test code by typing `python Gnuplot.py'
+
+# You should import this file with `import Gnuplot', not with `from
+# Gnuplot import *'; otherwise you will have problems with conflicting
+# names (namely the Gnuplot module name conflicting with the Gnuplot
+# class name.
 
 # Features:
 #  +  A gnuplot session is an instance of class `Gnuplot', so multiple
 #     sessions can be open at once:
-#         g1 = Gnuplot(); g2 = Gnuplot()
+#         g1 = Gnuplot.Gnuplot(); g2 = Gnuplot.Gnuplot()
 #  +  The implicitly-generated gnuplot commands can be stored to a file
 #     instead of executed immediately:
-#         g = Gnuplot("commands.gnuplot")
+#         g = Gnuplot.Gnuplot("commands.gnuplot")
+#     The file can then be run later with gnuplot's `load' command.
+#     Note, however, that this option does not cause the life of any
+#     temporary data files to be extended.
 #  +  Can pass arbitrary commands to the gnuplot command interpreter:
 #         g("set pointsize 2")
 #  +  A Gnuplot object knows how to plot three types of `PlotItem':
@@ -67,7 +75,7 @@
 #  -  Only a small fraction of gnuplot functionality is implemented as
 #     explicit Gnuplot method functions.  However, you can give
 #     arbitrary commands to gnuplot manually; for example:
-#         g = Gnuplot()
+#         g = Gnuplot.Gnuplot()
 #         g('set data style linespoints')
 #         g('set pointsize 5')
 #     etc.  I might add a more organized way of setting arbitrary
@@ -84,8 +92,8 @@
 #     old version of Gnuplot.py.  Instead, make a temporary data file
 #     then plot that file multiple times with different `using='
 #     options:
-#         a = TemparrayFile(array_nx3)
-#         g.plot(File(a, using=(1,2)), File(a, using=(1,3)))
+#         a = Gnuplot.TemparrayFile(array_nx3)
+#         g.plot(Gnuplot.File(a, using=(1,2)), Gnuplot.File(a, using=(1,3)))
 #  -  Does not support parallel axis plots, as did the old Gnuplot.py.
 #
 # Bugs:
@@ -393,7 +401,7 @@ class Gnuplot:
         (i.e., for later use using `load').  If persist is set,
         gnuplot will be started with the `-persist' option (which
         creates a new X11 plot window for each plot command).  (This
-        option is not available on older version of gnuplot.)  If
+        option is not available on older versions of gnuplot.)  If
         debug is set, the gnuplot commands are echoed to stderr as
         well as being send to gnuplot."""
 
@@ -591,12 +599,12 @@ class Gnuplot:
 _gnuplot_processes = []
 
 def plot(*items, **kw):
-    """plot data using gnuplot.
+    """plot data using gnuplot through Gnuplot.
 
     This command is roughly compatible with old Gnuplot plot command.
-    It is provided for backwards compatibility only.  It is
-    recommended that you use the new object-oriented Gnuplot
-    interface, which is much more flexible.
+    It is provided for backwards compatibility with the old functional
+    interface only.  It is recommended that you use the new
+    object-oriented Gnuplot interface, which is much more flexible.
 
     It can only plot Numeric array data.  In this routine an NxM array
     is plotted as M-1 separate datasets, using columns 1:2, 1:3, ...,
