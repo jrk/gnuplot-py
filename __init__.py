@@ -127,6 +127,10 @@ __cvs_version__ = 'CVS version $Revision$'
 
 import sys, os, string, tempfile, Numeric
 
+if sys.platform == 'win32':
+    from win32pipe import popen
+else:
+    from os import popen
 
 # Set after first call of test_persist().  This will be set from None
 # to 0 or 1 upon the first call of test_persist(), then the stored
@@ -160,7 +164,7 @@ def test_persist():
 
     global _recognizes_persist
     if _recognizes_persist is None:
-        g = os.popen('echo | gnuplot -persist 2>&1', 'r')
+        g = popen('echo | gnuplot -persist 2>&1', 'r')
         response = g.readlines()
         g.close()
         _recognizes_persist = ((not response)
@@ -667,9 +671,9 @@ class Gnuplot:
                     raise OptionException(
                         '-persist does not seem to be supported '
                         'by your version of gnuplot!')
-                self.gnuplot = os.popen('gnuplot -persist', 'w')
+                self.gnuplot = popen('gnuplot -persist', 'w')
             else:
-                self.gnuplot = os.popen('gnuplot', 'w')
+                self.gnuplot = popen('gnuplot', 'w')
         self._clear_queue()
         self.debug = debug
         self.plotcmd = 'plot'
