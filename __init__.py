@@ -1,34 +1,20 @@
+#!/usr/local/bin/python
+# $Id$
+
 # Simple Gnuplot interface.
-#
-# Written by Konrad Hinsen <hinsen@ibs.ibs.fr>
-# last revision: 1997-5-23
-#
-# Caution: If you use a Gnuplot version earlier than 3.6beta,
-# every call for a screen display creates another gnuplot
-# process; these processes are never closed. There seems to be no
-# other way to make gnuplot behave as it should.
+
+# Written by Michael Haggerty <mhagger@blizzard.harvard.edu>
+# Derived from earlier version by Konrad Hinsen <hinsen@ibs.ibs.fr>
 
 import os, string, tempfile
 
-#
-# Test if Gnuplot is new enough to know the option -persist
-#
-filename = tempfile.mktemp()
-file = open(filename, 'w')
-file.write('\n')
-file.close()
-gnuplot = os.popen('gnuplot -persist ' + filename + ' 2>&1', 'r')
-response = gnuplot.readlines()
-gnuplot.close()
-os.unlink(filename)
-old_version = response and string.index(response[0], '-persist') >= 0
-
-#
-# Generate a plot
-#
+# gnuplot plotting object:
 class gnuplot:
-    def __init__(self):
-	self.gnuplot = os.popen('gnuplot', 'w')
+    def __init__(self, filename=None):
+	if filename == None:
+	    self.gnuplot = os.popen('gnuplot', 'w')
+	else:
+	    self.gnuplot = open(filename, 'w')
 	self('set terminal x11')
     	self.filelist = []
 
@@ -86,6 +72,21 @@ class gnuplot:
     	else:
 	    self('set terminal x11')
 	    self(command)
+
+    def xlabel(self, s=None):
+	if s==None:
+	    self("set ylabel")
+	else:
+	    self("set xlabel '" + s + "'")
+
+    def ylabel(self, s=None):
+	if s==None:
+	    self("set ylabel")
+	else:
+	    self("set ylabel '" + s + "'")
+
+    def replot(self):
+	self("replot")
 
     def _isSequence(self, object):
 	n = -1
