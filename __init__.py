@@ -192,11 +192,11 @@ import Numeric
 # Low-level communication with gnuplot is platform-dependent.  Pick an
 # implementation of GnuplotProcess based on the platform:
 if sys.platform == 'mac':
-    from gp_mac import GnuplotOpts, GnuplotProcess
+    from gp_mac import GnuplotOpts, GnuplotProcess, test_persist
 elif sys.platform == 'win32':
-    from gp_win32 import GnuplotOpts, GnuplotProcess
+    from gp_win32 import GnuplotOpts, GnuplotProcess, test_persist
 else:
-    from gp import GnuplotOpts, GnuplotProcess
+    from gp import GnuplotOpts, GnuplotProcess, test_persist
 
 
 class _unset:
@@ -1051,7 +1051,7 @@ class Gnuplot(GnuplotProcess):
 
     """
 
-    def __init__(self, filename=None, persist=0, debug=0):
+    def __init__(self, filename=None, persist=None, debug=0):
         """Create a Gnuplot object.
 
         Create a 'Gnuplot' object.  By default, this starts a gnuplot
