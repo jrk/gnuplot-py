@@ -35,8 +35,7 @@ class GnuplotOpts:
     # Apparently the Mac can use binary data:
     recognizes_binary_splot = 1
 
-    # Apparently the Mac can use inline data, but we use non-inline data
-    # (i.e., temporary files) by default for no special reason:
+    # Apparently the Mac can not use inline data:
     prefer_inline_data = 0
 
     # The default choice for the 'set term' command (to display on screen):
@@ -44,6 +43,11 @@ class GnuplotOpts:
 
     # I don't know how to print directly to a printer on the Mac:
     default_lpr = None
+
+    # Used the 'enhanced' option of postscript by default?  Set to
+    # None (*not* 0!) if your version of gnuplot doesn't support
+    # enhanced postscript.
+    prefer_enhanced_postscript = 1
 
 # ############ End of configuration options ############################
 

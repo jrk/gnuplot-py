@@ -55,6 +55,11 @@ class GnuplotOpts:
     # won't help if your printer can't handle postscript!)
     default_lpr = 'PRN'
 
+    # Used the 'enhanced' option of postscript by default?  Set to
+    # None (*not* 0!) if your version of gnuplot doesn't support
+    # enhanced postscript.
+    prefer_enhanced_postscript = 1
+
 # ############ End of configuration options ############################
 
 
