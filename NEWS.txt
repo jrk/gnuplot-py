@@ -23,6 +23,8 @@ Version 1.6:
 
 * Moved import statement in demo.py to global scope for Python 2.2.
 
+* Removed claims that demo.py can be run before installing Gnuplot.py.
+
 
 Version 1.5:
 
