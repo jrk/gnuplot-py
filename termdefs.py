@@ -386,6 +386,21 @@ terminal_opts['postscript'] = [
     BareStringArg(argname='fontsize'),
     ]
 
+terminal_opts['pdf'] = [
+    KeywordOrBooleanArg(
+        options=['landscape', 'portrait', 'eps', 'default'],
+        argname='mode',
+        ),
+    KeywordOrBooleanArg(options=['color', 'monochrome']),
+    KeywordOrBooleanArg(options=['solid', 'dashed']),
+    KeywordOrBooleanArg(
+        options=['defaultplex', 'simplex', 'duplex'],
+        argname='duplexing',
+        ),
+    StringArg(argname='fontname'),
+    BareStringArg(argname='fontsize'),
+    ]
+
 terminal_opts['png'] = [
     KeywordOrBooleanArg(
         options=['small', 'medium', 'large'],

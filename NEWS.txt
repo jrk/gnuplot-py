@@ -6,6 +6,8 @@ Gnuplot.py package.
 
 Version ?.?:
 
+* Added a 'pdf' terminal definition (using a patch from Jim Kleckner).
+
 
 Version 1.7:
 
