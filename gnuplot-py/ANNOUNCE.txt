@@ -30,6 +30,7 @@ Some ways this package can be used:
 
 New features in this version:
 
+  + Relaxed license from GPL to LGPL.
   + Added support for sending data to gnuplot via FIFOs (named pipes).
     This eliminates the ambiguity about when temporary files can be
     deleted, and thereby removes a common source of problems with

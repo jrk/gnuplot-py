@@ -190,7 +190,7 @@ test them myself.
 License
 -------
 
-See the file LICENSE for license info.  In brief, Gnuplot is GPL.
+See the file LICENSE.txt for license info.  In brief, Gnuplot is LGPL.
 
 
 Credits

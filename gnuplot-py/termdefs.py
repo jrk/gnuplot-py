@@ -1,5 +1,10 @@
 # $Id$
 
+# Copyright (C) 2001-2003 Michael Haggerty <mhagger@alum.mit.edu>
+#
+# This file is licensed under the GNU Lesser General Public License
+# (LGPL).  See LICENSE.txt for details.
+
 """Terminal definition file.
 
 This module describes the options available to gnuplot's various
