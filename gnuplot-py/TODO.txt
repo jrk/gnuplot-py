@@ -5,11 +5,11 @@ any of these items; some of them are probably better left undone
 anyway.  Of course if anybody else wants to take one up...
 
 * Implement missing values.  Gnuplot allows you to specify that values
-  are missing from data files via the `set missing' command.  I'm
-  thinking about implementing this as an optional 'mask' argument to
-  the Data and GridData PlotItems.  (Comments?)  The real benefit of
-  missing values is that (I think) gnuplot can still put a mesh on a
-  surface even if the surface has holes.
+  are missing from data files via the `set missing' command.  This
+  should probably be implemented via Numeric's masked arrays.
+  (Comments?)  The real benefit of dealing with values is that (I
+  think) gnuplot can still put a mesh on a surface even if the surface
+  has holes.
 
 * Figure out how to suck gnuplot error messages back into Python and
   turn them into exceptions.  This would be tricky: for one thing, not
