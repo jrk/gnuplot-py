@@ -29,7 +29,7 @@ old_version = response and string.index(response[0], '-persist') >= 0
 class gnuplot:
     def __init__(self):
 	self.gnuplot = os.popen('gnuplot', 'w')
-	self.gnuplot.write('set terminal x11\n')
+	self('set terminal x11')
     	self.filelist = []
 
     def rmfiles(self):
@@ -38,12 +38,12 @@ class gnuplot:
 	self.filelist = []
 
     def __del__(self):
-	self.gnuplot.write('quit\n')
+	self('quit')
 	self.gnuplot.close()
 	self.rmfiles()
 
     def __call__(self, s):
-	self.gnuplot.write(s)
+	self.gnuplot.write(s + "\n")
 	self.gnuplot.flush()
 
     def plot(self, *data, **keywords):
@@ -71,20 +71,20 @@ class gnuplot:
     	for item in plotlist:
     	    filename, n = item
     	    if n == 1:
-    		command = command + '"' + filename + '", '
+    		command = command + '"' + filename + '" notitle, '
     	    else:
     		for i in range(n-1):
     		    command = command + '"' + filename + \
-    			      '"  using 1:' + `i+2` + ', '
-    	command = command[:-2] + '\n'
+    			      '" using 1:' + `i+2` + ' notitle, '
+    	command = command[:-2]
     	if keywords.has_key('file'):
-    	    self('set terminal postscript\n')
-    	    self('set output "' + keywords['file'] + '"\n')
+    	    self('set terminal postscript')
+    	    self('set output "' + keywords['file'] + '"')
     	    self(command)
-	    self('set terminal x11\n')
-	    self('set output\n')
+	    self('set terminal x11')
+	    self('set output')
     	else:
-	    self('set terminal x11\n')
+	    self('set terminal x11')
 	    self(command)
 
     def _isSequence(self, object):
