@@ -193,7 +193,6 @@ def main():
     wait(prompt='Press return to end the test.\n')
 
 
-if __name__ == '__main__':
-    main()
-
+# when executed or imported, just run main():
+main()
 
