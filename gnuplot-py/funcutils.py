@@ -8,7 +8,7 @@ points and tabulate the output to be used with Gnuplot."""
 
 import Numeric
 
-import Gnuplot
+import Gnuplot, utils
 
 
 def tabulate_function(f, xvals, yvals=None, typecode=None, ufunc=0):
@@ -113,7 +113,7 @@ def compute_Data(xvals, f, ufunc=0, **keyw):
 
     """
 
-    xvals = Gnuplot.float_array(xvals)
+    xvals = utils.float_array(xvals)
 
     # evaluate function:
     data = tabulate_function(f, xvals, ufunc=ufunc)
@@ -156,8 +156,8 @@ def compute_GridData(xvals, yvals, f, ufunc=0, **keyw):
 
     """
 
-    xvals = Gnuplot.float_array(xvals)
-    yvals = Gnuplot.float_array(yvals)
+    xvals = utils.float_array(xvals)
+    yvals = utils.float_array(yvals)
 
     # evaluate function:
     data = tabulate_function(f, xvals, yvals, ufunc=ufunc)
