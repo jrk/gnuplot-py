@@ -120,6 +120,7 @@ class GnuplotProcess:
     def __call__(self, s):
         """Send a command string to gnuplot, for immediate execution."""
 
+        # Apple Script doesn't seem to need the trailing '\n'.
         self.write(s)
         self.flush()
 
