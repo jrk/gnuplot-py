@@ -1,4 +1,4 @@
-#!/usr/local/bin/python -t
+#! /usr/bin/env python
 # $Id$
 
 """Gnuplot_test.py -- Exercise the Gnuplot.py module.
