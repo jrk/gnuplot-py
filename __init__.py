@@ -391,12 +391,15 @@ class File(PlotItem):
 class Data(File):
     """Used to plot array data with Gnuplot.
 
-    Create a PlotItem out of a Python Numeric array (or something that
-    can be converted to a Float Numeric array).  Convention for array:
-    The last index ranges over the values comprising a single data
-    point (e.g., [x, y, and sigma]) and the rest of the indices select
-    the data point.  For the output format, see the comments in
-    ArrayFile.
+    Create a PlotItem out of one or more Float Python Numeric arrays
+    (or objects that can be converted to a Float Numeric array).  If
+    the routine is passed one array, the last index ranges over the
+    values comprising a single data point (e.g., [x, y, and sigma])
+    and the rest of the indices select the data point.  If the routine
+    is passed more than one array, they must have identical shapes,
+    and then each data point is composed of one point from each array.
+    I.e., it is now possible to say `Data(x,x**2)' to plot x squared
+    versus x.  For the output format, see the comments in ArrayFile.
 
     The array is first written to a temporary file, then that file is
     plotted.  Keyword arguments recognized (in addition to those
@@ -410,10 +413,20 @@ class Data(File):
     The data are immediately written to the temp file; no copy is kept
     in memory."""
 
-    def __init__(self, set, cols=None, **keyw):
-        set = Numeric.asarray(set, Numeric.Float)
-        if cols is not None:
-            set = Numeric.take(set, cols, -1)
+    def __init__(self, *set, **keyw):
+        if len(set) == 1:
+            # set was passed as a single structure
+            set = Numeric.asarray(set, Numeric.Float)
+        else:
+            # set was passed column by column (for example, Data(x,y))
+            set = Numeric.asarray(set, Numeric.Float)
+            dims = len(set.shape)
+            # transpose so that the last index selects x vs. y:
+            set = Numeric.transpose(set, (dims-1,) + tuple(range(dims-1)))
+        if keyw.has_key('cols') and keyw['cols'] is not None:
+            set = Numeric.take(set, keyw['cols'], -1)
+            keyw = keyw.copy()
+            del keyw['cols']
         apply(File.__init__, (self, TempArrayFile(set)), keyw)
 
 
@@ -463,6 +476,28 @@ class GridData(File):
                  data)), (1,2,0))
 
         apply(File.__init__, (self, TempArrayFile(set)), keyw)
+
+
+def grid_function(f, xvals, yvals):
+    """Compute a function on a grid.
+
+    xvals and yvals should be 1-D arrays listing the values of x and y
+    at which f should be tabulated.  f should be a function taking two
+    floating point arguments.  The return value is a matrix M where
+    M[i,j] = f(xvals[i],yvals[j]), as required by GridData.
+
+    Note that f is evaluated at each pair of points using a Python
+    loop, which can be slow if the number of points is large.  If
+    speed is an issue, you are better off computing functions
+    matrix-wise using Numeric's built-in ufuncs."""
+
+    m = Numeric.zeros((len(xvals), len(yvals)), Numeric.Float)
+    for xi in range(len(xvals)):
+        x = xvals[xi]
+        for yi in range(len(yvals)):
+            y = yvals[yi]
+            m[xi,yi] = f(x,y)
+    return m
 
 
 class Gnuplot:
@@ -608,8 +643,8 @@ class Gnuplot:
     def plot(self, *items):
         """Draw a new plot.
 
-        plot(item, ...): Clear the current plot and create a new one
-        containing the specified items.  Arguments can be of the
+        plot(item, ...): Clear the current plot and create a new 2-d
+        plot containing the specified items.  Arguments can be of the
         following types:
 
         PlotItem (e.g., Data, File, Func):
@@ -622,9 +657,9 @@ class Gnuplot:
             The string is interpreted as a Func() (a function that is
             computed by gnuplot).
         Anything else:
-            The object is converted to a Data() item, and thus plotted
-            as two-column data.  If the conversion fails, an exception
-            is raised."""
+            The object, which should be convertible to an array, is
+            converted to a Data() item, and thus plotted as data.  If
+            the conversion fails, an exception is raised."""
 
         # remove old files:
         self.plotcmd = 'plot'
@@ -635,23 +670,24 @@ class Gnuplot:
     def splot(self, *items):
         """Draw a new three-dimensional plot.
 
-        splot(item, ...): Clear the current plot and create a new one
-        containing the specified items.  Arguments can be of the
+        splot(item, ...): Clear the current plot and create a new 3-d
+        plot containing the specified items.  Arguments can be of the
         following types:
 
-        PlotItem (e.g., Data, File, Func):
+        PlotItem (e.g., Data, File, Func, GridData):
             This is the most flexible way to call plot because the
             PlotItems can contain suboptions.  Moreover, PlotItems can
             be saved to variables so that their lifetime is longer
             than one plot command--thus they can be replotted with
             minimal overhead.
-        string (i.e., "sin(x)"):
+        string (i.e., "sin(x*y)"):
             The string is interpreted as a Func() (a function that is
             computed by gnuplot).
         Anything else:
             The object is converted to a Data() item, and thus plotted
-            as two-column data.  If the conversion fails, an exception
-            is raised."""
+            as data.  Note that each data point should normally have
+            at least three values associated with it (i.e., x, y, and
+            z).  If the conversion fails, an exception is raised."""
 
         # remove old files:
         self.plotcmd = 'splot'
@@ -819,7 +855,9 @@ if __name__ == '__main__':
     from Numeric import *
     import sys
 
-    # a straightforward use of gnuplot:
+    # A straightforward use of gnuplot.  The `debug=1' switch is used
+    # in these examples so that the commands that are sent to gnuplot
+    # are also output on stderr.
     g1 = Gnuplot(debug=1)
     g1.title('A simple example') # (optional)
     g1('set data style linespoints') # give gnuplot an arbitrary command
@@ -832,24 +870,34 @@ if __name__ == '__main__':
     g2 = Gnuplot(debug=1)
     x = arange(10)
     y1 = x**2
-    d = Data(transpose((x, y1)),
+    # Notice how this plotitem is created here but used later?  This
+    # is convenient if the same dataset has to be plotted multiple
+    # times, because the data need only be written to a temporary file
+    # once.
+    d = Data(x, y1,
              title="calculated by python",
-             with="points 2 2")
+             with="points 3 3")
     g2.title('Data can be computed by python or gnuplot')
     g2.xlabel('x')
     g2.ylabel('x squared')
+    # Plot a function alongside the Data PlotItem defined above:
     g2.plot(Func("x**2", title="calculated by gnuplot"), d)
 
     # Save what we just plotted as a color postscript file:
-    print "\n            Generating postscript file 'gnuplot_test1.ps'\n"
+    print "\n******** Generating postscript file 'gnuplot_test1.ps' ********\n"
     g2.hardcopy('gnuplot_test_plot.ps', color=1)
 
     # Demonstrate a 3-d plot:
     g3 = Gnuplot(debug=1)
+    # set up x and y values at which the function will be tabulated:
     x = arange(35)/2.0
     y = arange(30)/10.0 - 1.5
-    # Make a 2-d array containing a function of x and y:
-    m = (sin(x) + 0.1*x)[:,NewAxis] - y**2
+    # Make a 2-d array containing a function of x and y.  First create
+    # xm and ym which contain the x and y values in a matrix form that
+    # can be `broadcast' into a matrix of the appropriate shape:
+    xm = x[:,NewAxis]
+    ym = y[NewAxis,:]
+    m = (sin(xm) + 0.1*xm) - ym**2
     g3('set data style lines')
     g3('set hidden')
     g3('set contour base')
@@ -857,15 +905,17 @@ if __name__ == '__main__':
     g3.ylabel('y')
     g3.splot(GridData(m,x,y))
 
-    sys.stderr.write("Press return to continue...\n")
+    # Delay so the user can see the plots:
+    sys.stderr.write("Three plots should have appeared on your screen "
+                     "(they may be overlapping).\n"
+                     "Please press return to continue...\n")
     sys.stdin.readline()
 
     # ensure processes and temporary files are cleaned up:
     del g1, g2, g3, d
 
+    # Enable the following code to test the old-style gnuplot interface
     if 0:
-        # Test old-style gnuplot interface
-
 	# List of (x, y) pairs
 	plot([(0.,1),(1.,5),(2.,3),(3.,4)])
 
@@ -874,7 +924,6 @@ if __name__ == '__main__':
 	plot([1, 5, 3, 4], file='gnuplot_test2.ps')
 
 	# Two plots; each given by a 2d array
-	from Numeric import *
 	x = arange(10)
 	y1 = x**2
 	y2 = (10-x)**2
