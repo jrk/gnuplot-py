@@ -867,14 +867,17 @@ class Gnuplot:
 
         self.set_string('title', s)
 
-    def hardcopy(self, filename=None, eps=0, color=0):
+    def hardcopy(self, filename=None, eps=0, color=0, enhanced=1):
         """Create a hardcopy of the current plot.
 
         Create a postscript hardcopy of the current plot.  If a
         filename is specified, save the output in that file; otherwise
         print it immediately using lpr.  If eps is specified, generate
         encapsulated postscript.  If color is specified, create a
-        color plot.  Note that this command will return immediately
+        color plot.  If enhanced is specified (the default), then
+        generate enhanced postscript.  (Some old gnuplot versions do
+        not support enhanced postscript; if this is the case set
+        enhanced=0.)  Note that this command will return immediately
         even though it might take gnuplot a while to actually finish
         working.
 
@@ -885,7 +888,7 @@ class Gnuplot:
         setterm = ['set', 'term', 'postscript']
         if eps: setterm.append('eps')
         else: setterm.append('default')
-        setterm.append('enhanced')
+        if enhanced: setterm.append('enhanced')
         if color: setterm.append('color')
         self(string.join(setterm))
         self.set_string('output', filename)
