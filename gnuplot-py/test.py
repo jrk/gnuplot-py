@@ -101,12 +101,22 @@ def main():
 
         wait('Style lines')
         g.plot(Gnuplot.File(filename1, with='lines'))
+
         wait('using=1, using=(1,)')
         g.plot(Gnuplot.File(filename1, using=1, with='lines'),
                Gnuplot.File(filename1, using=(1,), with='points'))
         wait('using=(1,2), using="1:3"')
         g.plot(Gnuplot.File(filename1, using=(1,2)),
                Gnuplot.File(filename1, using='1:3'))
+
+        wait('every=5, every=(5,)')
+        g.plot(Gnuplot.File(filename1, every=5, with='lines'),
+               Gnuplot.File(filename1, every=(5,), with='points'))
+        wait('every=(10,None,0), every="10::5"')
+        g.plot(Gnuplot.File(filename1, with='lines'),
+               Gnuplot.File(filename1, every=(10,None,0)),
+               Gnuplot.File(filename1, every='10::5'))
+
         wait('title=None')
         g.plot(Gnuplot.File(filename1, title=None))
         wait('title="title"')
