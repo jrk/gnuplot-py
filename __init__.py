@@ -6,25 +6,39 @@
 # Written by Michael Haggerty <mhagger@blizzard.harvard.edu>
 # Derived from earlier version by Konrad Hinsen <hinsen@ibs.ibs.fr>
 
-# New restrictions: can only plot 2-d numeric arrays or python
-# sequences which are convertable (via Numeric.asarray) to such.
+# New restrictions:
+
+# Can only plot 2-d numeric arrays or python sequences which are
+# convertable (via Numeric.asarray) to such.
 
 # Does not try to make persistent windows; instead simply leaves
 # gnuplot running for as long as the gnuplot object is in existence.
 
+# Cannot plot to a postscript file with the `plot' method; use
+# `hardcopy' instead.
+
 import os, string, tempfile, Numeric
 
-class plottable:
+
+# plotitem represents an item that can be plotted by gnuplot.
+class plotitem:
     def __init__(self):
 	pass
 
     def __del__(self):
 	pass
 
+    # return a list of the `plot' command(s) necessary to print out
+    # this item:
     def commands(self):
 	return []
 
-class plotfile:
+    # if the plot command requires data to be put on stdin (i.e.,
+    # `plot ""'), this method will put that data there.
+    def pipein(self, file):
+	pass
+
+class plotfile(plotitem):
     def __init__(self, set):
 	# ensure that the argument is a Numeric array:
 	set = Numeric.asarray(set, Float)
@@ -41,8 +55,6 @@ class plotfile:
     def __del__(self):
 	os.unlink(self.filename)
 
-    # return a list of the `plot' command(s) necessary to print out
-    # this item:
     def commands(self):
     	if self.len == 1:
     	    return ['"' + self.filename + '" notitle']
@@ -54,46 +66,54 @@ class plotfile:
 	    return c
 
 
-# gnuplot plotting object:
+# gnuplot plotting object.  A gnuplot basically represents a running
+# gnuplot process, while keeping track of the temporary files
+# etc. that have been created for communication with that process.
+#
+# Members:
+#   gnuplot -- a pipe to gnuplot or a file gathering the commands
+#   itemlist -- a list of the plotitems that are associated with the
+#               current plot.
+#   
+
 class gnuplot:
     def __init__(self, filename=None):
 	if filename == None:
 	    self.gnuplot = os.popen('gnuplot', 'w')
 	else:
+	    # put gnuplot commands into a file:
 	    self.gnuplot = open(filename, 'w')
-	self('set terminal x11')
     	self.itemlist = []
-
-    def rmfiles(self):
-	# Should delete plotfile objects automatically:
-	self.itemlist = []
 
     def __del__(self):
 	self('quit')
 	self.gnuplot.close()
-	self.rmfiles()
 
+    # send a string to the gnuplot process, followed by a newline:
     def __call__(self, s):
 	self.gnuplot.write(s + "\n")
 	self.gnuplot.flush()
 
-    def plot(self, *data, **keywords):
-	# remove old files:
-	self.rmfiles()
-    	for set in data:
-    	    self.itemlist.append(plotfile(set))
+    # refresh the plot, using the current plotitems:
+    def refresh(self):
 	plotcmds = []
 	for item in self.itemlist:
 	    plotcmds = plotcmds + item.commands()
-    	command = 'plot ' + string.join(plotcmds, ', ')
-    	if keywords.has_key('file'):
-    	    self('set terminal postscript enhanced')
-    	    self('set output "' + keywords['file'] + '"')
-    	    self(command)
-	    self('set terminal x11')
-	    self('set output')
-    	else:
-	    self(command)
+	self('plot ' + string.join(plotcmds, ', '))
+	for item in self.itemlist:
+	    item.pipein(self.gnuplot)
+
+    # call the gnuplot `plot' command:
+    def plot(self, *data):
+	# remove old files:
+	self.itemlist = []
+	apply(self.replot, data)
+
+    # replot the data, possibly adding new plotitems:
+    def replot(self, *data):
+    	for set in data:
+    	    self.itemlist.append(plotfile(set))
+	self.refresh()
 
     def xlabel(self, s=None):
 	if s==None:
@@ -108,14 +128,11 @@ class gnuplot:
 	    self('set ylabel "' + s + '"')
 
     def hardcopy(self, filename = '| lpr'):
-	g('set term postscript enhanced')
-	g('set output "' + filename + '"')
-	g('replot')
-	g('set term x11')
-	g('set output')
-
-    def replot(self):
+	self('set term postscript enhanced')
+	self('set output "' + filename + '"')
 	self('replot')
+	self('set term x11')
+	self('set output')
 
 
 #
@@ -132,7 +149,8 @@ if __name__ == '__main__':
     g2 = gnuplot()
     # List of y values, file output
     print "Generating postscript file 'junk.ps'"
-    g2.plot([[1], [5], [3], [4]], file = 'junk.ps')
+    g2.plot([[1], [5], [3], [4]])
+    g2.hardcopy('junk.ps')
 
     # Two plots; each given by a 2d array
     x = arange(10)
