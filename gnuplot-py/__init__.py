@@ -489,7 +489,6 @@ class Data(File):
             set = Numeric.transpose(set, (dims-1,) + tuple(range(dims-1)))
         if keyw.has_key('cols') and keyw['cols'] is not None:
             set = Numeric.take(set, keyw['cols'], -1)
-            keyw = keyw.copy()
             del keyw['cols']
         apply(File.__init__, (self, TempArrayFile(set)), keyw)
 
@@ -902,7 +901,7 @@ class Gnuplot:
 # plotters will be stored here to prevent their being closed:
 _gnuplot_processes = []
 
-def plot(*items, **kw):
+def plot(*items, **keyw):
     """plot data using gnuplot through Gnuplot.
 
     This command is roughly compatible with old Gnuplot plot command.
@@ -942,12 +941,12 @@ def plot(*items, **kw):
     items = tuple(newitems)
     del newitems
 
-    if kw.has_key('file'):
+    if keyw.has_key('file'):
         g = Gnuplot()
         # setup plot without actually plotting (so data don't appear
         # on the screen):
         g._add_to_queue(items)
-        g.hardcopy(kw['file'])
+        g.hardcopy(keyw['file'])
         # process will be closed automatically
     elif test_persist():
         g = Gnuplot(persist=1)
