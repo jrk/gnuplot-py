@@ -361,7 +361,7 @@ def write_array(f, set,
         f.write(nest_suffix)
 
 
-def grid_function(f, xvals, yvals, typecode = Numeric.Float32):
+def grid_function(f, xvals, yvals, typecode=Numeric.Float32):
     """Evaluate and tabulate a function on a grid.
 
     'xvals' and 'yvals' should be 1-D arrays listing the values of x
@@ -377,7 +377,7 @@ def grid_function(f, xvals, yvals, typecode = Numeric.Float32):
 
     """
 
-    m = Numeric.zeros((len(xvals), len(yvals)), typecode=typecode)
+    m = Numeric.zeros((len(xvals), len(yvals)), typecode)
     for xi in range(len(xvals)):
         x = xvals[xi]
         for yi in range(len(yvals)):
