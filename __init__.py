@@ -122,7 +122,7 @@ Bugs:
     let me know.
 """
 
-__version__ = "1.1"
+__version__ = "1.1a"
 __cvs_version__ = "CVS version $Revision$"
 
 import sys, os, string, tempfile, Numeric
