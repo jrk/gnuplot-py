@@ -2,7 +2,7 @@
 
 """gp_win32 -- an interface to gnuplot for Windows.
 
-Copyright (C) 1999 Michael Haggerty
+Copyright (C) 1999 Michael Haggerty <mhagger@alum.mit.edu>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,7 +17,6 @@ Boston, MA 02111-1307, USA.
 
 """
 
-__version__ = '1.4'
 __cvs_version__ = '$Revision$'
 
 

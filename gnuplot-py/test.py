@@ -3,10 +3,7 @@
 
 """test.py -- Exercise the Gnuplot.py module.
 
-This module is not meant to be a flashy demonstration; rather it is a
-thorough test of many combinations of Gnuplot.py features.
-
-Copyright (C) 1999 Michael Haggerty
+Copyright (C) 1999-2001 Michael Haggerty <mhagger@alum.mit.edu>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -19,9 +16,11 @@ available at <http://www.fsf.org/copyleft/gpl.html>, or by writing to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 Boston, MA 02111-1307, USA.
 
+This module is not meant to be a flashy demonstration; rather it is a
+thorough test of many combinations of Gnuplot.py features.
+
 """
 
-__version__ = '1.4'
 __cvs_version__ = '$Revision$'
 
 import math, time, tempfile

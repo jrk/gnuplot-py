@@ -159,4 +159,4 @@ the Macintosh.
 
 
 Michael Haggerty
-<mhagger@blizzard.harvard.edu>
+<mhagger@alum.mit.edu>

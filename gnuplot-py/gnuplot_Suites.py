@@ -1,3 +1,5 @@
+# $Id$
+
 # This file is a part of the Gnuplot.py package.  See LICENSE file for
 # copyright information.
 
@@ -21,6 +23,8 @@ Level 1, version 1
 Generated from Power HD:Applications:Analysis/Plotting:gnuplot.2.0a34:gnuplot (PPC)
 AETE/AEUT resource version 1/0, language 0, script 0
 """
+
+__cvs_version__ = '$Revision$'
 
 import aetools
 import MacOS
