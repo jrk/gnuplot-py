@@ -182,6 +182,11 @@ else:
     from os import popen
 
 
+# _unset is used as a default for unset keyword options
+class _unset:
+    pass
+
+
 def test_persist():
     """Determine whether gnuplot recognizes the option '-persist'.
 
@@ -358,8 +363,7 @@ class PlotItem:
     def __init__(self, basecommand, **keyw):
         self._basecommand = basecommand
         self._options = {}
-        for (name,value) in keyw.items():
-            self.set_option(name, value)
+        apply(self.set_option, (), keyw)
 
     def get_option(self, name):
         try:
@@ -367,20 +371,24 @@ class PlotItem:
         except:
             raise KeyError('option %s is not set!' % name)
 
-    def set_option(self, name, value):
-        if name == 'title':
-            if value is None:
-                self._options[name] = (value, 'notitle')
-            elif type(value) is type(''):
-                self._options[name] = (value, 'title "%s"' % value)
+    def set_option(self, with=_unset, title=_unset, **keyw):
+        if with is not _unset:
+            if with is None:
+                self._options['with'] = (None, None)
+            elif type(with) is type(''):
+                self._options['with'] = (with, 'with %s' % with)
+            else:
+                OptionException('with=%s' % (with,))
+        if title is not _unset:
+            if title is None:
+                self._options['title'] = (None, 'notitle')
+            elif type(title) is type(''):
+                self._options['title'] = (title, 'title "%s"' % title)
             else:
                 OptionException('title=%s' % (title,))
-        elif name == 'with':
-            assert type(value) is type(''), \
-                   OptionException('with=%s' % (value,))
-            self._options[name] = (value, 'with %s' % value)
-        else:
-            # unrecognized option
+        if keyw:
+            # one or more unrecognized options; give error for one of them:
+            (name,value) = keyw.items()[0]
             raise OptionException('%s=%s' % (name,value))
 
     def clear_option(self, name):
@@ -540,28 +548,27 @@ class File(PlotItem):
             raise OptionException
         apply(PlotItem.__init__, (self, '"%s"' % self.file.filename), keyw)
 
-    def set_option(self, name, value):
-        if name == 'using':
-            if value is None:
-                pass
-            elif type(value) in [type(''), type(1)]:
-                self._options[name] = (value, 'using %s' % value)
-            elif type(value) is type(()):
-                self._options[name] = (value,
-                                       'using %s' %
-                                       string.join(map(repr, value), ':'))
+    def set_option(self, using=_unset, binary=_unset, **keyw):
+        if using is not _unset:
+            if using is None:
+                self.clear_option('using')
+            elif type(using) in [type(''), type(1)]:
+                self._options['using'] = (using, 'using %s' % using)
+            elif type(using) is type(()):
+                self._options['using'] = (using,
+                                          'using %s' %
+                                          string.join(map(repr, using), ':'))
             else:
-                raise OptionException('%s=%s' % (name,value))
-        elif name == 'binary':
-            if value:
+                raise OptionException('using=%s' % (using,))
+        if binary is not _unset:
+            if binary:
                 assert _recognizes_binary_splot, \
                        OptionException('Gnuplot.py is currently configured to '
                                        'reject binary data!')
-                self._options[name] = (1, 'binary')
+                self._options['binary'] = (1, 'binary')
             else:
-                self._options[name] = (0, None)
-        else:
-            PlotItem.set_option(self, name, value)
+                self._options['binary'] = (0, None)
+        apply(PlotItem.set_option, (self,), keyw)
 
 
 class Data(PlotItem):
@@ -626,11 +633,11 @@ class Data(PlotItem):
             keyw['title'] = None
         apply(PlotItem.__init__, (self, '"%s"' % self.file.filename), keyw)
 
-    def set_option(self, name, value):
-        if name == 'cols':
+    def set_option(self, cols=_unset, **keyw):
+        if cols is not _unset:
             raise OptionException('Cannot modify cols option!')
         else:
-            PlotItem.set_option(self, name, value)
+            apply(PlotItem.set_option, (self,), keyw)
 
 
 class GridData(PlotItem):
@@ -708,7 +715,8 @@ class GridData(PlotItem):
             open(self.file.filename, 'wb').write(mout.tostring())
 
             # avoid using the temporary filename as the title:
-            keyw['title'] = keyw.get('title', None)
+            if not keyw.has_key('title'):
+                keyw['title'] = None
             apply(PlotItem.__init__, (self, '"%s"' % self.file.filename), keyw)
 
             # Include the command-line option to read in binary data:
@@ -721,15 +729,15 @@ class GridData(PlotItem):
                      data)), (1,2,0))
             self.file = TempArrayFile(set)
             # avoid using the temporary filename as the title:
-            keyw['title'] = keyw.get('title', None)
+            if not keyw.has_key('title'):
+                keyw['title'] = None
             apply(PlotItem.__init__, (self, '"%s"' % self.file.filename), keyw)
             self._options['binary'] = (0, None)
 
-    def set_option(self, name, value):
-        if name == 'binary':
+    def set_option(self, binary=_unset, **keyw):
+        if binary is not _unset:
             raise OptionException('Cannot modify binary option!')
-        else:
-            PlotItem.set_option(self, name, value)
+        apply(PlotItem.set_option, (self,), keyw)
 
 
 class Gnuplot:
