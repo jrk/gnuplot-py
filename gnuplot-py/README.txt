@@ -38,17 +38,20 @@ be installed as a subdirectory called `Gnuplot' within a directory
 that is in your python path.  Usually this means you should install it
 within your site-packages directory, which may be in
 /usr/local/lib/python1.5.  The easiest thing is to change to that
-directory then untar or unzip the distribution.  This will create a
-directory called `Gnuplot-<version>'.  Then either create a symbolic
+directory and untar or unzip the distribution there.  This will create
+a directory called `Gnuplot-<version>'.  Then either create a symbolic
 link to that directory called `Gnuplot' or change the name of that
 directory to `Gnuplot'.
 
 The Gnuplot.py package is pure Python.  The main file is __init__.py.
-There are a few configuration options near the beginning of the file
-that you might need to change (see the comments for details).  If your
-copy of gnuplot is started by typing something other than `gnuplot'
-you will have to specify the correct command there.  Otherwise most
-things will probably work OK without any changes.
+Aside from that are the platform-dependent files gp.py (Unix),
+gp_mac.py (Macintosh), and gp_win32.py (Windows).  Near the top of
+each of these files are some configuration options that you can
+change.  (Obviously, you should change the version appropriate to your
+platform.)  See the extensive comments in gp.py for a description of
+the meaning of each configuration variable.  Sensible values are
+already chosen, so it is quite possible that you won't have to change
+anything.
 
 You can import the main part of the package into your python programs
 using `import Gnuplot'.
@@ -91,6 +94,18 @@ After pgnuplot.exe is installed, install Gnuplot.py as described
 in the previous section.
 
 
+Installation on the Macintosh
+-----------------------------
+
+Thanks to more user help, Gnuplot.py should now work on the Macintosh
+too.  Since pipes don't exist on the Mac, communication with gnuplot
+is via a python module called gnuplot_Suites.py (included).  Note that
+you will have to convert the python files to Mac text files (different
+end-of-line character).  Currently it is not possible to print
+directly to a printer; however, it should be possible to print to a
+postscript file and print that file manually.
+
+
 Feedback
 --------
 
@@ -101,15 +116,17 @@ file.
 
 Gnuplot.py has been tested with gnuplot version 3.7, and I believe it
 should work with version 3.5 (though some features, like enhanced
-postscript mode, are not available).  Let me know if you have trouble.
+postscript mode and binary splot mode, will not work).  Let me know if
+you have trouble.
 
 Gnuplot.py was developed under Linux and Digital Unix; it should work
 without much problem on other unix computers.  If you need to modify
 it for your system tell me what was necessary and I'll include your
 changes in a future release.
 
-Gnuplot.py should now work under windows (see above).  Feedback in
-this area is especially appreciated since I can't test it myself.
+Gnuplot.py should now work under Windows and Macintosh (see above).
+Feedback for these platforms is especially appreciated since I can't
+test them myself.
 
 
 License
@@ -132,6 +149,9 @@ docstring changes to allow docs to be generated with pythondoc.
 Francois Ladouceur <f.ladouceur@virtualphotonics.com> and Craig
 Schardt <lazrnerd@ufl.edu> contributed changes that enable Gnuplot.py
 to work under MS-Windows.
+
+Tony Ingraldi <a.m.ingraldi@larc.nasa.gov> got Gnuplot.py to work on
+the Macintosh.
 
 
 Michael Haggerty

@@ -27,10 +27,10 @@ would also be appreciated.
 For information about how to use this module:
 
 1.  Check the README file.
-2.  Look at the test code in demo.py and try running it by typing
+2.  Look at the example code in demo.py and try running it by typing
     'python demo.py' or 'python __init__.py'.
 3a. For more details see the extensive documentation strings
-    throughout this file.
+    throughout this file and gp.py.
 3b. The docstrings have also been turned into html which can be read
     at <http://monsoon.harvard.edu/~mhagger/Gnuplot/Gnuplot-doc/>.
     However, the formatting is not perfect; when in doubt,
@@ -63,7 +63,8 @@ Features:
         g2 = Gnuplot.Gnuplot()
 
     Note that due to a limitation in pgnuplot, opening multiple
-    simultaneous sessions under Windows may not work correctly.
+    simultaneous sessions under Windows may not work correctly.  It is
+    unknown whether multiple sessions will work on the Macintosh.
 
  o  The implicitly-generated gnuplot commands can be stored to a file
     instead of executed immediately.
@@ -73,8 +74,8 @@ Features:
         g = Gnuplot.Gnuplot('commands.gnuplot')
 
     The file can then be run later with gnuplot's 'load' command.
-    Beware, however: if the plot commands depend on the existence of
-    temporary files, they will probably be deleted before you use the
+    Beware, however: the plot commands may depend on the existence of
+    temporary files, which will probably be deleted before you use the
     command file.
 
  o  Can pass arbitrary commands to the gnuplot command interpreter.
@@ -82,6 +83,9 @@ Features:
     Example:
 
         g('set pointsize 2')
+
+    (If this is all you want to do, you might consider using the
+    lightweight GnuplotProcess class defined in gp.py.)
 
  o  A Gnuplot object knows how to plot objects of type 'PlotItem'.
     Any PlotItem can have optional 'title' and/or 'with' suboptions.
@@ -130,7 +134,7 @@ Features:
  o  Grid data for the splot command can be sent to gnuplot in binary
     format, saving time and disk space.
 
- o  Should work under either unix or Windows.
+ o  Should work under Unix, Macintosh, and Windows.
 
 Restrictions:
     
@@ -149,13 +153,8 @@ Restrictions:
         g('set data style linespoints')
         g('set pointsize 5')
 
-    I might add a more organized way of setting arbitrary options, but
-    there doesn't seem to be a pressing need for it.
-
  -  There is no provision for missing data points in array data (which
-    gnuplot would allow by specifying '?' as a data point).  I'm
-    thinking about implementing this as an optional 'mask' argument to
-    the Data PlotItem.  (Comments?)
+    gnuplot allows via the 'set missing' command).
 
 Bugs:
 
@@ -1304,6 +1303,12 @@ class Gnuplot(GnuplotProcess):
                    OptionException('default_lpr is not set, so you can only '
                                    'print to a file.')
             filename = GnuplotOpts.default_lpr
+
+        # First set to postscript mode with default settings, because
+        # gnuplot remembers nondefault settings across terminal
+        # changes:
+        self('set terminal postscript default')
+
         setterm = ['set', 'terminal', 'postscript']
         if eps: setterm.append('eps')
         else: setterm.append('default')

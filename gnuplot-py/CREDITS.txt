@@ -24,3 +24,7 @@ Craig Schardt <lazrnerd@ufl.edu> and Francois Ladouceur
 <f.ladouceur@virtualphotonics.com> contributed changes that enable
 Gnuplot.py to work under MS-Windows.
 
+Tony Ingraldi <a.m.ingraldi@larc.nasa.gov> got Gnuplot.py to work on
+the Macintosh.  In particular, the gnuplot_Suites.py file was
+contributed by him, as were several changes to the other files.
+

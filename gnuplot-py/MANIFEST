@@ -4,8 +4,12 @@ MANIFEST		# This file
 NEWS			# Changes between versions
 LICENSE			# Your rights to use this package
 CREDITS			# Contributors to Gnuplot.py
+TODO			# Hopes and dreams
 __init__.py		# The main module
 demo.py			# Demonstrate elementary Gnuplot.py features
 test.py			# More thorough test of most Gnuplot.py features
 oldplot.py		# Optional module for backwards compatibility
-gnuplot_Suites.py	# Module needed for running on the Macintosh
+gp.py			# Low-level gnuplot interface, Unix version
+gp_mac.py		# Low-level gnuplot interface, Macintosh version
+gp_win32.py		# Low-level gnuplot interface, Windows version
+gnuplot_Suites.py	# Support module needed for the Macintosh
