@@ -3,4 +3,5 @@ include *.txt
 include *.py
 include MANIFEST
 include MANIFEST.in
+exclude RELEASES.txt
 recursive-include doc *.html
