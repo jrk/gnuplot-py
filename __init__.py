@@ -196,93 +196,13 @@ else:
     from gp import GnuplotOpts, GnuplotProcess, test_persist
 
 
+import utils
+
+
 class _unset:
     """Used to represent unset keyword arguments."""
 
     pass
-
-
-def float_array(m):
-    """Return the argument as a Numeric array of type at least 'Float32'.
-
-    Leave 'Float64' unchanged, but upcast all other types to
-    'Float32'.  Allow also for the possibility that the argument is a
-    python native type that can be converted to a Numeric array using
-    'Numeric.asarray()', but in that case don't worry about
-    downcasting to single-precision float.
-
-    """
-
-    try:
-        # Try Float32 (this will refuse to downcast)
-        return Numeric.asarray(m, Numeric.Float32)
-    except TypeError:
-        # That failure might have been because the input array was
-        # of a wider data type than Float32; try to convert to the
-        # largest floating-point type available:
-        return Numeric.asarray(m, Numeric.Float)
-
-
-def write_array(f, set,
-                item_sep=' ',
-                nest_prefix='', nest_suffix='\n', nest_sep=''):
-    """Write an array of arbitrary dimension to a file.
-
-    A general recursive array writer.  The last four parameters allow
-    a great deal of freedom in choosing the output format of the
-    array.  The defaults for those parameters give output that is
-    gnuplot-readable.  But using '(",", "{", "}", ",\n")' would output
-    an array in a format that Mathematica could read.  item_sep should
-    not contain '%' (or if it does, it should be escaped to '%%')
-    since it is put into a format string.
-
-    The default 2-d file organization is, for example:
-
-        set[0,0] set[0,1] ...
-        set[1,0] set[1,1] ...
-
-    The 3-d format is, for example:
-
-        set[0,0,0] set[0,0,1] ...
-        set[0,1,0] set[0,1,1] ...
-
-        set[1,0,0] set[1,0,1] ...
-        set[1,1,0] set[1,1,1] ...
-
-    """
-
-    if len(set.shape) == 1:
-        (columns,) = set.shape
-        assert columns > 0
-        fmt = string.join(['%s'] * columns, item_sep)
-        f.write(nest_prefix)
-        f.write(fmt % tuple(set.tolist()))
-        f.write(nest_suffix)
-    elif len(set.shape) == 2:
-        # This case could be done with recursion, but `unroll' for
-        # efficiency.
-        (points, columns) = set.shape
-        assert points > 0 and columns > 0
-        fmt = string.join(['%s'] * columns, item_sep)
-        f.write(nest_prefix + nest_prefix)
-        f.write(fmt % tuple(set[0].tolist()))
-        f.write(nest_suffix)
-        for point in set[1:]:
-            f.write(nest_sep + nest_prefix)
-            f.write(fmt % tuple(point.tolist()))
-            f.write(nest_suffix)
-        f.write(nest_suffix)
-    else:
-        # Use recursion for three or more dimensions:
-        assert set.shape[0] > 0
-        f.write(nest_prefix)
-        write_array(f, set[0],
-                    item_sep, nest_prefix, nest_suffix, nest_sep)
-        for subset in set[1:]:
-            f.write(nest_sep)
-            write_array(f, subset,
-                        item_sep, nest_prefix, nest_suffix, nest_sep)
-        f.write(nest_suffix)
 
 
 class OptionException(Exception):
@@ -544,7 +464,7 @@ class ArrayFile(AnyFile):
         """
 
         AnyFile.__init__(self, filename)
-        write_array(open(self.filename, 'w'), set)
+        utils.write_array(open(self.filename, 'w'), set)
 
 
 class TempArrayFile(ArrayFile, TempFile):
@@ -699,12 +619,12 @@ class Data(PlotItem):
 
         if len(set) == 1:
             # set was passed as a single structure
-            set = float_array(set[0])
+            set = utils.float_array(set[0])
         else:
             # set was passed column by column (for example,
             # Data(x,y)); pack it into one big array (this will test
             # that sizes are all the same):
-            set = float_array(set)
+            set = utils.float_array(set)
             dims = len(set.shape)
             # transpose so that the last index selects x vs. y:
             set = Numeric.transpose(set, (dims-1,) + tuple(range(dims-1)))
@@ -728,13 +648,13 @@ class Data(PlotItem):
 
         if self.inline:
             f = StringIO()
-            write_array(f, set)
+            utils.write_array(f, set)
             f.write('e\n')
             self._data = f.getvalue()
             apply(PlotItem.__init__, (self, "'-'"), keyw)
         else:
             self.file = TempFile()
-            write_array(open(self.file.filename, 'w'), set)
+            utils.write_array(open(self.file.filename, 'w'), set)
             self._data = None
             apply(PlotItem.__init__, (self, "'%s'" % self.file.filename), keyw)
 
@@ -805,20 +725,20 @@ class GridData(PlotItem):
         """
 
         # Try to interpret data as an array:
-        data = float_array(data)
+        data = utils.float_array(data)
         assert len(data.shape) == 2
         (numx, numy) = data.shape
 
         if xvals is None:
             xvals = Numeric.arange(numx)
         else:
-            xvals = float_array(xvals)
+            xvals = utils.float_array(xvals)
             assert xvals.shape == (numx,)
 
         if yvals is None:
             yvals = Numeric.arange(numy)
         else:
-            yvals = float_array(yvals)
+            yvals = utils.float_array(yvals)
             assert yvals.shape == (numy,)
 
         if inline is _unset:
@@ -878,13 +798,13 @@ class GridData(PlotItem):
             self.inline = inline
             if self.inline:
                 f = StringIO()
-                write_array(f, set)
+                utils.write_array(f, set)
                 f.write('e\n')
                 self._data = f.getvalue()
                 apply(PlotItem.__init__, (self, "'-'"), keyw)
             else:
                 self.file = TempFile()
-                write_array(open(self.file.filename, 'w'), set)
+                utils.write_array(open(self.file.filename, 'w'), set)
                 apply(PlotItem.__init__,
                       (self, "'%s'" % self.file.filename), keyw)
                 self._data = None
