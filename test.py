@@ -42,6 +42,8 @@ def main():
 
     g = gp.Gnuplot()
     g.clear()
+    print 'A blank gnuplot screen should have appeared on your screen.'
+    print
 
     ############### test Func ########################################
     print 'Plot a gnuplot-generated function'
@@ -202,10 +204,10 @@ def main():
 
     print 'And now for a little fun'
     wait()
-    for view in range(0,360,2):
+    for view in range(0,90,5):
         g('set view 60, %d' % view)
         g.replot()
-        time.sleep(0.25)
+        time.sleep(1.0)
 
     wait('Press return to end the test.\n')
 
