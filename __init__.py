@@ -1,4 +1,4 @@
-#!/usr/local/bin/python -t
+#! /usr/bin/env python
 # $Id$
 
 """Gnuplot.py -- A pipe-based interface to the gnuplot plotting program.
