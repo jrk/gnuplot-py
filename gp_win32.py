@@ -36,6 +36,12 @@ class GnuplotOpts:
     # the main gnuplot program cannot be used directly because it can
     # not read commands from standard input.  See README for more
     # information.
+    #
+    # If pgnuplot is in a subdirectory with spaces in its name, extra
+    # quoting is required for windows for it to launch
+    # gnuplot.  Example:
+    #
+    #     gnuplot_command = '"C:\\Program Files\\gp371w32\\pgnuplot.exe"'
     gnuplot_command = 'pgnuplot.exe'
 
     # The '-persist' option is not supported on windows:
