@@ -21,7 +21,7 @@ Boston, MA 02111-1307, USA.
 __version__ = '1.2'
 __cvs_version__ = '$Revision$'
 
-import sys, os, math, time
+import math, time
 import Numeric
 from Numeric import *
 import Gnuplot
