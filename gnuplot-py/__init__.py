@@ -390,7 +390,7 @@ class PlotItem:
         except:
             raise KeyError('option %s is not set!' % name)
 
-    def set_option(self, with=_unset, title=_unset, **keyw):
+    def set_option(self, with=_unset, smooth=_unset, title=_unset, **keyw):
         """Set or change a plot option for this PlotItem.
 
         See documentation for __init__ for information about allowed
@@ -399,6 +399,13 @@ class PlotItem:
 
         """
 
+        if smooth is not _unset:
+            if with is None:
+                self._options['smooth'] = (None, None)
+            elif type(with) is type(''):
+                self._options['smooth'] = (smooth, 'smooth %s' % smooth)
+            else:
+                OptionException('smooth=%s' % (smooth,))
         if with is not _unset:
             if with is None:
                 self._options['with'] = (None, None)
@@ -427,7 +434,7 @@ class PlotItem:
             pass
 
     # order in which options need to be passed to gnuplot:
-    _option_sequence = ['binary', 'using', 'title', 'with']
+    _option_sequence = ['binary', 'using', 'smooth', 'title', 'with']
 
     def command(self):
         """Build the 'plot' command to be sent to gnuplot.
