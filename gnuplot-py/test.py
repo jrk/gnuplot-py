@@ -27,7 +27,7 @@ import Gnuplot
 gp = Gnuplot # abbreviation
 
 def wait():
-    raw_input('Please press return...\n')
+    raw_input('Press return to show results...\n')
 
 
 def main():
@@ -44,87 +44,87 @@ def main():
 
     ############### test Func ########################################
     print 'Plot a gnuplot-generated function'
-    g.plot(gp.Func('sin(x)'))
     wait()
+    g.plot(gp.Func('sin(x)'))
 
     print 'Set title and axis labels and try replot()'
+    wait()
     g.title('Title')
     g.xlabel('x')
     g.ylabel('y')
     g.replot()
-    wait()
 
     print 'Style linespoints'
+    wait()
     g.plot(gp.Func('sin(x)', with='linespoints'))
-    wait()
     print 'title=None'
+    wait()
     g.plot(gp.Func('sin(x)', title=None))
-    wait()
     print 'title="Sine of x"'
-    g.plot(gp.Func('sin(x)', title='Sine of x'))
     wait()
+    g.plot(gp.Func('sin(x)', title='Sine of x'))
 
     print 'Change Func attributes after construction:'
     f = gp.Func('sin(x)')
     print 'Original'
-    g.plot(f)
     wait()
+    g.plot(f)
     print 'Style linespoints'
+    wait()
     f.set_option(with='linespoints')
     g.plot(f)
-    wait()
     print 'title=None'
+    wait()
     f.set_option(title=None)
     g.plot(f)
-    wait()
     print 'title="Sine of x"'
+    wait()
     f.set_option(title='Sine of x')
     g.plot(f)
-    wait()
 
     ############### test File ########################################
     print 'Generate a File from a filename'
+    wait()
     g.plot(gp.File(file1.filename))
-    wait()
     print 'Generate a File given a TempFile object'
-    g.plot(gp.File(file1))
     wait()
+    g.plot(gp.File(file1))
 
     print 'Style lines'
-    g.plot(gp.File(file1.filename, with='lines'))
     wait()
+    g.plot(gp.File(file1.filename, with='lines'))
     print 'using=1, using=(1,)'
+    wait()
     g.plot(gp.File(file1.filename, using=1, with='lines'),
            gp.File(file1.filename, using=(1,), with='points'))
-    wait()
     print 'using=(1,2), using="1:3"'
+    wait()
     g.plot(gp.File(file1.filename, using=(1,2)),
            gp.File(file1.filename, using='1:3'))
-    wait()
     print 'title=None'
+    wait()
     g.plot(gp.File(file1.filename, title=None))
-    wait()
     print 'title="title"'
-    g.plot(gp.File(file1.filename, title='title'))
     wait()
+    g.plot(gp.File(file1.filename, title='title'))
 
     print 'Change File attributes after construction:'
     f = gp.File(file1.filename)
     print 'Original'
-    g.plot(f)
     wait()
+    g.plot(f)
     print 'Style linespoints'
+    wait()
     f.set_option(with='linespoints')
     g.plot(f)
-    wait()
     print 'using=(1,3)'
+    wait()
     f.set_option(using=(1,3))
     g.plot(f)
-    wait()
     print 'title=None'
+    wait()
     f.set_option(title=None)
     g.plot(f)
-    wait()
 
     ############### test Data ########################################
     x = arange(100)/5. - 10.
@@ -133,32 +133,32 @@ def main():
     d = Numeric.array((x,y1,y2))
 
     print 'Plot Data, specified column-by-column'
+    wait()
     g.plot(gp.Data(x,y1))
-    wait()
     print 'Plot Data, specified by an array'
+    wait()
     g.plot(gp.Data(d))
-    wait()
     print 'with="lp 4 4"'
+    wait()
     g.plot(gp.Data(d, with='lp 4 4'))
-    wait()
     print 'cols=0'
-    g.plot(gp.Data(d, cols=0))
     wait()
+    g.plot(gp.Data(d, cols=0))
     print 'cols=(0,1), cols=(0,2)'
+    wait()
     g.plot(gp.Data(d, cols=(0,1)),
            gp.Data(d, cols=(0,2)))
-    wait()
     print 'title=None'
+    wait()
     g.plot(gp.Data(d, title=None))
-    wait()
     print 'title="Cosine of x"'
-    g.plot(gp.Data(d, title='Cosine of x'))
     wait()
+    g.plot(gp.Data(d, title='Cosine of x'))
 
     ############### test shortcuts ###################################
     print 'plot Func and Data using shortcuts'
-    g.plot('sin(x)', d)
     wait()
+    g.plot('sin(x)', d)
 
     ############### test GridData ####################################
     # set up x and y values at which the function will be tabulated:
