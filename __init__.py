@@ -342,6 +342,8 @@ class PlotItem:
         if self.options.has_key('using'):
             c = c + ' using ' + self.options['using']
         if self.options.has_key('title'):
+            # Note that having no title option is different than
+            # having a notitle option.
             if self.options['title'] is None:
                 c = c + ' notitle'
             else:
