@@ -52,8 +52,12 @@ def main():
     g.clear()
 
     # Make a temporary file:
-    filename1 = tempfile.mktemp()
-    f = open(filename1, 'w')
+    if hasattr(tempfile, 'mkstemp'):
+        (fd, filename1,) = tempfile.mkstemp(text=1)
+        f = os.fdopen(fd, 'w')
+    else:
+        filename1 = tempfile.mktemp()
+        f = open(filename1, 'w')
     try:
         for x in Numeric.arange(100)/5. - 10.:
             f.write('%s %s %s\n' % (x, math.cos(x), math.sin(x)))
