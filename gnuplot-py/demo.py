@@ -26,17 +26,8 @@ __cvs_version__ = '$Revision$'
 
 from Numeric import *
 
-try:
-    # If the package has been installed correctly, this should work:
-    import Gnuplot, Gnuplot.funcutils
-except ImportError:
-    # It may be that the user is just testing out the package by
-    # running 'python demo.py' it the package's directory.  If that is
-    # the case, the following should work:
-    import __init__
-    Gnuplot = __init__
-    import funcutils
-    Gnuplot.funcutils = funcutils
+# If the package has been installed correctly, this should work:
+import Gnuplot, Gnuplot.funcutils
 
 
 def demo():

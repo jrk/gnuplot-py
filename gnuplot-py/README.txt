@@ -11,13 +11,13 @@ report bugs.
 Documentation
 -------------
 
-The best way to get started is to run the demo by typing `python
-demo.py'.  This should pop up a few gnuplot windows, one after
-another, containing simple graphs, and also write a postscript file
-called `gp_test.ps' to the current directory.  Then look at the code
-for the demo which is in the function `demo()' at the bottom of
-demo.py.  This should be enough to get you started making simple plots
-of your own.
+The best way to get started is to install it then run the demo by
+typing `python demo.py'.  This should pop up a few gnuplot windows,
+one after another, containing simple graphs, and also write a
+postscript file called `gp_test.ps' to the current directory.  Then
+look at the code for the demo which is in the function `demo()' at the
+bottom of demo.py.  This should be enough to get you started making
+simple plots of your own.
 
 Documentation for Gnuplot.py is in the doc/ subdirectory (which is
 generated automatically from the docstrings using happydoc).  And
@@ -42,9 +42,6 @@ Gnuplot.py uses Python distutils
 installed by untarring the package, changing into the top-level
 directory, and typing "python setup.py install".  The Gnuplot.py
 package is pure Python--no compilation is necessary.
-
-If you want to try out the demonstration before installing the
-package, type `python demo.py'.
 
 Gnuplot.py is structured as a python package.  That means that it
 installs itself as a subdirectory called `Gnuplot' under a directory
