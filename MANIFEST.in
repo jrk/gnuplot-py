@@ -1,0 +1,6 @@
+include Gnuplot.html
+include *.txt
+include *.py
+include MANIFEST
+include MANIFEST.in
+recursive-include doc *.html

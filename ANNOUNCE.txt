@@ -5,7 +5,7 @@ from within Python using the gnuplot [2] plotting program.
 
 Gnuplot.py can be obtained from
 
-    http://monsoon.harvard.edu/~mhagger/Gnuplot/Gnuplot.html
+    http://gnuplot-py.sourceforge.net/
 
 Prerequisites (see footnotes):
     the Python interpreter [1]
