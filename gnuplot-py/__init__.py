@@ -167,7 +167,7 @@ class gnuplot:
 	self.gnuplot.write(s + "\n")
 	self.gnuplot.flush()
 	if debug:
-	    sys.stdout.write("gnuplot> " + s + "\n")
+	    sys.stderr.write("gnuplot> " + s + "\n")
 
     # refresh the plot, using the current plotitems:
     def refresh(self):
@@ -195,6 +195,22 @@ class gnuplot:
 		# assume data is an array:
 		self.itemlist.append(data(item))
 	self.refresh()
+
+    def interact(self):
+	sys.stderr.write("Press C-d to end interactive input\n")
+	while 1:
+	    sys.stderr.write("gnuplot>>> ")
+	    line = sys.stdin.readline()
+	    if line == "":
+		break
+	    if line[-1] == "\n": line = line[:-1]
+	    self(line)
+
+    def load(self, filename=None):
+	if filename is None:
+	    self.interact()
+	else:
+	    self('load "' + filename + '"')
 
     def xlabel(self, s=None):
 	if s==None:
@@ -242,7 +258,7 @@ if __name__ == '__main__':
     print "Generating postscript file 'junk.ps'"
     g2.hardcopy('junk.ps')
 
-    sys.stdout.write("Press return to continue...\n")
+    sys.stderr.write("Press return to continue...\n")
     sys.stdin.readline()
 
     del g1, g2
