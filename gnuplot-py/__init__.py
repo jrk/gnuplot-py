@@ -1352,7 +1352,7 @@ class Gnuplot:
               output in that file; otherwise print it immediately
               using the '_default_lpr' command.
           'eps=<bool>' -- if eps is set, generate encapsulated
-              postscript using gnuplot's 'set term post eps'.
+              postscript using gnuplot's 'set terminal post eps'.
           'color=<bool>' -- if color is set, create a plot with color.
           'enhanced=<bool>' -- if enhanced is set (the default), then
               generate enhanced postscript, which allows extra
@@ -1369,7 +1369,7 @@ class Gnuplot:
 
         if filename is None:
             filename = _default_lpr
-        setterm = ['set', 'term', 'postscript']
+        setterm = ['set', 'terminal', 'postscript']
         if eps: setterm.append('eps')
         else: setterm.append('default')
         if enhanced: setterm.append('enhanced')
@@ -1377,7 +1377,7 @@ class Gnuplot:
         self(string.join(setterm))
         self.set_string('output', filename)
         self.refresh()
-        self('set term %s' % _default_term)
+        self('set terminal %s' % _default_term)
         self.set_string('output')
 
 
