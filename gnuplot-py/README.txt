@@ -78,6 +78,11 @@ suggestions having to do with Windows would be especially appreciated,
 especially if you know how to make Gnuplot.py work under Windows
 without having to install pgnuplot.exe.
 
+First make sure you have the quasi-standard Win32 extensions
+installed.  This can be obtained from the main Windows download page:
+
+    http://www.python.org/download/download_windows.html
+
 Because the MS-Windows gnuplot executable (wgnuplot.exe) doesn't
 accept commands on standard input, Gnuplot.py cannot communicate with
 it directly.  However, there is a simple little self-contained program
