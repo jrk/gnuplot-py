@@ -111,8 +111,6 @@ Restrictions:
     (which gnuplot would allow by specifying '?' as a data point).
     I can't think of a clean way to implement this; maybe one could
     use NaN for machines that support IEEE floating point.
- -  There is no supported way to change the plotting options of
-    PlotItems after they have been created.
 
 Bugs:
 
@@ -241,6 +239,21 @@ def write_array(f, set,
     item_sep should not contain '%' (or if it does, it should be
     escaped to '%%') since it is put into a format string.
 
+    For 2-d, the default file organization is for example:
+
+        set[0,0] set[0,1] ...
+        set[1,0] set[1,1] ...
+
+    etc.  For 3-d, it is for example:
+
+        set[0,0,0] set[0,0,1] ...
+        set[0,1,0] set[0,1,1] ...
+
+        set[1,0,0] set[1,0,1] ...
+        set[1,1,0] set[1,1,1] ...
+
+    etc.
+
     """
 
     if len(set.shape) == 1:
@@ -306,43 +319,43 @@ class PlotItem:
 
     Members:
     
-      'basecommand' -- a string holding the elementary argument that
-                       must be passed to gnuplot's `plot' command for
-                       this item; e.g., 'sin(x)' or '"filename.dat"'.
-      'options' -- a dictionary of (<option>,<string>) tuples
-                   corresponding to the plot options that have been
-                   specified for this object.  <option> is the option
-                   as specified by the user; <string> is the string that
-                   needs to be set in the command line to set that
-                   option (or None if no string is needed).  E.g.,
-                   {'title':'Data', 'with':'linespoints'}.
+      '_basecommand' -- a string holding the elementary argument that
+                        must be passed to gnuplot's `plot' command for
+                        this item; e.g., 'sin(x)' or '"filename.dat"'.
+      '_options' -- a dictionary of (<option>,<string>) tuples
+                    corresponding to the plot options that have been
+                    specified for this object.  <option> is the option
+                    as specified by the user; <string> is the string
+                    that needs to be set in the command line to set
+                    that option (or None if no string is needed).
+                    E.g., {'title':'Data', 'with':'linespoints'}.
 
     """
 
     def __init__(self, basecommand, **keyw):
-        self.basecommand = basecommand
-        self.options = {}
+        self._basecommand = basecommand
+        self._options = {}
         for (name,value) in keyw.items():
             self.set_option(name, value)
 
     def get_option(self, name):
         try:
-            return self.options[name][0]
+            return self._options[name][0]
         except:
             raise KeyError('option %s is not set!' % name)
 
     def set_option(self, name, value):
         if name == 'title':
             if value is None:
-                self.options[name] = (value, 'notitle')
+                self._options[name] = (value, 'notitle')
             elif type(value) is type(''):
-                self.options[name] = (value, 'title "%s"' % value)
+                self._options[name] = (value, 'title "%s"' % value)
             else:
                 OptionException('title=%s' % (title,))
         elif name == 'with':
             assert type(value) is type(''), \
                    OptionException('with=%s' % (value,))
-            self.options[name] = (value, 'with %s' % value)
+            self._options[name] = (value, 'with %s' % value)
         else:
             # unrecognized option
             raise OptionException('%s=%s' % (name,value))
@@ -351,12 +364,12 @@ class PlotItem:
         """Clear (unset) a plot option."""
 
         try:
-            del self.options[name]
+            del self._options[name]
         except KeyError:
             pass
 
     # order in which options need to be passed to gnuplot:
-    option_sequence = ['binary', 'using', 'title', 'with']
+    _option_sequence = ['binary', 'using', 'title', 'with']
 
     def command(self):
         """Build the 'plot' command to be sent to gnuplot.
@@ -366,9 +379,9 @@ class PlotItem:
 
         """
 
-        cmd = [self.basecommand]
-        for opt in self.option_sequence:
-            (val,str) = self.options.get(opt, (None,None))
+        cmd = [self._basecommand]
+        for opt in self._option_sequence:
+            (val,str) = self._options.get(opt, (None,None))
             if str is not None:
                 cmd.append(str)
         return string.join(cmd)
@@ -398,8 +411,8 @@ class Func(PlotItem):
 
     """
 
-    def __init__(self, funcstring, **keyw):
-        apply(PlotItem.__init__, (self, funcstring), keyw)
+    # The PlotItem constructor does what we need.
+    pass
 
 
 class AnyFile:
@@ -447,24 +460,9 @@ class ArrayFile(AnyFile):
 
     When an ArrayFile is constructed, it creates a file and fills it
     with the contents of a 2-d or 3-d Numeric array in the format
-    expected by gnuplot.  Specifically, for 2-d, the file organization
-    is for example:
-
-        set[0,0] set[0,1] ...
-        set[1,0] set[1,1] ...
-
-    etc.  For 3-d, it is for example:
-
-        set[0,0,0] set[0,0,1] ...
-        set[0,1,0] set[0,1,1] ...
-
-        set[1,0,0] set[1,0,1] ...
-        set[1,1,0] set[1,1,1] ...
-
-    etc.
-
-    The filename can be specified, otherwise a random filename is
-    chosen.  The file is NOT deleted automatically.
+    expected by gnuplot (see write_array for details).  The filename
+    can be specified, otherwise a random filename is chosen.  The file
+    is NOT deleted automatically.
 
     """
 
@@ -481,31 +479,25 @@ class TempArrayFile(ArrayFile, TempFile):
 
 
 class File(PlotItem):
-    """A PlotItem representing a file that contains gnuplot data.
+    """A PlotItem representing a file that contains gnuplot data."""
 
-    File is a PlotItem that represents a file that should be plotted
-    by gnuplot.  The file can either be a string holding the filename
-    of an existing file, or it can be anything derived from 'AnyFile'.
-
-    """
-
-    def __init__(self, file, using=None, **keyw):
+    def __init__(self, file, **keyw):
         """Construct a File object.
 
         '<file>' can be either a string holding the filename of an
-        existing file, or it can be an object of a class derived from
-        'AnyFile' (such as a 'TempArrayFile').  Keyword arguments
-        recognized (in addition to those recognized by 'PlotItem' ):
+        existing file, or it can be an object of any class derived
+        from 'AnyFile' (such as a 'TempArrayFile').  Keyword arguments
+        recognized (in addition to those recognized by 'PlotItem'):
 
-            'using=<n>' -- plot that column against line number
+            'using=<int>' -- plot that column against line number
             'using=<tuple>' -- plot using a:b:c:d etc.
             'using=<string>' -- plot `using <string>' (allows gnuplot's
-                              arbitrary column arithmetic)
+                                arbitrary column arithmetic)
 
         Note that the 'using' option is interpreted by gnuplot, so
-        columns must be numbered starting with 1.  Other keyword
-        arguments are passed along to PlotItem.  The default 'title'
-        for a TempFile is 'notitle'.
+        columns must be numbered starting with 1.  The default 'title'
+        for a TempFile is 'notitle' to avoid using the temporary
+        file's name as the title.
 
         """
 
@@ -527,11 +519,11 @@ class File(PlotItem):
             if value is None:
                 pass
             elif type(value) in [type(''), type(1)]:
-                self.options[name] = (value, 'using %s' % value)
+                self._options[name] = (value, 'using %s' % value)
             elif type(value) is type(()):
-                self.options[name] = (value,
-                                      'using %s' %
-                                      string.join(map(repr, value), ':'))
+                self._options[name] = (value,
+                                       'using %s' %
+                                       string.join(map(repr, value), ':'))
             else:
                 raise OptionException('%s=%s' % (name,value))
         else:
@@ -539,7 +531,7 @@ class File(PlotItem):
 
 
 class Data(PlotItem):
-    """Allows data from memory to be plotted with Gnuplot.
+    """Represents data from memory to be plotted with Gnuplot.
 
     Takes a numeric array from memory and outputs it to a temporary
     file that can be plotted by gnuplot.
@@ -588,7 +580,7 @@ class Data(PlotItem):
             dims = len(set.shape)
             # transpose so that the last index selects x vs. y:
             set = Numeric.transpose(set, (dims-1,) + tuple(range(dims-1)))
-        if keyw.has_key('cols') and keyw['cols'] is not None:
+        if keyw.has_key('cols'):
             set = Numeric.take(set, keyw['cols'], -1)
             del keyw['cols']
 
@@ -686,7 +678,7 @@ class GridData(PlotItem):
             apply(PlotItem.__init__, (self, '"%s"' % self.file.filename), keyw)
 
             # Include the command-line option to read in binary data:
-            self.options['binary'] = (binary, 'binary')
+            self._options['binary'] = (binary, 'binary')
         else:
             set = Numeric.transpose(
                 Numeric.array(
@@ -697,7 +689,7 @@ class GridData(PlotItem):
             # avoid using the temporary filename as the title:
             keyw['title'] = keyw.get('title', None)
             apply(PlotItem.__init__, (self, '"%s"' % self.file.filename), keyw)
-            self.options['binary'] = (0, None)
+            self._options['binary'] = (0, None)
 
     def set_option(self, name, value):
         if name == 'binary':
