@@ -391,7 +391,7 @@ class gnuplot:
                 self.gnuplot = os.popen('gnuplot -persist', 'w')
             else:
                 self.gnuplot = os.popen('gnuplot', 'w')
-        self.itemlist = []
+        self._clear_queue()
         self.debug = debug
 
     def __del__(self):
@@ -424,7 +424,29 @@ class gnuplot:
         for item in self.itemlist:
             item.pipein(self.gnuplot)
 
-    def plot(self, *data, **kw):
+    def _clear_queue(self):
+        """Clear the plotitems from the queue."""
+
+        self.itemlist = []
+
+    def _add_to_queue(self, items):
+        """Add a list of items to the itemlist, but don't plot them.
+
+        An item can be a plotitem of any kind, a string (interpreted
+        as a function string for gnuplot to evaluate), or a Numeric
+        array (or something that can be converted to a Numeric
+        array)."""
+
+        for item in items:
+            if isinstance(item, plotitem):
+                self.itemlist.append(item)
+            elif type(item) is type(""):
+                self.itemlist.append(func(item))
+            else:
+                # assume data is an array:
+                self.itemlist.append(data(item))
+
+    def plot(self, *items, **kw):
         """Draw a new plot.
 
         plot(item, ...): Clear the current plot and create a new one
@@ -442,44 +464,29 @@ class gnuplot:
             computed by gnuplot).
         Anything else:
             The object is converted to a data() item, and thus plotted
-            as two-column data.
-
-        If the keyword parameter norefresh=1 is passed, then the plot
-        will be prepared, but not actually executed.  This might be
-        useful in batch mode to create hardcopies without having the
-        plots appear on the screen."""
+            as two-column data."""
 
         # remove old files:
-        self.itemlist = []
-        apply(self.replot, data, kw)
+        self._clear_queue()
+        self._add_to_queue(items)
+        self.refresh()
 
-    def replot(self, *items, **kw):
+    def replot(self, *items):
         """Replot the data, possibly adding new plotitems.
 
-        Replot replots the existing graph.  If arguments are
-        specified, they are interpreted as additional items to be
-        plotted alongside the existing items on the same graph.  See
-        plot for details."""
+        Replot the existing graph, using the items in the current
+        itemlist.  If arguments are specified, they are interpreted as
+        additional items to be plotted alongside the existing items on
+        the same graph.  See plot for details."""
 
-        for item in items:
-            if isinstance(item, plotitem):
-                self.itemlist.append(item)
-            elif type(item) is type(""):
-                self.itemlist.append(func(item))
-            else:
-                # assume data is an array:
-                self.itemlist.append(data(item))
-        if kw.has_key('norefresh') and kw['norefresh']:
-            # Do not actually issue the plot command
-            pass
-        else:
-            self.refresh()
+        self._add_to_queue(items)
+        self.refresh()
 
     def interact(self):
         """Allow user to type arbitrary commands to gnuplot.
 
-        interact() reads stdin, line by line, and sends each line as a
-        command to gnuplot.  End by typing C-d."""
+        Read stdin, line by line, and send each line as a command to
+        gnuplot.  End by typing C-d."""
 
         sys.stderr.write("Press C-d to end interactive input\n")
         while 1:
@@ -491,23 +498,20 @@ class gnuplot:
             self(line)
 
     def clear(self):
-        """Clear the plot window."""
+        """Clear the plot window (without affecting the current itemlist)."""
 
         self('clear')
 
     def reset(self):
-        """Reset all settings to their defaults."""
+        """Reset all gnuplot settings to their defaults and clear itemlist."""
 
         self('reset')
         self.itemlist = []
 
-    def load(self, filename=None):
+    def load(self, filename):
         """Load a file using gnuplot's `load' command."""
 
-        if filename is None:
-            self.interact()
-        else:
-            self('load "%s"' % (filename,))
+        self('load "%s"' % (filename,))
 
     def save(self, filename):
         """Save the current plot commands using gnuplot's `save' command."""
@@ -568,18 +572,18 @@ def plot(*items, **kw):
     """plot data using gnuplot.
 
     This command is roughly compatible with old Gnuplot plot command.
-    It can only plot array data.  It is provided for backwards
-    compatibility only.  It is recommended that you use the new
-    gnuplot interface, which is much more flexible.
+    It is provided for backwards compatibility only.  It is
+    recommended that you use the new gnuplot interface, which is much
+    more flexible.
+
+    It can only plot array data.  In this routine an NxM array is
+    plotted as M-1 separate datasets, using columns 1:2, 1:3, ...,
+    1:M.
 
     Limitations:
     - If persist is not available, the temporary files are not
-      deleted until final python cleanup.
+      deleted until final python cleanup."""
 
-    """
-
-    # We interpret arrays differently here.  An NxM array is plotted
-    # as M-1 separate datasets, using columns 1:2, 1:3, ..., 1:M.
     newitems = []
     for item in items:
         # assume data is an array:
@@ -597,13 +601,13 @@ def plot(*items, **kw):
 
     if kw.has_key('file'):
         g = gnuplot()
-        # setup plot without actually plotting:
-        apply(g.plot, items, {norefresh:1})
+        # setup plot without actually plotting (so data don't appear
+        # on the screen):
+        g._add_to_queue(items)
         g.hardcopy(kw['file'])
         # process will be closed automatically
     elif test_persist():
-        print 'there are %d items' % len(items)
-        g = gnuplot(persist=1, debug=1)
+        g = gnuplot(persist=1)
         apply(g.plot, items)
         # process will be closed automatically
     else:
@@ -636,7 +640,7 @@ if __name__ == '__main__':
     g2.title('Data can be computed by python or gnuplot')
     g2.xlabel('x')
     g2.plot(d, func("x**2", title="calculated by gnuplot"))
-    print "Generating postscript file 'junk.ps'"
+    print "\n                 Generating postscript file 'junk.ps'\n"
     g2.hardcopy('junk.ps', color=1)
 
     sys.stderr.write("Press return to continue...\n")
