@@ -390,7 +390,7 @@ class PlotItem:
         except:
             raise KeyError('option %s is not set!' % name)
 
-    def set_option(self, with=_unset, smooth=_unset, title=_unset, **keyw):
+    def set_option(self, with=_unset, title=_unset, **keyw):
         """Set or change a plot option for this PlotItem.
 
         See documentation for __init__ for information about allowed
@@ -399,13 +399,6 @@ class PlotItem:
 
         """
 
-        if smooth is not _unset:
-            if with is None:
-                self._options['smooth'] = (None, None)
-            elif type(with) is type(''):
-                self._options['smooth'] = (smooth, 'smooth %s' % smooth)
-            else:
-                OptionException('smooth=%s' % (smooth,))
         if with is not _unset:
             if with is None:
                 self._options['with'] = (None, None)
@@ -600,10 +593,12 @@ class File(PlotItem):
             'using=<int>' -- plot that column against line number
             'using=<tuple>' -- plot using a:b:c:d etc.
             'using=<string>' -- plot `using <string>' (allows gnuplot's
-                                arbitrary column arithmetic)
+                arbitrary column arithmetic)
             'binary=<boolean>' -- data in file is in binary format
-                                  (only recognized for grid data for
-                                  splot).
+                (only recognized for grid data for splot).
+            'smooth=<string>' -- smooth the data.  Option should be
+                'unique', 'csplines', 'acsplines', 'bezier', or
+                'sbezier'.
 
         The keyword arguments recognized by 'PlotItem' can also be
         used here.
@@ -629,7 +624,7 @@ class File(PlotItem):
         # Use single-quotes so that pgnuplot can handle DOS filenames:
         apply(PlotItem.__init__, (self, "'%s'" % self.file.filename), keyw)
 
-    def set_option(self, using=_unset, binary=_unset, **keyw):
+    def set_option(self, using=_unset, binary=_unset, smooth=_unset, **keyw):
         """Set or change options associated with this plotitem."""
 
         if using is not _unset:
@@ -651,6 +646,13 @@ class File(PlotItem):
                 self._options['binary'] = (1, 'binary')
             else:
                 self._options['binary'] = (0, None)
+        if smooth is not _unset:
+            if smooth is None:
+                self._options['smooth'] = (None, None)
+            elif type(smooth) is type(''):
+                self._options['smooth'] = (smooth, 'smooth %s' % smooth)
+            else:
+                OptionException('smooth=%s' % (smooth,))
         apply(PlotItem.set_option, (self,), keyw)
 
 
@@ -682,14 +684,17 @@ class Data(PlotItem):
 
         Keyword arguments:
 
-            cols=<tuple> -- write only the specified columns from each
+            'cols=<tuple>' -- write only the specified columns from each
                 data point to the file.  Since cols is used by python,
                 the columns should be numbered in the python style
                 (starting from 0), not the gnuplot style (starting
                 from 1).
-            inline=<bool> -- transmit the data to gnuplot "inline"
+            'inline=<bool>' -- transmit the data to gnuplot "inline"
                 rather than through a temporary file.  The default is
                 the value of GnuplotOpts.prefer_inline_data.
+            'smooth=<string>' -- smooth the data.  Option should be
+                'unique', 'csplines', 'acsplines', 'bezier', or
+                'sbezier'.
 
         The keyword arguments recognized by 'PlotItem' can also be
         used here.
@@ -737,7 +742,7 @@ class Data(PlotItem):
             self._data = None
             apply(PlotItem.__init__, (self, "'%s'" % self.file.filename), keyw)
 
-    def set_option(self, cols=_unset, inline=_unset, **keyw):
+    def set_option(self, smooth=_unset, cols=_unset, inline=_unset, **keyw):
         """Set or change options associated with this plotitem.
 
         Note that the 'cols' and the 'inline' options cannot be
@@ -745,12 +750,18 @@ class Data(PlotItem):
 
         """
 
+        if smooth is not _unset:
+            if smooth is None:
+                self._options['smooth'] = (None, None)
+            elif type(smooth) is type(''):
+                self._options['smooth'] = (smooth, 'smooth %s' % smooth)
+            else:
+                OptionException('smooth=%s' % (smooth,))
         if cols is not _unset:
             raise OptionException('Cannot modify cols option!')
-        elif inline is not _unset:
+        if inline is not _unset:
             raise OptionException('Cannot modify inline option!')
-        else:
-            apply(PlotItem.set_option, (self,), keyw)
+        apply(PlotItem.set_option, (self,), keyw)
 
     def pipein(self, f):
         if self._data:
