@@ -178,7 +178,8 @@ class PlotItem:
         """Build the plot command to be sent to gnuplot.
 
         Build and return the plot command, with options, necessary to
-        display this item.
+        display this item.  If anything else needs to be done once per
+        plot, it can be done here too.
 
         """
 
@@ -302,28 +303,6 @@ class ArrayFile(AnyFile):
 
         AnyFile.__init__(self, filename)
         utils.write_array(open(self.filename, 'w'), set)
-
-
-class TempArrayFile(ArrayFile, TempFile):
-    """An ArrayFile that is deleted automatically."""
-
-    def __init__(self, set, filename=None):
-        """Create a temporary file and write an array to it.
-
-        Arguments:
-
-          'set' -- a Numeric array of arbitrary dimension.
-
-          'filename' -- the (optional) name of the file to which the
-              array should be written.  If 'filename' is not
-              specified, a random filename is chosen.
-
-        When the 'TempArrayFile' is destroyed, the file is deleted
-        automatically.
-
-        """
-
-        ArrayFile.__init__(self, set, filename)
 
 
 class File(PlotItem):
