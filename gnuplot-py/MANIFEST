@@ -2,6 +2,6 @@ README			# Documentation, installation info, etc
 MANIFEST		# This file
 LICENSE			# Your rights to use this package
 CREDITS			# Contributors to Gnuplot.py
-Gnuplot.py		# The main module
+__init__.py		# The main module
 Gnuplot_plot.py		# Optional module for backwards compatibility
 Gnuplot_test.py		# This module tests most Gnuplot.py features
