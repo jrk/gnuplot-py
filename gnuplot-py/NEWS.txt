@@ -43,6 +43,9 @@ Version 1.5:
 * Added a setup.py file so that Gnuplot.py can be installed using
   Python distutils.
 
+* Added support for the `axes' parameter of the `plot' command.
+
+
 Version 1.4:
 
 * Added support for the Macintosh, thanks to help from Tony Ingraldi.

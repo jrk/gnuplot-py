@@ -99,6 +99,8 @@ class PlotItem:
 
     # For _option_list explanation, see docstring for PlotItem.
     _option_list = {
+        'axes' : lambda self, axes: self.set_string_option(
+            'axes', axes, None, 'axes %s'),
         'with' : lambda self, with: self.set_string_option(
             'with', with, None, 'with %s'),
         'title' : lambda self, title: self.set_string_option(
@@ -106,7 +108,7 @@ class PlotItem:
         }
 
     # order in which options need to be passed to gnuplot:
-    _option_sequence = ['binary', 'using', 'smooth', 'title', 'with']
+    _option_sequence = ['binary', 'using', 'smooth', 'axes', 'title', 'with']
 
     def __init__(self, basecommand, **keyw):
         """Construct a 'PlotItem'.
@@ -161,6 +163,8 @@ class PlotItem:
                 setter(self, value)
 
     def set_string_option(self, option, value, default, fmt):
+        """Set an option that takes a string value."""
+
         if value is None:
             self._options[option] = (value, default)
         elif type(value) is type(''):

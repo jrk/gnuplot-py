@@ -77,6 +77,8 @@ def main():
     g.plot(Gnuplot.Func('sin(x)', title=None))
     wait('title="Sine of x"')
     g.plot(Gnuplot.Func('sin(x)', title='Sine of x'))
+    wait('axes=x2y2')
+    g.plot(Gnuplot.Func('sin(x)', axes='x2y2', title='Sine of x'))
 
     print 'Change Func attributes after construction:'
     f = Gnuplot.Func('sin(x)')
@@ -90,6 +92,9 @@ def main():
     g.plot(f)
     wait('title="Sine of x"')
     f.set_option(title='Sine of x')
+    g.plot(f)
+    wait('axes=x2y2')
+    f.set_option(axes='x2y2')
     g.plot(f)
 
     print '############### test File ########################################'
