@@ -176,133 +176,29 @@ __cvs_version__ = '$Revision$'
 # Other modules that should be loaded for 'from Gnuplot import *':
 __all__ = ['oldplot']
 
-import sys
-
-# ############ Configuration variables (optional): #####################
-
-# Command to start up the gnuplot program.  If your version of gnuplot
-# is run otherwise, specify the correct command here.  You could also
-# specify a full path or append command-line options here if you wish.
-if sys.platform == 'win32':
-    _gnuplot_command = 'pgnuplot.exe'
-else:
-    _gnuplot_command = 'gnuplot'
-
-# Recent versions of gnuplot (at least for Xwindows) allow a
-# `-persist' command-line option when starting up gnuplot.  When this
-# option is specified, graph windows remain on the screen even after
-# you quit gnuplot (type `q' in the window to close it).  This can be
-# handy but unfortunately it is not supported by older versions of
-# gnuplot.  The following configuration variable specifies whether the
-# user's version of gnuplot recognizes this option or not.  You can
-# set this variable to 1 (supports -persist) or 0 (doesn't support)
-# yourself; if you leave it with the value None then the first time
-# you create a Gnuplot object it will try to detect automatically
-# whether your version accepts this option.
-if sys.platform in ['win32', 'mac']:
-    # wgnuplot doesn't accept this option, so don't bother testing for it:
-    _recognizes_persist = 0
-else:
-    # test automatically on first use:
-    _recognizes_persist = None
-
-# Recent versions of gnuplot allow you to specify a `binary' option to
-# the splot command for grid data, which means that the data file is
-# to be read in binary format.  This option saves substantial time
-# writing and reading the file, and can also save substantial disk
-# space and therefore it is the default for that type of plot.  But if
-# you have an older version of gnuplot (or you prefer text format) you
-# can disable the binary option in either of two ways: (a) set the
-# following variable to 0; or (b) pass `binary=0' to the GridData
-# constructor.  (Note that the demo uses binary=0 to maximize
-# portability.)
-_recognizes_binary_splot = 1
-
-# Data can be passed to gnuplot through a temporary file or as inline
-# data (i.e., the filename is set to '-' and the data is entered into
-# the gnuplot interpreter followed by 'e').  If _prefer_inline_data is
-# true, then use the inline method as default whenever it is
-# supported.  This should be fast but will use more memory since
-# currently the inline data is put into a big string when the PlotItem
-# is created.
-_prefer_inline_data = 0
-
-# After a hardcopy is produced, we have to set the terminal type back
-# to `on screen'.  The following settings are probably correct.  If
-# not, change the following lines to select the terminal type you
-# prefer to use for on-screen work.
-if sys.platform == 'win32':
-    _default_term = 'windows'
-elif sys.platform == 'mac':
-    _default_term = 'macintosh'
-else:
-    _default_term = 'x11'
-
-# Gnuplot can plot to a printer by using "set output '| ...'" where
-# ... is the name of a program that sends its stdin to a printer.  On
-# my machine the appropriate program is `lpr', as set below.  On your
-# computer it may be something different (like `lp'); you can set that
-# by changing the variable below.  You can also use the following
-# variable to add options to the print command.
-if sys.platform in ['win32', 'mac']:
-    _default_lpr = None
-else:
-    _default_lpr = '| lpr'
-
-# ############ End of configuration options ############################
-
-import os, string, tempfile
+import sys, os, string, tempfile
 try:
     from cStringIO import StringIO
 except:
     from StringIO import StringIO
+
+# The Numeric package (also known as NumPy):
 import Numeric
 
-if sys.platform == 'win32':
-    from win32pipe import popen
-elif sys.platform == 'mac':
-    import gnuplot_Suites
-    import Required_Suite
-    import aetools
-    SIGNATURE="GPSE"
-
-    class GNUPLOT(aetools.TalkTo,
-                  Required_Suite.Required_Suite,
-                  gnuplot_Suites.gnuplot_Suite,
-                  gnuplot_Suites.odds_and_ends,
-                  gnuplot_Suites.Standard_Suite,
-                  gnuplot_Suites.Miscellaneous_Events):
-        pass
+# Low-level communication with gnuplot is platform-dependent.  Pick an
+# implementation of GnuplotProcess based on the platform:
+if sys.platform == 'mac':
+    from gp_mac import GnuplotOpts, GnuplotProcess
+elif sys.platform == 'win32':
+    from gp_win32 import GnuplotOpts, GnuplotProcess
 else:
-    from os import popen
+    from gp import GnuplotOpts, GnuplotProcess
 
 
 class _unset:
     """Used to represent unset keyword arguments."""
 
     pass
-
-
-def test_persist():
-    """Determine whether gnuplot recognizes the option '-persist'.
-
-    If the configuration variable '_recognizes_persist' is set (i.e.,
-    to something other than 'None'), return that value.  Otherwise,
-    try to determine whether the installed version of gnuplot
-    recognizes the -persist option.  (If it doesn't, it should emit an
-    error message with '-persist' in the first line.)  Then set
-    '_recognizes_persist' accordingly for future reference.
-
-    """
-
-    global _recognizes_persist
-    if _recognizes_persist is None:
-        g = popen('echo | %s -persist 2>&1' % _gnuplot_command, 'r')
-        response = g.readlines()
-        g.close()
-        _recognizes_persist = ((not response)
-                               or (string.find(response[0], '-persist') == -1))
-    return _recognizes_persist
 
 
 def float_array(m):
@@ -738,7 +634,7 @@ class File(PlotItem):
                 raise OptionException('using=%s' % (using,))
         if binary is not _unset:
             if binary:
-                assert _recognizes_binary_splot, \
+                assert GnuplotOpts.recognizes_binary_splot, \
                        OptionException('Gnuplot.py is currently configured to '
                                        'reject binary data!')
                 self._options['binary'] = (1, 'binary')
@@ -782,7 +678,7 @@ class Data(PlotItem):
                 from 1).
             inline=<bool> -- transmit the data to gnuplot "inline"
                 rather than through a temporary file.  The default is
-                the value of _prefer_inline_data.
+                the value of GnuplotOpts.prefer_inline_data.
 
         The keyword arguments recognized by 'PlotItem' can also be
         used here.
@@ -816,7 +712,7 @@ class Data(PlotItem):
             self.inline = keyw['inline']
             del keyw['inline']
         else:
-            self.inline = _prefer_inline_data
+            self.inline = GnuplotOpts.prefer_inline_data
 
         if self.inline:
             f = StringIO()
@@ -891,7 +787,8 @@ class GridData(PlotItem):
         your version of gnuplot doesn't support binary format (it is a
         recently-added feature), this behavior can be disabled by
         setting the configuration variable
-        '_recognizes_binary_splot=0' at the top of this file.
+        'GnuplotOpts.recognizes_binary_splot=0' in the appropriate
+        gp*.py file.
 
         Thus if you have three arrays in the above format and a
         Gnuplot instance called g, you can plot your data by typing
@@ -917,10 +814,10 @@ class GridData(PlotItem):
             assert yvals.shape == (numy,)
 
         if inline is _unset:
-            inline = (not binary) and _prefer_inline_data
+            inline = (not binary) and GnuplotOpts.prefer_inline_data
 
         # xvals, yvals, and data are now all filled with arrays of data.
-        if binary and _recognizes_binary_splot:
+        if binary and GnuplotOpts.recognizes_binary_splot:
             assert not inline, \
                    OptionException('binary inline data not supported!')
             self._data = None
@@ -1055,26 +952,57 @@ class GridFunc(GridData):
         apply(GridData.__init__, (self, data, xvals, yvals), keyw)
 
 
-class Gnuplot:
-    """Interface to a gnuplot program.
+class GnuplotFile:
+    """A file to which gnuplot commands can be written.
 
-    A Gnuplot represents a running gnuplot program and a pipe to
-    communicate with it.  It can plot 'PlotItem's, which represent
-    each thing to be plotted on the current graph.  It keeps a
-    reference to each of the PlotItems used in the current plot, so
-    that they (and their associated temporary files) are not deleted
-    prematurely.  The communication is one-way; gnuplot's text output
-    just goes to stdout with no attempt to check it for error
-    messages.
+    Sometimes it is convenient to write gnuplot commands to a command
+    file for later evaluation.  In that case, one of these objects is
+    used as a mock gnuplot process.  Note that temporary files may be
+    deleted before you have time to execute the file!
 
     Members:
 
-    'gnuplot' -- the pipe to gnuplot or a file gathering the commands
+    'gnuplot' -- the file object gathering the commands.
+
+    Methods:
+
+    '__init__' -- open the file.
+    '__call__' -- write a gnuplot command to the file, followed by a
+                  newline.
+    'write' -- write an arbitrary string to the file.
+    'flush' -- cause pending output to be written immediately.
+
+    """
+
+    def __init__(self, filename):
+        """Open the file for writing."""
+
+        self.gnuplot = open(filename, 'w')
+        # forward write and flush methods:
+        self.write = self.gnuplot.write
+        self.flush = self.gnuplot.flush
+
+    def __call__(self, s):
+        """Write a command string to the file, followed by newline."""
+
+        self.write(s + '\n')
+        self.flush()
+
+
+class Gnuplot(GnuplotProcess):
+    """Interface to a gnuplot program.
+
+    A Gnuplot represents a higher-level interface to a gnuplot
+    program.  It can plot 'PlotItem's, which represent each thing to
+    be plotted on the current graph.  It keeps a reference to each of
+    the PlotItems used in the current plot, so that they (and their
+    associated temporary files) are not deleted prematurely.
+
+    Members:
+
     'itemlist' -- a list of the PlotItems that are associated with the
                   current plot.  These are deleted whenever a new plot
                   command is issued via the `plot' method.
-    'debug' -- if this flag is set, commands sent to gnuplot will also
-               be echoed to stderr.
     'plotcmd' -- 'plot' or 'splot', depending on what was the last
                  plot command.
 
@@ -1140,46 +1068,27 @@ class Gnuplot:
 
         """
 
-        if filename:
-            # put gnuplot commands into a file:
-            self.gnuplot = open(filename, 'w')
+        if filename is None:
+            self.gnuplot = GnuplotProcess(persist=persist)
         else:
-            if persist:
-                if not test_persist():
-                    raise OptionException(
-                        '-persist does not seem to be supported '
-                        'by your version of gnuplot!')
-                self.gnuplot = popen('%s -persist' % _gnuplot_command, 'w')
-            else:
-                if sys.platform == 'mac':
-                    self.gnuplot = GNUPLOT(SIGNATURE, start=1)
-                else:
-                    self.gnuplot = popen(_gnuplot_command, 'w')
+            assert persist is None, \
+                   OptionException('Gnuplot with output to file does not '
+                                   'allow persist option.')
+            self.gnuplot = GnuplotFile(filename)
         self._clear_queue()
         self.debug = debug
         self.plotcmd = 'plot'
-
-    def __del__(self):
-        """Disconnect from the gnuplot process (causing it to exit)."""
-
-        # pgnuplot (on windows) sends `exit' to gnuplot itself, and if
-        # we send it also pgnuplot seems to hang.  On Unix, gnuplot
-        # closes when the pipe is closed anyway, so `exit' isn't
-        # necessary.  So we just omit that step:
-        #self('exit')
-        self.gnuplot.close()
 
     def __call__(self, s):
         """Send a command string to gnuplot.
 
         Send the string s as a command to gnuplot, followed by a
-        newline and flush.  All communication with the gnuplot process
-        (except for inline data) is through this method.
+        newline.  All communication with the gnuplot process (except
+        for inline data) is through this method.
 
         """
 
-        self.gnuplot.write(s + '\n')
-        self.gnuplot.flush()
+        self.gnuplot(s)
         if self.debug:
             # also echo to stderr for user to see:
             sys.stderr.write('gnuplot> %s\n' % (s,))
@@ -1197,6 +1106,7 @@ class Gnuplot:
             plotcmds.append(item.command())
         self(self.plotcmd + ' ' + string.join(plotcmds, ', '))
         for item in self.itemlist:
+            # Uses self.gnuplot.write():
             item.pipein(self.gnuplot)
         self.gnuplot.flush()
 
@@ -1308,6 +1218,7 @@ class Gnuplot:
         if sys.platform == 'win32':
             sys.stderr.write('Press Ctrl-z twice to end interactive input\n')
         else:
+            # What should this be for the Macintosh?
             sys.stderr.write('Press C-d to end interactive input\n')
         while 1:
             try:
@@ -1371,7 +1282,7 @@ class Gnuplot:
 
           'filename=<string>' -- if a filename is specified, save the
               output in that file; otherwise print it immediately
-              using the '_default_lpr' command.
+              using the 'default_lpr' configuration option.
           'eps=<bool>' -- if eps is set, generate encapsulated
               postscript using gnuplot's 'set terminal post eps'.
           'color=<bool>' -- if color is set, create a plot with color.
@@ -1389,10 +1300,10 @@ class Gnuplot:
         """
 
         if filename is None:
-            assert _default_lpr is not None, \
-                   OptionException('_default_lpr is not set, so you can only '
+            assert GnuplotOpts.default_lpr is not None, \
+                   OptionException('default_lpr is not set, so you can only '
                                    'print to a file.')
-            filename = _default_lpr
+            filename = GnuplotOpts.default_lpr
         setterm = ['set', 'terminal', 'postscript']
         if eps: setterm.append('eps')
         else: setterm.append('default')
@@ -1401,7 +1312,7 @@ class Gnuplot:
         self(string.join(setterm))
         self.set_string('output', filename)
         self.refresh()
-        self('set terminal %s' % _default_term)
+        self('set terminal %s' % GnuplotOpts.default_term)
         self.set_string('output')
 
 
