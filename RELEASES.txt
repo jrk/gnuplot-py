@@ -1,0 +1,38 @@
+# $Id$
+
+These are my notes about the steps to make a new release of
+Gnuplot.py.
+
+1. Edit the following files for the release:
+
+   NEWS.txt -- add the version number at the top of the file and make
+       sure that the comments are up-to-date.
+
+   ANNOUNCE.txt -- add the version number at the top of the file and
+       update the blurbs as appropriate.
+
+   Gnuplot.html -- update the version number where it appears.  Update
+       the "News" section.
+
+   __init__.py -- increment the __version__ string.
+
+2. Check the changes into CVS.
+
+3. Create new documentation using happydoc:
+
+   $ rm -rf doc
+   $ ( cd .. ; 
+       happydoc -d Gnuplot/doc -t 'Gnuplot.py' \
+         --author='Michael Haggerty <mhagger@alum.mit.edu>' Gnuplot )
+
+4. Generate the source distributions:
+
+   $ python2 ./setup.py sdist --formats=gztar,zip
+
+5. Generate the binary distributions.  [I don't think a binary
+   distribution is worthwhile because the place that the files need to
+   be installed is dependent on the version of python being used.]
+
+   $ python2 ./setup.py bdist --format=gztar,zip,rpm,wininst
+
+6. 
