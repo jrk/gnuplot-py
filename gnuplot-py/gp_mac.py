@@ -115,8 +115,8 @@ class GnuplotProcess:
         self.gnuplot.gnuexec(string.replace(s, '\n', os.linesep))
 
     def flush(self):
-		pass
-		
+        pass
+        
     def __call__(self, s):
         """Send a command string to gnuplot, for immediate execution."""
 
