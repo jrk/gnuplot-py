@@ -16,6 +16,7 @@ class CmdError(Exception):
 def cmd(s):
     if debug:
         sys.stdout.write('%s\n' % s)
+        sys.stdout.flush()
     else:
         status = os.system(s)
         exit_signal = status & 0x7f
@@ -35,7 +36,7 @@ pythondoc = os.path.join(os.environ['HOME'], 'download', 'python',
 
 module = 'Gnuplot'
 basedir = os.path.join(os.environ['HOME'], 'public_html', 'Gnuplot')
-htmlfile = os.path.join(basedir, 'index.html')
+htmlfile = os.path.join(basedir, '%s.html' % (module,))
 
 comment_re = re.compile(r'\s+\#.*$')
 
