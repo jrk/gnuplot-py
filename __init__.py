@@ -5,7 +5,7 @@
 
 This is the main module of the Gnuplot package.
 
-Copyright (C) 1998-2001 Michael Haggerty
+Copyright (C) 1998-2001 Michael Haggerty <mhagger@alum.mit.edu>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,11 +18,11 @@ available at <http://www.fsf.org/copyleft/gpl.html>, or by writing to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 Boston, MA 02111-1307, USA.
 
-Written by Michael Haggerty <mhagger@blizzard.harvard.edu>.  Inspired
-by and partly derived from an earlier version by Konrad Hinsen
+Written by Michael Haggerty <mhagger@alum.mit.edu>.  Inspired by and
+partly derived from an earlier version by Konrad Hinsen
 <hinsen@ibs.ibs.fr>.  If you find a problem or have a suggestion,
-please let me know at <mhagger@blizzard.harvard.edu>.  Other feedback
-would also be appreciated.
+please let me know at <mhagger@alum.mit.edu>.  Other feedback would
+also be appreciated.
 
 The Gnuplot.py home page is at
 

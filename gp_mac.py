@@ -2,7 +2,8 @@
 
 """gp_mac -- an interface to gnuplot for the Macintosh.
 
-Copyright (C) 1999 Michael Haggerty and Tony Ingraldi
+Copyright (C) 1999 Michael Haggerty <mhagger@alum.mit.edu> and
+                   Tony Ingraldi
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,7 +18,6 @@ Boston, MA 02111-1307, USA.
 
 """
 
-__version__ = '1.4'
 __cvs_version__ = '$Revision$'
 
 

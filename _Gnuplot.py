@@ -1,9 +1,8 @@
 # $Id$
 
-"""This file implements the Gnuplot plotter object, which is an
-abstract interface to a running gnyplot process.
+"""_Gnuplot.py -- An object that represents a running gnuplot process.
 
-Copyright (C) 1998-2001 Michael Haggerty
+Copyright (C) 1998-2001 Michael Haggerty <mhagger@alum.mit.edu>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,8 +15,12 @@ available at <http://www.fsf.org/copyleft/gpl.html>, or by writing to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 Boston, MA 02111-1307, USA.
 
+This file implements the Gnuplot plotter object, which is an abstract
+interface to a running gnuplot process.
+
 """
 
+__cvs_version__ = '$Revision$'
 
 import sys, string
 

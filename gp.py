@@ -2,7 +2,7 @@
 
 """gp -- a platform-independent interface to a gnuplot process.
 
-Copyright (C) 1998,1999 Michael Haggerty
+Copyright (C) 1998,1999 Michael Haggerty <mhagger@alum.mit.edu>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -28,9 +28,7 @@ gp_*.py modules.
 
 """
 
-__version__ = '1.4'
 __cvs_version__ = '$Revision$'
-
 
 import sys
 

@@ -3,13 +3,7 @@
 
 """oldplot.py -- Obsolete functional interface to Gnuplot.
 
-This module implements a function 'plot' that can be used to plot
-array data through the gnuplot program.  It is provided for backwards
-compatibility with Konrad Hinsen's old module.  The new
-object-oriented interface defined in Gnuplot.py has far more features
-and should be used for new work.
-
-Copyright (C) 1998,1999 Michael Haggerty
+Copyright (C) 1998-1999 Michael Haggerty <mhagger@alum.mit.edu>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,15 +16,19 @@ available at <http://www.fsf.org/copyleft/gpl.html>, or by writing to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 Boston, MA 02111-1307, USA.
 
+This module implements a function 'plot' that can be used to plot
+array data through the gnuplot program.  It is provided for backwards
+compatibility with Konrad Hinsen's old module.  The new
+object-oriented interface defined in Gnuplot.py has far more features
+and should be used for new work.
+
 See Gnuplot.py and the README file for more information.
 
 The module can be tested by typing 'python plot.py'.
 
 """
 
-__version__ = '1.4'
 __cvs_version__ = '$Revision$'
-
 
 import Numeric
 
