@@ -29,11 +29,13 @@ import Numeric
 from Numeric import NewAxis
 
 try:
-    import Gnuplot
+    import Gnuplot, Gnuplot.funcutils
 except ImportError:
     # kludge in case Gnuplot hasn't been installed as a module yet:
     import __init__
     Gnuplot = __init__
+    import funcutils
+    Gnuplot.funcutils = funcutils
 
 gp = Gnuplot # abbreviation
 
@@ -158,11 +160,11 @@ def main():
     x = Numeric.arange(100)/5. - 10.
 
     wait('Plot Data, computed by Gnuplot.py')
-    g.plot(gp.compute_Data(x, lambda x: math.cos(x), inline=0))
+    g.plot(gp.funcutils.compute_Data(x, lambda x: math.cos(x), inline=0))
     wait('Same thing, inline data')
-    g.plot(gp.compute_Data(x, lambda x: math.cos(x), inline=1))
+    g.plot(gp.funcutils.compute_Data(x, lambda x: math.cos(x), inline=1))
     wait('with="lp 4 4"')
-    g.plot(gp.compute_Data(x, lambda x: math.cos(x), with='lp 4 4'))
+    g.plot(gp.funcutils.compute_Data(x, lambda x: math.cos(x), with='lp 4 4'))
 
     print '############### test hardcopy ####################################'
     print '******** Generating postscript file "gp_test.ps" ********'
@@ -232,12 +234,15 @@ def main():
     g.splot(gp.GridData(m,x,y, binary=1))
 
     wait('The same thing using compute_GridData to tabulate function')
-    g.splot(gp.compute_GridData(x,y,
-                                lambda x,y: math.sin(x) + 0.1*x - y**2))
+    g.splot(gp.funcutils.compute_GridData(
+        x,y, lambda x,y: math.sin(x) + 0.1*x - y**2,
+        ))
 
     wait('Use compute_GridData in ufunc and binary mode')
-    g.splot(gp.compute_GridData(x,y, lambda x,y: Numeric.sin(x) + 0.1*x - y**2,
-                                ufunc=1, binary=1))
+    g.splot(gp.funcutils.compute_GridData(
+        x,y, lambda x,y: Numeric.sin(x) + 0.1*x - y**2,
+        ufunc=1, binary=1,
+        ))
 
     wait('And now rotate it a bit')
     for view in range(35,70,5):
