@@ -17,18 +17,37 @@
 # Cannot plot to a postscript file with the `plot' method; use
 # `hardcopy' instead.
 
-import os, string, tempfile, Numeric
+import sys, os, string, tempfile, Numeric
 
+debug = 0
+
+OptionException = "Unrecognized keyword option(s)!"
 
 # plotitem represents an item that can be plotted by gnuplot.
 class plotitem:
-    def __init__(self, **keyw):
-	pass
+    def __init__(self, basecommand, **keyw):
+	self.basecommand = basecommand
+	self.options = []
+	if keyw.has_key('title'):
+	    self.title = keyw['title']
+	    del keyw['title']
+	    if self.title is None:
+		self.options.append('notitle')
+	    else:
+		self.options.append('title "' + self.title + '"')
+	if keyw.has_key('with'):
+	    self.with = keyw['with']
+	    del keyw['with']
+	    self.options.append('with ' + self.with)
+	if keyw:
+	    raise OptionException, keyw
 
-    # return a list of the `plot' command(s) necessary to print out
-    # this item:
-    def commands(self):
-	return []
+    # return the `plot' command necessary to print out this item:
+    def command(self):
+	if self.options:
+	    return self.basecommand + ' ' + string.join(self.options, ' ')
+	else:
+	    return self.basecommand
 
     # if the plot command requires data to be put on stdin (i.e.,
     # `plot ""'), this method will put that data there.
@@ -37,11 +56,8 @@ class plotitem:
 
 
 class plotfunc(plotitem):
-    def __init__(self, funcstring):
-	self.funcstring = funcstring
-
-    def commands(self):
-	return [self.funcstring]
+    def __init__(self, funcstring, **keyw):
+	apply(plotitem.__init__, (self, funcstring), keyw)
 
 
 # create a temporary file and write set (which must be a 2-D Numeric
@@ -74,21 +90,25 @@ class temparrayfile:
 class plotsubfile(plotitem):
     def __init__(self, file, using=None, **keyw):
 	self.file = file
+	# By default, notitle for these plots:
+	if not keyw.has_key('title'):
+	    keyw['title'] = None
+	apply(plotitem.__init__, (self, '"' + self.file.filename + '"'), keyw)
+	self.using = using
 	if using is None:
-	    self.using = ""
+	    pass
 	elif type(using) == type(""):
-	    self.using = " using " + using
+	    self.options.insert(0, "using " + using)
 	elif type(using) == type(()):
-	    self.using = " using " + string.join(map(repr, using), ':')
+	    self.options.insert(0,
+				"using " + string.join(map(repr, using), ':'))
 	elif type(using) == type(1):
-	    self.using = " using " + `using`
-	apply(plotitem.__init__, (self,), keyw)
+	    self.options.insert(0, "using " + `using`)
+	else:
+	    raise OptionException, 'using=' + `using`
 
     def __del__(self):
 	pass
-
-    def commands(self):
-	return ['"' + self.file.filename + '"' + self.using + ' notitle']
 
 
 # gnuplot plotting object.  A gnuplot basically represents a running
@@ -98,9 +118,9 @@ class plotsubfile(plotitem):
 # Members:
 #   gnuplot -- a pipe to gnuplot or a file gathering the commands
 #   itemlist -- a list of the plotitems that are associated with the
-#               current plot.
-#   
-
+#               current plot.  These are deleted whenever a new plot
+#               command is issued.
+#
 class gnuplot:
     def __init__(self, filename=None):
 	if filename == None:
@@ -118,12 +138,14 @@ class gnuplot:
     def __call__(self, s):
 	self.gnuplot.write(s + "\n")
 	self.gnuplot.flush()
+	if debug:
+	    sys.stdout.write("gnuplot> " + s + "\n")
 
     # refresh the plot, using the current plotitems:
     def refresh(self):
 	plotcmds = []
 	for item in self.itemlist:
-	    plotcmds = plotcmds + item.commands()
+	    plotcmds.append(item.command())
 	self('plot ' + string.join(plotcmds, ', '))
 	for item in self.itemlist:
 	    item.pipein(self.gnuplot)
@@ -178,6 +200,8 @@ class gnuplot:
 if __name__ == '__main__':
     from Numeric import *
     import sys
+
+    debug = 1
 
     g1 = gnuplot()
     # List of (x, y) pairs
