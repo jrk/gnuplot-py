@@ -46,13 +46,15 @@ without having to install pgnuplot.exe.
 
 Apparently the MS-Windows gnuplot executable (wgnuplot.exe) doesn't
 accept commands on standard input, and so Gnuplot.py cannot
-communicate with it directly.  However, recent beta versions of
-gnuplot (version 3.7.0.8, for example) include a simple little
+communicate with it directly.  However, there is a simple little
 self-contained program called `pgnuplot.exe' that accepts commands on
 stdin and passes them to wgnuplot.  So to run Gnuplot.py on Windows,
-first install pgnuplot.exe.  This can be done, for example, by
-downloading a beta version of gnuplot from
-<ftp://ftp.gnuplot.vt.edu/pub/gnuplot/beta/> and compiling pgnuplot.c.
+first install pgnuplot.exe.  You can get pgnuplot.c from a recent beta
+version of gnuplot (version 3.7.0.8, for example) or by downloading
+`testing/windows-stdin.zip' from one of the gnuplot archives (e.g.,
+<ftp://ftp.gnuplot.vt.edu/pub/gnuplot/testing/windows-stdin.zip>).
+You will have to compile pgnuplot.c yourself as I don't know of a
+source of the executable version of that program.
 
 [Does anybody know if it is possible to use pgnuplot.exe with earlier
 versions of gnuplot?  That would save users the trouble of
