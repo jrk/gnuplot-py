@@ -28,7 +28,7 @@ __cvs_version__ = '$Revision$'
 try:
     # If the package has been installed correctly, this should work:
     import Gnuplot
-except:
+except ImportError:
     # It may be that the user is just testing out the package by
     # running 'python demo.py' it the package's directory.  If that is
     # the case, the following should work:
