@@ -210,7 +210,7 @@ class BooleanArg(ArgOneParam):
 
 
 class MutuallyExclusiveArgs(Arg):
-    """A group of args, of which at most may be set.
+    """A group of args, of which either zero or one may be set, but not more.
 
     Members:
 
@@ -258,14 +258,14 @@ class KeywordOrBooleanArg(Arg):
         'g.hardcopy(..., small=1, ...)'
         'g.hardcopy(..., large=1, ...)'
 
+    If 'argname' is set to be 'None', then the first two possibilities
+    are omitted.
+
     In the special case that there are exactly two alternatives, one
     can also use:
 
         'g.hardcopy(..., small=0, ...) # implies fontsize="large"'
         'g.hardcopy(..., large=0, ...) # implies fontsize="small"'
-
-    If 'argname' is set to be 'None', then the first two possibilities
-    are omitted.
 
     Obviously care must be taken to ensure that none of the implied
     keyword parameter names conflict with one another or with any of
@@ -412,5 +412,27 @@ terminal_opts['cgm'] = [
     BareStringArg(argname='linewidth', fixedword='linewidth'),
     StringArg(argname='font'),
     BareStringArg(argname='fontsize'),
+    ]
+
+terminal_opts['pict'] = [
+    KeywordOrBooleanArg(
+        options=['landscape', 'portrait', 'default'],
+        argname='mode',
+        ),
+    KeywordOrBooleanArg(options=['color', 'monochrome']),
+    KeywordOrBooleanArg(options=['dashes', 'nodashes']),
+
+    # default font, which must be a valid pict font:
+    StringArg(argname='fontname'),
+
+    # default font size, in points:
+    BareStringArg(argname='fontsize'),
+
+    # width of plot in pixels:
+    BareStringArg(argname='width'),
+
+    # height of plot in pixels:
+    BareStringArg(argname='height'),
+
     ]
 
