@@ -31,7 +31,7 @@ within Python using the gnuplot plotting program.
 
 setup (
     # Distribution meta-data
-    name='Gnuplot',
+    name='Gnuplot-py',
     version=__version__,
     description='A Python interface to the gnuplot plotting program.',
     long_description=long_description,
