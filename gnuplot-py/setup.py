@@ -42,7 +42,7 @@ setup (
     licence='GPL', # Spelling error in distutils
 
     # Description of the package in the distribution
-    package_dir={'Gnuplot' : ''},
+    package_dir={'Gnuplot' : '.'},
     packages=['Gnuplot'],
     )
 
