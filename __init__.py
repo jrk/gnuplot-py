@@ -26,7 +26,7 @@ would also be appreciated.
 
 The Gnuplot.py home page is at
 
-"Gnuplot.py", http://monsoon.harvard.edu/~mhagger/Gnuplot/Gnuplot.html
+"Gnuplot.py", http://gnuplot-py.sourceforge.net
 
 
 For information about how to use this module:
@@ -41,9 +41,9 @@ For information about how to use this module:
    _Gnuplot.py, PlotItems.py, and gp_unix.py.
 
 4. The docstrings have also been turned into html which can be read
-   "here", http://monsoon.harvard.edu/~mhagger/Gnuplot/Gnuplot-doc/.
-   However, the formatting is not perfect; when in doubt,
-   double-check the docstrings.
+   "here", http://gnuplot-py.sourceforge.net/doc.  However, the
+   formatting is not perfect; when in doubt, double-check the
+   docstrings.
 
 You should import this file with 'import Gnuplot', not with 'from
 Gnuplot import *', because the module and the main class have the same
