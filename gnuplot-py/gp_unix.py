@@ -191,6 +191,7 @@ class GnuplotProcess:
                                  'w')
         else:
             self.gnuplot = popen(GnuplotOpts.gnuplot_command, 'w')
+
         # forward write and flush methods:
         self.write = self.gnuplot.write
         self.flush = self.gnuplot.flush
