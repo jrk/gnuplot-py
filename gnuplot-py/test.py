@@ -47,7 +47,7 @@ def main():
         f.write('%s %s %s\n' % (x, math.cos(x), math.sin(x)))
     f.close()
 
-    ############### test Func ########################################
+    print '############### test Func ########################################'
     wait('Plot a gnuplot-generated function')
     g.plot(gp.Func('sin(x)'))
 
@@ -78,7 +78,7 @@ def main():
     f.set_option(title='Sine of x')
     g.plot(f)
 
-    ############### test File ########################################
+    print '############### test File ########################################'
     wait('Generate a File from a filename')
     g.plot(gp.File(file1.filename))
     wait('Generate a File given a TempFile object')
@@ -111,7 +111,7 @@ def main():
     f.set_option(title=None)
     g.plot(f)
 
-    ############### test Data ########################################
+    print '############### test Data ########################################'
     x = arange(100)/5. - 10.
     y1 = Numeric.cos(x)
     y2 = Numeric.sin(x)
@@ -144,23 +144,20 @@ def main():
     wait('title="Cosine of x"')
     g.plot(gp.Data(d, title='Cosine of x'))
 
-    ############### test hardcopy ####################################
-    wait('testing hardcopy')
+    print '############### test hardcopy ####################################'
     print '******** Generating postscript file "gp_test.ps" ********'
     g.hardcopy('gp_test.ps', enhanced=1, color=1)
 
-    ############### test shortcuts ###################################
+    print '############### test shortcuts ###################################'
     wait('plot Func and Data using shortcuts')
     g.plot('sin(x)', d)
 
-    ############### test splot #######################################
-    wait('testing splot:')
+    print '############### test splot #######################################'
     g.splot(gp.Data(d, with='linesp', inline=0))
     wait('Same thing, inline data')
     g.splot(gp.Data(d, with='linesp', inline=1))
 
-    ############### test GridData and GridFunc #######################
-    print 'testing GridData:'
+    print '############### test GridData and GridFunc #######################'
     # set up x and y values at which the function will be tabulated:
     x = arange(35)/2.0
     y = arange(30)/10.0 - 1.5
@@ -185,7 +182,11 @@ def main():
     g.splot(gp.GridData(m,x,y, binary=1))
 
     wait('The same thing using GridFunc to tabulate function')
-    g.splot(gp.GridFunc(lambda x,y: sin(x) + 0.1*x - y**2, x,y, binary=1))
+    g.splot(gp.GridFunc(lambda x,y: sin(x) + 0.1*x - y**2, x,y))
+
+    wait('Use GridFunc in ufunc mode')
+    g.splot(gp.GridFunc(lambda x,y: sin(x) + 0.1*x - y**2, x,y,
+                        ufunc=1, binary=1))
 
     wait('And now rotate it a bit')
     for view in range(35,70,5):
