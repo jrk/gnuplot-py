@@ -32,23 +32,26 @@ bottom of the file.  You can run the test code by typing
 You should import this file with 'import Gnuplot', not with
 'from Gnuplot import *'; otherwise you will have problems with
 conflicting names (specifically, the Gnuplot module name conflicts
-with the Gnuplot class name).  To obtain gnuplot itself, see
-<http://www.cs.dartmouth.edu/gnuplot_info.html>.
+with the Gnuplot class name).
+
+To obtain the gnuplot plotting program itself, see
+<http://www.cs.dartmouth.edu/gnuplot_info.html>.  Obviously you need
+to have gnuplot installed if you want to use Gnuplot.py.
 
 Features:
 
  o  Allows the creation of two or three dimensional plots from
     python by piping commands to the 'gnuplot' program.
- o  A gnuplot session is an instance of class 'Gnuplot', so multiple
+ o  A gnuplot session is an instance of class 'Gnuplot'.  Multiple
     sessions can be open at once:
         g1 = Gnuplot.Gnuplot(); g2 = Gnuplot.Gnuplot()
  o  The implicitly-generated gnuplot commands can be stored to a file
     instead of executed immediately:
         g = Gnuplot.Gnuplot('commands.gnuplot')
     The file can then be run later with gnuplot's 'load' command.
-    Beware, however, if the plot commands depend on the existence of
-    temporary files, because they might be deleted before you use
-    the command file.
+    Beware, however: if the plot commands depend on the existence of
+    temporary files, they will probably be deleted before you use the
+    command file.
  o  Can pass arbitrary commands to the gnuplot command interpreter:
         g('set pointsize 2')
  o  A Gnuplot object knows how to plot objects of type 'PlotItem'.
@@ -56,35 +59,37 @@ Features:
     Builtin PlotItem types:
         
     * "Data(array1)" -- data from a Python list or NumPy array
-                      (permits additional option 'cols' )
+                        (permits additional option 'cols' )
     * "File('filename')" -- data from an existing data file (permits
-                      additional option 'using' )
+                            additional option 'using' )
     * "Func('exp(4.0 * sin(x))')" -- functions (passed as a string
-                      for gnuplot to evaluate)
+                                     for gnuplot to evaluate)
     * "GridData(m, x, y)" -- data tabulated on a grid of (x,y) values
-                      (usually to be plotted in 3-D)
+                             (usually to be plotted in 3-D)
 
-    See those classes for more details.
+    See the documentation strings for those classes for more details.
 
- o PlotItems are implemented as objects that can be assigned to
+ o  PlotItems are implemented as objects that can be assigned to
     variables (including their options) and plotted repeatedly ---
     this also saves much of the overhead of plotting the same data
     multiple times.
  o  Communication of data between python and gnuplot is via temporary
     files, which are deleted automatically when their associated
     'PlotItem' is deleted.  (Communication of commands is via a pipe.)
-    The PlotItems currently in use by a Gnuplot object are stored in
-    an internal list so that they won't be deleted prematurely.
+    The PlotItems in use by a Gnuplot object at any given time are
+    stored in an internal list so that they won't be deleted
+    prematurely.
  o  Can use 'replot' method to add datasets to an existing plot.
  o  Can make persistent gnuplot windows by using the constructor option
     `persist=1'.  Such windows stay around even after the gnuplot
     program is exited.  Note that only newer version of gnuplot support
     this option.
- o  Plotting to a postscript file is via new 'hardcopy' method, which
-    outputs the currently-displayed plot to either a postscript
-    printer or to a postscript file.
+ o  Can plot either to a postscript printer or to a file via
+    'hardcopy' method.
  o  There is a 'plot' command which is roughly compatible with the
     command from Konrad Hinsen's old 'Gnuplot.py'.
+ o  Grid data for the splot command can be sent to gnuplot in binary
+    format, saving time and disk space.
 
 Restrictions:
     
@@ -93,7 +98,7 @@ Restrictions:
     If you're interested in gnuplot, you would probably also want
     NumPy anyway.
  -  Probably depends on a unix-type environment.  Anyone who wants
-    to remedy this situation should contact me.
+    to help get this running on other platforms should contact me.
  -  Only a small fraction of gnuplot functionality is implemented as
     explicit method functions.  However, you can give arbitrary
     commands to gnuplot manually; for example:
@@ -128,9 +133,8 @@ __cvs_version__ = 'CVS version $Revision$'
 # ############ Configuration variables (optional): #####################
 
 # Command to start up the gnuplot program.  If your version of gnuplot
-# is run with some command other than `gnuplot', specify the correct
-# command here.  You could also append command-line options here if
-# you wish.
+# is run otherwise, specify the correct command here.  You could also
+# append command-line options here if you wish.
 _gnuplot_command = 'gnuplot'
 
 # Recent versions of gnuplot (at least for Xwindows) allow a
@@ -190,7 +194,7 @@ def test_persist():
     determine whether the installed version of gnuplot recognizes the
     -persist option.  (If it doesn't, it should emit an error message
     with '-persist' in the first line.)  Then set _recognizes_persist
-    accordingly for future use.
+    accordingly for future reference.
 
     """
 
@@ -204,9 +208,6 @@ def test_persist():
     return _recognizes_persist
 
 
-# Type of a Numeric array:
-_arraytype = type(Numeric.array((1,)))
-
 def float_array(m):
     """Return the argument as a Numeric array of type at least Float32.
 
@@ -214,13 +215,16 @@ def float_array(m):
     Allow also for the possibility that the argument is a python
     native type that can be converted to a Numeric array using
     Numeric.asarray(), but in that case don't worry about downcasting
-    to single-precision float."""
+    to single-precision float.
+
+    """
 
     try:
         # Try Float32 (this will refuse to downcast)
         return Numeric.asarray(m, Numeric.Float32)
     except TypeError:
-        # That failed for some reason; try to convert to a larger real type:
+        # That failed for some reason; try to convert to the largest
+        # floating-point type:
         return Numeric.asarray(m, Numeric.Float)
 
 
@@ -229,13 +233,13 @@ def write_array(f, set,
                 nest_prefix='', nest_suffix='\n', nest_sep=''):
     """Write an array of arbitrary dimension to a file.
 
-    A general recursive array writer.  The last four parameters allow a
-    great deal of freedom in choosing the output format of the
+    A general recursive array writer.  The last four parameters allow
+    a great deal of freedom in choosing the output format of the
     array.  The defaults for those parameters give output that is
-    gnuplot-readable.  But using, for example, ( ',', '{', '}', ',\\n'
-    ) would output an array in a format that Mathematica could
-    read.  item_sep should not contain '%' (or if it does, it should be
-    escaped to '%%' ) since item_sep is put into a format string.
+    gnuplot-readable.  But using, for example, ( ',', '{', '}', ',\n'
+    ) would output an array in a format that Mathematica could read.
+    item_sep should not contain '%' (or if it does, it should be
+    escaped to '%%') since it is put into a format string.
 
     """
 
@@ -347,12 +351,12 @@ class Func(PlotItem):
     """Represents a mathematical expression to plot.
 
     Func represents a mathematical expression that is to be computed by
-    gnuplot itself, as in the example
+    gnuplot itself, as if you would type
 
         gnuplot> plot sin(x)
 
-    The argument to the contructor is a string which is a expression.
-    Example:
+    into gnuplot itself.  The argument to the contructor is a string
+    that should be a mathematical expression.  Example:
 
         g.plot(Func('sin(x)', with='line 3'))
 
