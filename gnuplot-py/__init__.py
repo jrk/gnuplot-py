@@ -498,17 +498,16 @@ class File(PlotItem):
         else:
             raise OptionException
         apply(PlotItem.__init__, (self, '"' + self.file.filename + '"'), keyw)
-        self.using = using
-        if self.using is None:
+        if using is None:
             pass
-        elif type(self.using) == type(''):
-            self.options['using'] = self.using
-        elif type(self.using) == type(()):
-            self.options['using'] = string.join(map(repr, self.using), ':')
-        elif type(self.using) == type(1):
-            self.options['using'] = `self.using`
+        elif type(using) == type(''):
+            self.options['using'] = using
+        elif type(using) == type(()):
+            self.options['using'] = string.join(map(repr, using), ':')
+        elif type(using) == type(1):
+            self.options['using'] = `using`
         else:
-            raise OptionException('using=' + `self.using`)
+            raise OptionException('using=' + `using`)
 
 
 class Data(PlotItem):
@@ -570,25 +569,25 @@ class Data(PlotItem):
         # Data used to be subclassed from File, and most of the
         # following was basically taken from File.__init__:
         if keyw.has_key('using'):
-            self.using = keyw['using']
+            using = keyw['using']
             del keyw['using']
         else:
-            self.using = None
+            using = None
         # If no title is specified, then use `notitle' (to avoid using
         # the temporary filename as the title).
         if not keyw.has_key('title'):
             keyw['title'] = None
         apply(PlotItem.__init__, (self, '"' + self.file.filename + '"'), keyw)
-        if self.using is None:
+        if using is None:
             pass
-        elif type(self.using) == type(''):
-            self.options['using'] = self.using
-        elif type(self.using) == type(()):
-            self.options['using'] = string.join(map(repr, self.using), ':')
-        elif type(self.using) == type(1):
-            self.options['using'] = `self.using`
+        elif type(using) == type(''):
+            self.options['using'] = using
+        elif type(using) == type(()):
+            self.options['using'] = string.join(map(repr, using), ':')
+        elif type(using) == type(1):
+            self.options['using'] = `using`
         else:
-            raise OptionException('using=' + `self.using`)
+            raise OptionException('using=' + `using`)
 
 
 class GridData(File):
