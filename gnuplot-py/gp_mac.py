@@ -42,7 +42,7 @@ class GnuplotOpts:
     prefer_inline_data = 0
 
     # The default choice for the 'set term' command (to display on screen):
-    default_term = 'macintosh'
+    default_term = 'pict'
 
     # I don't know how to print directly to a printer on the Mac:
     default_lpr = None
@@ -67,7 +67,6 @@ import aetools
 def test_persist():
     return 0
 
-
 class _GNUPLOT(aetools.TalkTo,
                Required_Suite.Required_Suite,
                gnuplot_Suites.gnuplot_Suite,
@@ -77,7 +76,7 @@ class _GNUPLOT(aetools.TalkTo,
     """Start a gnuplot program and emulate a pipe to it."""
 
     def __init__(self):
-        aetools.TalkTo.__init__(self, 'GPSE', start=1)
+        aetools.TalkTo.__init__(self, '{GP}', start=1)
 
 
 class GnuplotProcess:
@@ -116,7 +115,7 @@ class GnuplotProcess:
     def __call__(self, s):
         """Send a command string to gnuplot, followed by newline."""
 
-        self.write(s + '\n')
+        self.write(s)
         self.flush()
 
 
