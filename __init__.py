@@ -1085,6 +1085,24 @@ class Gnuplot(GnuplotProcess):
 
     """
 
+    # optiontypes tells how to set parameters.  Specifically, the
+    # parameter will be set using self.set_<type>(option, value),
+    # where <type> is a string looked up in the following table.
+    optiontypes = {
+        'title' : 'string',
+        'xlabel' : 'string',
+        'ylabel' : 'string',
+        'xrange' : 'range',
+        'yrange' : 'range',
+        'zrange' : 'range',
+        'trange' : 'range',
+        'urange' : 'range',
+        'vrange' : 'range',
+        'parametric' : 'boolean',
+        'polar' : 'boolean',
+        'output' : 'string',
+        }
+
     def __init__(self, filename=None, persist=None, debug=0):
         """Create a Gnuplot object.
 
@@ -1171,7 +1189,7 @@ class Gnuplot(GnuplotProcess):
                 # assume data is an array:
                 self.itemlist.append(Data(item))
 
-    def plot(self, *items):
+    def plot(self, *items, **keyw):
         """Draw a new plot.
 
         Clear the current plot and create a new 2-d plot containing
@@ -1193,12 +1211,15 @@ class Gnuplot(GnuplotProcess):
 
         """
 
+        if keyw:
+            apply(self.set, (), keyw)
+
         self.plotcmd = 'plot'
         self._clear_queue()
         self._add_to_queue(items)
         self.refresh()
 
-    def splot(self, *items):
+    def splot(self, *items, **keyw):
         """Draw a new three-dimensional plot.
 
         Clear the current plot and create a new 3-d plot containing
@@ -1222,12 +1243,15 @@ class Gnuplot(GnuplotProcess):
 
         """
 
+        if keyw:
+            apply(self.set, (), keyw)
+
         self.plotcmd = 'splot'
         self._clear_queue()
         self._add_to_queue(items)
         self.refresh()
 
-    def replot(self, *items):
+    def replot(self, *items, **keyw):
         """Replot the data, possibly adding new PlotItems.
 
         Replot the existing graph, using the items in the current
@@ -1236,6 +1260,9 @@ class Gnuplot(GnuplotProcess):
         the same graph.  See 'plot' for details.
 
         """
+
+        if keyw:
+            apply(self.set, (), keyw)
 
         self._add_to_queue(items)
         self.refresh()
@@ -1291,6 +1318,49 @@ class Gnuplot(GnuplotProcess):
             self('set %s' % (option,))
         else:
             self('set %s "%s"' % (option, s))
+
+    def set_boolean(self, option, value):
+        """Set an on/off option.  It is assumed that the way to turn
+        the option on is to type `set <option>' and to turn it off,
+        `set no<option>'."""
+
+        if value:
+            self('set %s' % option)
+        else:
+            self('set no%s' % option)
+
+    def set_range(self, option, value):
+        """Set a range option (xrange, yrange, trange, urange, etc.).
+        The value can be a string (which is passed as-is, without
+        quotes) or a tuple (minrange,maxrange) of numbers or string
+        expressions recognized by gnuplot.  If either range is None
+        then that range is passed as `*' (which means to
+        autoscale)."""
+
+        if value is None:
+            self('set %s [*:*]' % (option,))
+        elif type(value) is type(''):
+            self('set %s %s' % (option, value,))
+        else:
+            # Must be a tuple:
+            (minrange,maxrange) = value
+            if minrange is None:
+                minrange = '*'
+            if maxrange is None:
+                maxrange = '*'
+            self('set %s [%s:%s]' % (option, minrange, maxrange,))
+
+    def set(self, **keyw):
+        """Set one or more settings at once from keyword arguments.
+        The allowed settings and their treatments are determined from
+        the optiontypes mapping."""
+
+        for (k,v) in keyw.items():
+            try:
+                type = self.optiontypes[k]
+            except KeyError:
+                raise 'option %s is not supported' % (k,)
+            getattr(self, 'set_%s' % type)(k, v)
 
     def xlabel(self, s=None):
         """Set the plot's xlabel."""
