@@ -19,8 +19,8 @@ rate.
 
 <p> Communication with gnuplot is through a pipe (for commands) and
 temporary files (for data).  It has been written and tested on a unix
-computer; it is unknown whether it will run under other operating
-systems.
+computer; I don't know whether it will run under other operating
+systems (please let me know if you try).
 
 <p> This module has an object-oriented design that allows the user
 flexibility to set plot options and to run multiple gnuplot sessions
@@ -33,12 +33,12 @@ to program new types of plottable items by deriving from the
 
 Version 1.1 has been released (30 Jan 1999).  New features:
 <ul>
-  <li> 3-D plots are now supported through the new `splot' method!
+  <li> 3-D plots are now supported through the new `splot' method:
        <ul>
-	 <li> Pass splot 2-D arrays containing (x,y,z) triplets to
-	      create a scatter plot;
-	 <li> Pass a 3-D array consisting of a 2-D array of (x,y,z)
-	      triplets to create a grid plot; or
+	 <li> To create a scatter plot, pass splot 2-D an array
+	      containing (x,y,z) triplets;
+	 <li> To create a grid plot, pass a 3-D array consisting of a
+	      2-D array of (x,y,z) triplets; or
 	 <li> Use the new `GridData' PlotItem to plot gridded data
 	      (data tabulated on a rectangular grid).
        </ul>
@@ -124,6 +124,7 @@ There is a `plot' function in this module that is roughly
 backwards-compatible with the plot function in Konrad's version.
 
 <hr>
+Go to <a href="index.html">other downloadable material</a><br>
 Back to my <a href="http://monsoon.harvard.edu/~mhagger/"><b>home
 page</b></a>
 
@@ -133,6 +134,6 @@ Written by <a href="http://monsoon.harvard.edu/~mhagger/">Michael
 Haggerty</a> (email <a href="mailto:mhagger@blizzard.harvard.edu">
 &lt;<i>mhagger@blizzard.harvard.edu</i>&gt;</a>)<br>
 <!-- hhmts start -->
-Last modified: Sat Jan 30 21:16:37 1999
+Last modified: Sat Jan 30 23:55:31 1999
 <!-- hhmts end -->
 </body> </html>
