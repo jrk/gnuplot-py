@@ -28,3 +28,6 @@ the Macintosh and Noburu Yamamoto also contributed to this code.
 Stuard Reynolds <S.I.Reynolds@cs.bham.ac.uk> made some helpful
 suggestions for automating the tabulation of function values.
 
+Jannie Hofmeyr <jhsh@iafrica.com> suggested using "from os import
+popen" in gp_win32.py for versions of Python subsequent to 2.0.
+
