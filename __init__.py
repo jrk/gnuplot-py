@@ -21,7 +21,9 @@ import sys, os, string, tempfile, Numeric
 
 debug = 0
 
-OptionException = "Unrecognized keyword option(s)!"
+class OptionException(Exception):
+    #"Unrecognized keyword option(s)!"
+    pass
 
 # plotitem represents an item that can be plotted by gnuplot.
 class plotitem:
@@ -55,9 +57,37 @@ class plotitem:
 	pass
 
 
-class plotfunc(plotitem):
+class func(plotitem):
     def __init__(self, funcstring, **keyw):
 	apply(plotitem.__init__, (self, funcstring), keyw)
+
+
+# represents a file that holds data in a format readable by gnuplot.
+#   self.filename -- the filename of the temp file
+#   self.columns -- the number of columns of data in the file
+#   self.points -- the number of points (lines) of data in the file
+class file:
+    def __init__(self, filename, columns, points):
+	self.filename = filename
+	self.columns = columns
+	self.points = points
+
+
+# create a file and write set (which must be a 2-D Numeric
+# array) to the file.
+class arrayfile(file):
+    def __init__(self, set):
+	# <set> must be a Numeric array
+	assert(len(set.shape) == 2)
+	(points, columns) = set.shape
+	assert(points > 0)
+	assert(columns > 0)
+	filename = tempfile.mktemp()
+	f = open(filename, 'w')
+	for point in set:
+	    f.write(string.join(map(repr, point.tolist()), ' ') + '\n')
+	f.close()
+	file.__init__(self, filename, columns, points)
 
 
 # create a temporary file and write set (which must be a 2-D Numeric
@@ -65,18 +95,9 @@ class plotfunc(plotitem):
 #   self.filename -- the filename of the temp file
 #   self.columns -- the number of columns of data in the file
 #   self.points -- the number of points (lines) of data in the file
-class temparrayfile:
+class temparrayfile(arrayfile):
     def __init__(self, set):
-	# <set> must be a Numeric array
-	assert(len(set.shape) == 2)
-	(self.points, self.columns) = set.shape
-	assert(self.points > 0)
-	assert(self.columns > 0)
-	self.filename = tempfile.mktemp()
-	file = open(self.filename, 'w')
-	for point in set:
-	    file.write(string.join(map(repr, point.tolist()), ' ') + '\n')
-	file.close()
+	arrayfile.__init__(self, set)
 
     def __del__(self):
 	os.unlink(self.filename)
@@ -162,7 +183,7 @@ class gnuplot:
 	    if isinstance(item, plotitem):
 		self.itemlist.append(item)
 	    elif type(item) is type(""):
-		self.itemlist.append(plotfunc(item))
+		self.itemlist.append(func(item))
 	    else:
 		# assume data is an array:
 		item = Numeric.asarray(item, Numeric.Float)
