@@ -4,15 +4,15 @@ This file describes the changes introduced in each version of the
 Gnuplot.py package.
 
 
-Version X.X:
+Version 1.3:
 
 * Converted to package format.  The main file is now called
   __init__.py, so that it can be loaded by typing 'import Gnuplot'.
 
 * Passing GridData a callable function was basically broken because of
-  the kludgey way of overloading the argument.  Instead that
-  functionality has been moved to a new type of PlotItem called
-  'GridFunc'.
+  the kludgey way of overloading the argument.  Instead of trying to
+  fix it, I moved that functionality to a new type of PlotItem
+  called 'GridFunc'.
 
 * Added a new keyword argument, 'ufunc', to grid_function and to
   GridFunc.  If that argument is nonzero, then the function is
@@ -22,6 +22,9 @@ Version X.X:
 * Fixed a 'typecode' problem with grid_function (typecode is
   apparently a positional, not a keyword, argument in the Numeric
   library).
+
+* Separated the demonstration code into a separate file, demo.py, to
+  shorten __init__.py a bit.
 
 
 Version 1.2 (8 Aug 1999):
