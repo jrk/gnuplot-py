@@ -22,12 +22,6 @@ import os, string, tempfile, Numeric
 
 # plotitem represents an item that can be plotted by gnuplot.
 class plotitem:
-    def __init__(self):
-	pass
-
-    def __del__(self):
-	pass
-
     # return a list of the `plot' command(s) necessary to print out
     # this item:
     def commands(self):
@@ -38,10 +32,19 @@ class plotitem:
     def pipein(self, file):
 	pass
 
+
+class plotfunc(plotitem):
+    def __init__(self, funcstring):
+	self.funcstring = funcstring
+
+    def commands(self):
+	return [self.funcstring]
+
+
 class plotfile(plotitem):
     def __init__(self, set):
 	# ensure that the argument is a Numeric array:
-	set = Numeric.asarray(set, Float)
+	set = Numeric.asarray(set, Numeric.Float)
 	self.filename = tempfile.mktemp()
 	file = open(self.filename, 'w')
 	assert(len(set.shape) == 2)
@@ -111,8 +114,11 @@ class gnuplot:
 
     # replot the data, possibly adding new plotitems:
     def replot(self, *data):
-    	for set in data:
-    	    self.itemlist.append(plotfile(set))
+    	for item in data:
+	    if type(item) is type(""):
+		self.itemlist.append(plotfunc(item))
+	    else:
+		self.itemlist.append(plotfile(item))
 	self.refresh()
 
     def xlabel(self, s=None):
@@ -157,7 +163,7 @@ if __name__ == '__main__':
     y1 = x**2
     y2 = (10-x)**2
     g3 = gnuplot()
-    g3.plot(transpose(array([x, y1])), transpose(array([x, y2])))
+    g3.plot(transpose(array([x, y1])), "x**2", transpose(array([x, y2])))
 
     sys.stdout.write("Press return to continue...\n")
     sys.stdin.readline()
