@@ -1,7 +1,9 @@
 #! /usr/bin/env python
 # $Id$
 
-"""Gnuplot.py -- A pipe-based interface to the gnuplot plotting program.
+"""Gnuplot -- A pipe-based interface to the gnuplot plotting program.
+
+This is the main module of the Gnuplot package.
 
 Copyright (C) 1998,1999 Michael Haggerty
 
@@ -23,9 +25,10 @@ please let me know at <mhagger@blizzard.harvard.edu>.  Other feedback
 would also be appreciated.
 
 For information about how to use this module:
+
 1.  Check the README file.
 2.  Look at the test code in the 'demo' routine at the bottom of this
-    file (and try running it by typing 'python Gnuplot.py').
+    file (and try running it by typing 'python __init__.py').
 3a. For more details see the extensive documentation strings
     throughout this file.
 3b. The docstrings have also been turned into html which can be read
@@ -149,10 +152,10 @@ Restrictions:
     I might add a more organized way of setting arbitrary options, but
     there doesn't seem to be a pressing need for it.
 
- -  There is no provision for missing data points in array data
-    (which gnuplot would allow by specifying '?' as a data point).
-    I can't think of a clean way to implement this; maybe one could
-    use NaN for machines that support IEEE floating point.
+ -  There is no provision for missing data points in array data (which
+    gnuplot would allow by specifying '?' as a data point).  I'm
+    thinking about implementing this as an optional 'mask' argument to
+    the Data PlotItem.  (Comments?)
 
 Bugs:
 
@@ -163,7 +166,7 @@ Bugs:
  -  All of these classes perform their resource deallocation when
     '__del__' is called.  Normally this works fine, but there are
     well-known cases when Python's automatic resource deallocation
-    fails, which can leaving temporary files around.  If you delete
+    fails, which can leave temporary files around.  If you delete
     objects explicitly, there should be no problem.
 
 """
