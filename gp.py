@@ -39,6 +39,8 @@ if sys.platform == 'mac':
     from gp_mac import GnuplotOpts, GnuplotProcess, test_persist
 elif sys.platform == 'win32':
     from gp_win32 import GnuplotOpts, GnuplotProcess, test_persist
+elif sys.platform == 'darwin':
+    from gp_macosx import GnuplotOpts, GnuplotProcess, test_persist
 else:
     from gp_unix import GnuplotOpts, GnuplotProcess, test_persist
 
