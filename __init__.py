@@ -293,39 +293,54 @@ class PlotItem:
     PlotItems yourself with additional keyword options, or derive new
     classes from PlotItem.
 
+    Options:
+      with=<string> -- choose how item will be plotted, e.g.,
+                       with='points 3 3'.
+      title=<string> -- set the title to be associated with the item
+                        in the plot legend.
+      title=None -- choose `notitle' option (omit item from legend).
+
+    Note that omitting the title option is different than setting
+    `title=None'; the former chooses gnuplot's default whereas the
+    latter chooses `notitle'.
+
     Members:
     
-    'basecommand' -- a string holding the elementary argument that
-                     must be passed to gnuplot's `plot' command for
-                     this item; e.g., 'sin(x)' or '"filename.dat"'.
-    'options' -- a dictionary of strings that need to be passed as
-                 options to the plot command; e.g., {'title':'data',
-                 'with':'linespoints'}.
-    'title' -- the title requested (undefined if not requested).  Note
-               that `title=None' implies the `notitle' option,
-               whereas omitting the title option implies no option
-               (the gnuplot default is then used).
-    'with' -- the string requested as a `with' option (undefined if
-              not requested)
+      'basecommand' -- a string holding the elementary argument that
+                       must be passed to gnuplot's `plot' command for
+                       this item; e.g., 'sin(x)' or '"filename.dat"'.
+      'options' -- a dictionary of (<option>,<string>) tuples
+                   corresponding to the plot options that have been
+                   specified for this object.  <option> is the option
+                   as specified by the user; <string> is the string that
+                   needs to be set in the command line to set that
+                   option (or None if no string is needed).  E.g.,
+                   {'title':'Data', 'with':'linespoints'}.
 
     """
 
-    def __init__(self, basecommand, **keyw):
+    def __init__(self, basecommand, with=None, **keyw):
         self.basecommand = basecommand
         self.options = {}
         if keyw.has_key('title'):
-            self.title = keyw['title']
+            title = keyw['title']
             del keyw['title']
-            if self.title is None:
-                self.options['title'] = None
+            if title is None:
+                self.options['title'] = (title, 'notitle')
+            elif type(title) is type(''):
+                self.options['title'] = (title, 'title "%s"' % title)
             else:
-                self.options['title'] = self.title
-        if keyw.has_key('with'):
-            self.with = keyw['with']
-            del keyw['with']
-            self.options['with'] = self.with
+                OptionException('title=%s' % title)
+        if with is not None:
+            assert type(with) is type(''), \
+                   OptionException('with=%s' % with)
+            self.options['with'] = (with, 'with %s' % with)
         if keyw:
+            # unrecognized option
             raise OptionException(keyw)
+
+    # order in which options need to be specified:
+    option_sequence = ['binary', 'using', 'title', 'with']
 
     def command(self):
         """Build the 'plot' command to be sent to gnuplot.
@@ -335,21 +350,12 @@ class PlotItem:
 
         """
 
-        c = [self.basecommand]
-        if self.options.get('binary', 0):
-            c.append('binary')
-        if self.options.has_key('using'):
-            c.append('using %s' % self.options['using'])
-        if self.options.has_key('title'):
-            # Note that having no title option is different than
-            # having a notitle option.
-            if self.options['title'] is None:
-                c.append('notitle')
-            else:
-                c.append('title "%s"' % self.options['title'])
-        if self.options.has_key('with'):
-            c.append('with %s' % self.options['with'])
-        return string.join(c)
+        cmd = [self.basecommand]
+        for opt in self.option_sequence:
+            (val,str) = self.options.get(opt, (None,None))
+            if str is not None:
+                cmd.append(str)
+        return string.join(cmd)
 
     # if the plot command requires data to be put on stdin (i.e.,
     # `plot "-"'), this method should put that data there.
@@ -494,21 +500,21 @@ class File(PlotItem):
             # title.)
             if isinstance(file, TempFile) and not keyw.has_key('title'):
                 keyw['title'] = None
-        elif type(file) == type(''):
+        elif type(file) is type(''):
             self.file = AnyFile(file)
         else:
             raise OptionException
         apply(PlotItem.__init__, (self, '"' + self.file.filename + '"'), keyw)
         if using is None:
             pass
-        elif type(using) == type(''):
-            self.options['using'] = using
-        elif type(using) == type(()):
-            self.options['using'] = string.join(map(repr, using), ':')
-        elif type(using) == type(1):
-            self.options['using'] = `using`
+        elif type(using) is type('') or type(using) is type(1):
+            self.options['using'] = (using, 'using %s' % using)
+        elif type(using) is type(()):
+            self.options['using'] = (using,
+                                     'using %s' %
+                                     string.join(map(repr, using), ':'))
         else:
-            raise OptionException('using=' + `using`)
+            raise OptionException('using=%s' % using)
 
 
 class Data(PlotItem):
@@ -653,7 +659,7 @@ class GridData(PlotItem):
             apply(PlotItem.__init__, (self, '"%s"' % self.file.filename), keyw)
 
             # Include the command-line option to read in binary data:
-            self.options['binary'] = 1
+            self.options['binary'] = (binary, 'binary')
         else:
             set = Numeric.transpose(
                 Numeric.array(
