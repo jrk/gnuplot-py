@@ -20,6 +20,8 @@
 __cvs_version__ = '$Revision$'
 
 
+import Errors
+
 # ############ Configuration variables: ################################
 
 class GnuplotOpts:
@@ -104,7 +106,9 @@ class GnuplotProcess:
 
         """
 
-        assert not persist, '-persist is not supported under Windows!'
+        if persist:
+            raise Errors.OptionError(
+                '-persist is not supported under Windows!')
 
         self.gnuplot = popen(GnuplotOpts.gnuplot_command, 'w')
 
