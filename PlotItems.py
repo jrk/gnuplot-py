@@ -454,17 +454,21 @@ def Data(*set, **keyw):
 
     Create a '_FileItem' object (which is a type of 'PlotItem') out of
     one or more Float Python Numeric arrays (or objects that can be
-    converted to a Float Numeric array).  If the routine is passed one
-    array, the last index ranges over the values comprising a single
-    data point (e.g., [<x>, <y>, <sigma>]) and the rest of the indices
-    select the data point.  If the routine is passed more than one
-    array, they must have identical shapes, and then each data point
-    is composed of one point from each array.  E.g., 'Data(x,x**2)' is
-    a 'PlotItem' that represents x squared as a function of x.  For
-    the output format, see the comments for 'write_array()'.
+    converted to a Float Numeric array).  If the routine is passed a
+    single with multiple dimensions, then the last index ranges over
+    the values comprising a single data point (e.g., [<x>, <y>,
+    <sigma>]) and the rest of the indices select the data point.  If
+    passed a single array with 1 dimension, then each point is
+    considered to have only one value (i.e., by default the values
+    will be plotted against their indices).  If the routine is passed
+    more than one array, they must have identical shapes, and then
+    each data point is composed of one point from each array.  E.g.,
+    'Data(x,x**2)' is a 'PlotItem' that represents x squared as a
+    function of x.  For the output format, see the comments for
+    'write_array()'.
 
-    The array is first written to a temporary file, then that file is
-    plotted.  No copy is kept in memory.
+    How the data are written to gnuplot depends on the 'inline'
+    argument and preference settings for the platform in use.
 
     Keyword arguments:
 
@@ -485,6 +489,12 @@ def Data(*set, **keyw):
     if len(set) == 1:
         # set was passed as a single structure
         set = utils.float_array(set[0])
+
+        # As a special case, if passed a single 1-D array, then it is
+        # treated as one value per point (by default, plotted against
+        # its index):
+        if len(set.shape) == 1:
+            set = set[:,Numeric.NewAxis]
     else:
         # set was passed column by column (for example,
         # Data(x,y)); pack it into one big array (this will test
