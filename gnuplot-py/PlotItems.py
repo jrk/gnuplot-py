@@ -24,7 +24,7 @@ behavior.
 
 __cvs_version__ = '$Revision$'
 
-import os, string, tempfile
+import os, string, tempfile, types
 
 try:
     from cStringIO import StringIO
@@ -102,7 +102,7 @@ class PlotItem:
     # order in which options need to be passed to gnuplot:
     _option_sequence = ['binary', 'using', 'smooth', 'axes', 'title', 'with']
 
-    def __init__(self, basecommand, **keyw):
+    def __init__(self, **keyw):
         """Construct a 'PlotItem'.
 
         Keyword options:
@@ -121,7 +121,6 @@ class PlotItem:
 
         """
 
-        self._basecommand = basecommand
         self._options = {}
         apply(self.set_option, (), keyw)
 
@@ -174,6 +173,17 @@ class PlotItem:
         except KeyError:
             pass
 
+    def get_base_command_string(self):
+        raise NotImplementedError()
+
+    def get_command_option_string(self):
+        cmd = []
+        for opt in self._option_sequence:
+            (val,str) = self._options.get(opt, (None,None))
+            if str is not None:
+                cmd.append(str)
+        return string.join(cmd)
+
     def command(self):
         """Build the plot command to be sent to gnuplot.
 
@@ -183,12 +193,10 @@ class PlotItem:
 
         """
 
-        cmd = [self._basecommand]
-        for opt in self._option_sequence:
-            (val,str) = self._options.get(opt, (None,None))
-            if str is not None:
-                cmd.append(str)
-        return string.join(cmd)
+        return string.join([
+            self.get_base_command_string(),
+            self.get_command_option_string(),
+            ])
 
     def pipein(self, f):
         """Pipe necessary inline data to gnuplot.
@@ -222,63 +230,21 @@ class Func(PlotItem):
 
     """
 
-    # The PlotItem constructor does what we need.
-    pass
+    def __init__(self, function, **keyw):
+        apply(PlotItem.__init__, (self,), keyw)
+        self.function = function
+
+    def get_base_command_string(self):
+        return self.function
 
 
-class AnyFile:
-    """Representation of any kind of file to be used by gnuplot.
+class _FileItem(PlotItem):
+    """A PlotItem representing a file that contains gnuplot data.
 
-    An AnyFile represents a file, but presumably one that holds data
-    in a format readable by gnuplot.  This class simply remembers the
-    filename; the existence and format of the file are not checked
-    whatsoever.  If no filename is specfied, a random one is created.
-    Note that this is not a 'PlotItem', though it is used by the 'File'
-    'PlotItem'.
-
-    Members:
-
-        'self.filename' -- the filename of the file
+    This class is not meant for users but rather as a base class for
+    other types of FileItem.
 
     """
-
-    def __init__(self, filename=None):
-        """Make an 'AnyFile' referencing the file with name <filename>.
-
-        If <filename> is not specified, choose a random filename (but
-        do not create the file).
-
-        """
-
-        if filename is None:
-            filename = tempfile.mktemp()
-        self.filename = filename
-
-
-class TempFile(AnyFile):
-    """A file that is automatically deleted.
-
-    A 'TempFile' points to a file.  The file is deleted automatically
-    when the 'TempFile' object is deleted.  'TempFile' does not create
-    the file; it just references it.
-
-    The constructor is inherited from 'AnyFile'.  It can be passed a
-    filename or nothing (in which case a random filename is chosen).
-
-    WARNING: whatever filename you pass to the constructor
-    **WILL BE DELETED** when the TempFile object is deleted, even if
-    it was a pre-existing file!
-
-    """
-
-    def __del__(self):
-        """Delete the referenced file."""
-
-        os.unlink(self.filename)
-
-
-class File(PlotItem):
-    """A PlotItem representing a file that contains gnuplot data."""
 
     _option_list = PlotItem._option_list.copy()
     _option_list.update({
@@ -288,12 +254,16 @@ class File(PlotItem):
         'binary' : lambda self, binary: self.set_option_binary(binary),
         })
 
-    def __init__(self, file, **keyw):
-        """Construct a File object.
+    def __init__(self, filename, **keyw):
+        """Represent a PlotItem that gnuplot treates as a file.
 
-        <file> can be either a string holding the filename of an
-        existing file, or it can be an object of any class derived
-        from 'AnyFile'.
+        This class holds the information that is needed to construct
+        the plot command line, including options that are specific to
+        file-like gnuplot input.
+
+        <filename> is a string representing the filename to be passed
+        to gnuplot within quotes.  It may be the name of an existing
+        file, '-' for inline data, or the name of a named pipe.
 
         Keyword arguments:
 
@@ -304,8 +274,8 @@ class File(PlotItem):
             'using=<string>' -- plot `using <string>' (allows gnuplot's
                 arbitrary column arithmetic)
 
-            'binary=<boolean>' -- data in file is in binary format
-                (only recognized for grid data for splot).
+            'binary=<boolean>' -- data in the file is in binary format
+                (this option is only allowed for grid data for splot).
 
             'smooth=<string>' -- smooth the data.  Option should be
                 'unique', 'csplines', 'acsplines', 'bezier', or
@@ -315,28 +285,21 @@ class File(PlotItem):
         used here.
 
         Note that the 'using' option is interpreted by gnuplot, so
-        columns must be numbered starting with 1.  The default 'title'
-        for a TempFile is 'notitle' to avoid using the temporary
-        file's name as the title.
+        columns must be numbered starting with 1.
+
+        By default, gnuplot uses the name of the file plus any 'using'
+        option as the dataset title.  If you want another title, set
+        it explicitly using the 'title' option.
 
         """
 
-        if isinstance(file, AnyFile):
-            self.file = file
-            # If no title is specified, then use `notitle' for
-            # TempFiles (to avoid using the temporary filename as the
-            # title.)
-            if isinstance(file, TempFile) and not keyw.has_key('title'):
-                keyw['title'] = None
-        elif type(file) is type(''):
-            self.file = AnyFile(file)
-        else:
-            raise Errors.OptionError(
-                'file argument (%s) must be a file object or filename'
-                % (file,)
-                )
+        self.filename = filename
+
         # Use single-quotes so that pgnuplot can handle DOS filenames:
-        apply(PlotItem.__init__, (self, "'%s'" % self.file.filename), keyw)
+        apply(PlotItem.__init__, (self,), keyw)
+
+    def get_base_command_string(self):
+        return '\'%s\'' % (self.filename,)
 
     def set_option_using(self, using):
         if using is None:
@@ -360,269 +323,345 @@ class File(PlotItem):
             self._options['binary'] = (0, None)
 
 
-class Data(PlotItem):
-    """Represents data from memory to be plotted with Gnuplot.
+class _TempFileItem(_FileItem):
+    def __init__(self, content, **keyw):
+        filename = tempfile.mktemp()
 
-    Takes a numeric array from memory and outputs it to a temporary
-    file that can be plotted by gnuplot.
-
-    """
-
-    _option_list = PlotItem._option_list.copy()
-    _option_list.update({
-        'smooth' : lambda self, smooth: self.set_string_option(
-            'smooth', smooth, None, 'smooth %s'),
-        'cols' : None,
-        'inline' : None,
-        })
-
-    def __init__(self, *set, **keyw):
-        """Construct a 'Data' object from a numeric array.
-
-        Create a 'Data' object (which is a type of 'PlotItem') out of
-        one or more Float Python Numeric arrays (or objects that can
-        be converted to a Float Numeric array).  If the routine is
-        passed one array, the last index ranges over the values
-        comprising a single data point (e.g., [<x>, <y>, <sigma>]) and
-        the rest of the indices select the data point.  If the routine
-        is passed more than one array, they must have identical
-        shapes, and then each data point is composed of one point from
-        each array.  E.g., 'Data(x,x**2)' is a 'PlotItem' that
-        represents x squared as a function of x.  For the output
-        format, see the comments for 'write_array()'.
-
-        The array is first written to a temporary file, then that file
-        is plotted.  No copy is kept in memory.
-
-        Keyword arguments:
-
-            'cols=<tuple>' -- write only the specified columns from each
-                data point to the file.  Since cols is used by python,
-                the columns should be numbered in the python style
-                (starting from 0), not the gnuplot style (starting
-                from 1).
-
-            'inline=<bool>' -- transmit the data to gnuplot "inline"
-                rather than through a temporary file.  The default is
-                the value of gp.GnuplotOpts.prefer_inline_data.
-
-            'smooth=<string>' -- smooth the data.  Option should be
-                'unique', 'csplines', 'acsplines', 'bezier', or
-                'sbezier'.
-
-        The keyword arguments recognized by 'PlotItem' can also be
-        used here.
-
-        """
-
-        if len(set) == 1:
-            # set was passed as a single structure
-            set = utils.float_array(set[0])
+        binary = keyw.get('binary', 0)
+        if binary:
+            f = open(filename, 'wb')
         else:
-            # set was passed column by column (for example,
-            # Data(x,y)); pack it into one big array (this will test
-            # that sizes are all the same):
-            set = utils.float_array(set)
-            dims = len(set.shape)
-            # transpose so that the last index selects x vs. y:
-            set = Numeric.transpose(set, (dims-1,) + tuple(range(dims-1)))
-        if keyw.has_key('cols'):
-            cols = keyw['cols']
-            del keyw['cols']
-            if type(cols) is type(1):
-                cols = (cols,)
-            set = Numeric.take(set, cols, -1)
+            f = open(filename, 'w')
+        f.write(content)
+        f.close()
 
-        # If no title is specified, then use `notitle' (to avoid using
-        # the temporary filename as the title).
+        # If the user hasn't specified a title, set it to None so
+        # that the name of the temporary file is not used:
         if not keyw.has_key('title'):
             keyw['title'] = None
 
-        if keyw.has_key('inline'):
-            self.inline = keyw['inline']
-            del keyw['inline']
-        else:
-            self.inline = gp.GnuplotOpts.prefer_inline_data
+        apply(_FileItem.__init__, (self, filename,), keyw)
 
-        if self.inline:
-            f = StringIO()
-            utils.write_array(f, set)
-            f.write('e\n')
-            self._data = f.getvalue()
-            apply(PlotItem.__init__, (self, "'-'"), keyw)
+    def __del__(self):
+        os.unlink(self.filename)
+
+
+class _InlineFileItem(_FileItem):
+    """A _FileItem that actually indicates inline data.
+
+    """
+
+    def __init__(self, content, **keyw):
+        # If the user hasn't specified a title, set it to None so that
+        # '-' is not used:
+        if not keyw.has_key('title'):
+            keyw['title'] = None
+
+        if keyw.get('binary', 0):
+            raise Errors.OptionError('binary inline data is not supported')
+
+        apply(_FileItem.__init__, (self, '-',), keyw)
+
+        if content[-1] == '\n':
+            self.content = content
         else:
-            self.file = TempFile()
-            utils.write_array(open(self.file.filename, 'w'), set)
-            self._data = None
-            apply(PlotItem.__init__, (self, "'%s'" % self.file.filename), keyw)
+            self.content = content + '\n'
 
     def pipein(self, f):
-        if self._data:
-            f.write(self._data)
+        f.write(self.content + 'e\n')
 
 
-class GridData(PlotItem):
-    """Holds data representing a function of two variables, for use in splot.
+if gp.GnuplotOpts.support_fifo:
+    import threading
+
+    class _FIFOWriter(threading.Thread):
+        """Create a FIFO (named pipe), write to it, then delete it.
+
+        The writing takes place in a separate thread so that the main
+        thread is not blocked.  The idea is that once the writing is
+        finished we know that gnuplot is done with the data that were in
+        the file so we can delete the file.  This technique removes the
+        ambiguity about when the temporary files should be deleted.
+
+        """
+
+        def __init__(self, content, mode='w'):
+            self.content = content
+            self.mode = mode
+            self.filename = tempfile.mktemp()
+            threading.Thread.__init__(
+                self,
+                name=('FIFO Writer for %s' % (self.filename,)),
+                )
+            os.mkfifo(self.filename)
+            self.start()
+
+        def run(self):
+            f = open(self.filename, self.mode)
+            f.write(self.content)
+            f.close()
+            os.unlink(self.filename)
+
+
+    class _FIFOFileItem(_FileItem):
+        """A _FileItem based on a FIFO (named pipe).
+
+        This class depends on the availablity of os.mkfifo(), which only
+        exists under Unix.
+
+        """
+
+        def __init__(self, content, **keyw):
+            # If the user hasn't specified a title, set it to None so that
+            # the name of the temporary FIFO is not used:
+            if not keyw.has_key('title'):
+                keyw['title'] = None
+
+            apply(_FileItem.__init__, (self, '',), keyw)
+            self.content = content
+            if keyw.get('binary', 0):
+                self.mode = 'wb'
+            else:
+                self.mode = 'w'
+
+        def get_base_command_string(self):
+            """Create the gnuplot command for plotting this item.
+
+            The basecommand is different each time because each FIFOWriter
+            creates a new FIFO.
+
+            """
+
+            # Create a new FIFO and a thread to write to it.  Retrieve the
+            # filename of the FIFO to be used in the basecommand.
+            fifo = _FIFOWriter(self.content, self.mode)
+            return '\'%s\'' % (fifo.filename,)
+
+
+def File(filename, **keyw):
+    """Construct a _FileItem object referring to an existing file.
+
+    This is a convenience function that just returns a _FileItem that
+    wraps the filename.
+
+    <filename> is a string holding the filename of an existing file.
+    The keyword arguments are the same as those of the _FileItem
+    constructor.
+
+    """
+
+    if type(filename) is not types.StringType:
+        raise Errors.OptionError(
+            'Argument (%s) must be a filename' % (filename,)
+            )
+    return apply(_FileItem, (filename,), keyw)
+
+
+def Data(*set, **keyw):
+    """Create and return a _FileItem representing the data from *set.
+
+    Create a '_FileItem' object (which is a type of 'PlotItem') out of
+    one or more Float Python Numeric arrays (or objects that can be
+    converted to a Float Numeric array).  If the routine is passed one
+    array, the last index ranges over the values comprising a single
+    data point (e.g., [<x>, <y>, <sigma>]) and the rest of the indices
+    select the data point.  If the routine is passed more than one
+    array, they must have identical shapes, and then each data point
+    is composed of one point from each array.  E.g., 'Data(x,x**2)' is
+    a 'PlotItem' that represents x squared as a function of x.  For
+    the output format, see the comments for 'write_array()'.
+
+    The array is first written to a temporary file, then that file is
+    plotted.  No copy is kept in memory.
+
+    Keyword arguments:
+
+        'cols=<tuple>' -- write only the specified columns from each
+            data point to the file.  Since cols is used by python, the
+            columns should be numbered in the python style (starting
+            from 0), not the gnuplot style (starting from 1).
+
+        'inline=<bool>' -- transmit the data to gnuplot 'inline'
+            rather than through a temporary file.  The default is the
+            value of gp.GnuplotOpts.prefer_inline_data.
+
+    The keyword arguments recognized by '_FileItem' can also be used
+    here.
+
+    """
+
+    if len(set) == 1:
+        # set was passed as a single structure
+        set = utils.float_array(set[0])
+    else:
+        # set was passed column by column (for example,
+        # Data(x,y)); pack it into one big array (this will test
+        # that sizes are all the same):
+        set = utils.float_array(set)
+        dims = len(set.shape)
+        # transpose so that the last index selects x vs. y:
+        set = Numeric.transpose(set, (dims-1,) + tuple(range(dims-1)))
+    if keyw.has_key('cols'):
+        cols = keyw['cols']
+        del keyw['cols']
+        if type(cols) is types.IntType:
+            cols = (cols,)
+        set = Numeric.take(set, cols, -1)
+
+    if keyw.has_key('inline'):
+        inline = keyw['inline']
+        del keyw['inline']
+    else:
+        inline = gp.GnuplotOpts.prefer_inline_data
+
+    # Output the content into a string:
+    f = StringIO()
+    utils.write_array(f, set)
+    content = f.getvalue()
+    if inline:
+        return apply(_InlineFileItem, (content,), keyw)
+    elif gp.GnuplotOpts.prefer_fifo_data:
+        return apply(_FIFOFileItem, (content,), keyw)
+    else:
+        return apply(_TempFileItem, (content,), keyw)
+
+
+def GridData(data, xvals=None, yvals=None, inline=_unset, **keyw):
+    """Return a _FileItem representing a function of two variables.
 
     'GridData' represents a function that has been tabulated on a
     rectangular grid.  The data are written to a file; no copy is kept
     in memory.
 
+    Arguments:
+
+        'data' -- the data to plot: a 2-d array with dimensions
+            (numx,numy).
+
+        'xvals' -- a 1-d array with dimension 'numx'
+
+        'yvals' -- a 1-d array with dimension 'numy'
+
+        'binary=<bool>' -- send data to gnuplot in binary format?
+
+        'inline=<bool>' -- send data to gnuplot "inline"?
+
+    Note the unusual argument order!  The data are specified *before*
+    the x and y values.  (This inconsistency was probably a mistake;
+    after all, the default xvals and yvals are not very useful.)
+
+    'data' must be a data array holding the values of a function
+    f(x,y) tabulated on a grid of points, such that 'data[i,j] ==
+    f(xvals[i], yvals[j])'.  If 'xvals' and/or 'yvals' are omitted,
+    integers (starting with 0) are used for that coordinate.  The data
+    are written to a temporary file; no copy of the data is kept in
+    memory.
+
+    If 'binary=0' then the data are written to a datafile as 'x y
+    f(x,y)' triplets (y changes most rapidly) that can be used by
+    gnuplot's 'splot' command.  Blank lines are included each time the
+    value of x changes so that gnuplot knows to plot a surface through
+    the data.
+
+    If 'binary=1' then the data are written to a file in a binary
+    format that 'splot' can understand.  Binary format is faster and
+    usually saves disk space but is not human-readable.  If your
+    version of gnuplot doesn't support binary format (it is a
+    recently-added feature), this behavior can be disabled by setting
+    the configuration variable
+    'gp.GnuplotOpts.recognizes_binary_splot=0' in the appropriate
+    gp*.py file.
+
+    Thus if you have three arrays in the above format and a Gnuplot
+    instance called g, you can plot your data by typing
+    'g.splot(Gnuplot.GridData(data,xvals,yvals))'.
+
     """
 
-    _option_list = PlotItem._option_list.copy()
-    _option_list.update({
-        'binary' : None,
-        'inline' : None,
-        })
+    # Try to interpret data as an array:
+    data = utils.float_array(data)
+    try:
+        (numx, numy) = data.shape
+    except ValueError:
+        raise Errors.DataError('data array must be two-dimensional')
 
-    def __init__(self, data, xvals=None, yvals=None,
-                 binary=1, inline=_unset, **keyw):
-        """GridData constructor.
+    if xvals is None:
+        xvals = Numeric.arange(numx)
+    else:
+        xvals = utils.float_array(xvals)
+        if xvals.shape != (numx,):
+            raise Errors.DataError(
+                'The size of xvals must be the same as the size of '
+                'the first dimension of the data array')
 
-        Arguments:
+    if yvals is None:
+        yvals = Numeric.arange(numy)
+    else:
+        yvals = utils.float_array(yvals)
+        if yvals.shape != (numy,):
+            raise Errors.DataError(
+                'The size of yvals must be the same as the size of '
+                'the second dimension of the data array')
 
-            'data' -- the data to plot: a 2-d array with dimensions
-                (numx,numy).
+    # Binary defaults to true if recognizes_binary_plot is set;
+    # otherwise it is forced to false.
+    binary = keyw.get('binary', 1) and gp.GnuplotOpts.recognizes_binary_splot
+    keyw['binary'] = binary
 
-            'xvals' -- a 1-d array with dimension 'numx'
+    if inline is _unset:
+        inline = (not binary) and gp.GnuplotOpts.prefer_inline_data
 
-            'yvals' -- a 1-d array with dimension 'numy'
+    # xvals, yvals, and data are now all filled with arrays of data.
+    if binary:
+        if inline:
+            raise Errors.OptionError('binary inline data not supported')
 
-            'binary=<bool>' -- send data to gnuplot in binary format?
+        # write file in binary format
 
-            'inline=<bool>' -- send data to gnuplot "inline"?
+        # It seems that the gnuplot documentation for binary mode
+        # disagrees with its actual behavior (as of v. 3.7).  The
+        # documentation has the roles of x and y exchanged.  We ignore
+        # the documentation and go with the code.
 
-        Note the unusual argument order!  The data are specified
-        *before* the x and y values.  (This inconsistency was probably
-        a mistake; after all, the default xvals and yvals are not very
-        useful.)
-
-        'data' must be a data array holding the values of a function
-        f(x,y) tabulated on a grid of points, such that 'data[i,j] ==
-        f(xvals[i], yvals[j])'.  If 'xvals' and/or 'yvals' are
-        omitted, integers (starting with 0) are used for that
-        coordinate.  The data are written to a temporary file; no copy
-        of the data is kept in memory.
-
-        If 'binary=0' then the data are written to a datafile as 'x y
-        f(x,y)' triplets (y changes most rapidly) that can be used by
-        gnuplot's 'splot' command.  Blank lines are included each time
-        the value of x changes so that gnuplot knows to plot a surface
-        through the data.
-
-        If 'binary=1' then the data are written to a file in a binary
-        format that 'splot' can understand.  Binary format is faster
-        and usually saves disk space but is not human-readable.  If
-        your version of gnuplot doesn't support binary format (it is a
-        recently-added feature), this behavior can be disabled by
-        setting the configuration variable
-        'gp.GnuplotOpts.recognizes_binary_splot=0' in the appropriate
-        gp*.py file.
-
-        Thus if you have three arrays in the above format and a
-        Gnuplot instance called g, you can plot your data by typing
-        'g.splot(Gnuplot.GridData(data,xvals,yvals))'.
-
-        """
-
-        # Try to interpret data as an array:
-        data = utils.float_array(data)
+        mout = Numeric.zeros((numy + 1, numx + 1), Numeric.Float32)
+        mout[0,0] = numx
+        mout[0,1:] = xvals.astype(Numeric.Float32)
+        mout[1:,0] = yvals.astype(Numeric.Float32)
         try:
-            (numx, numy) = data.shape
-        except ValueError:
-            raise Errors.DataError('data array must be two-dimensional')
+            # try copying without the additional copy implied by astype():
+            mout[1:,1:] = Numeric.transpose(data)
+        except:
+            # if that didn't work then downcasting from double
+            # must be necessary:
+            mout[1:,1:] = Numeric.transpose(data.astype(Numeric.Float32))
 
-        if xvals is None:
-            xvals = Numeric.arange(numx)
+        content = mout.tostring()
+        if gp.GnuplotOpts.prefer_fifo_data:
+            return apply(_FIFOFileItem, (content,), keyw)
         else:
-            xvals = utils.float_array(xvals)
-            if xvals.shape != (numx,):
-                raise Errors.DataError(
-                    'The size of xvals must be the same as the size of '
-                    'the first dimension of the data array')
+            return apply(_TempFileItem, (content,), keyw)
+    else:
+        # output data to file as "x y f(x)" triplets.  This
+        # requires numy copies of each x value and numx copies of
+        # each y value.  First reformat the data:
+        set = Numeric.transpose(
+            Numeric.array(
+                (Numeric.transpose(Numeric.resize(xvals, (numy, numx))),
+                 Numeric.resize(yvals, (numx, numy)),
+                 data)), (1,2,0))
 
-        if yvals is None:
-            yvals = Numeric.arange(numy)
+        # Now output the data with the usual routine.  This will
+        # produce data properly formatted in blocks separated by blank
+        # lines so that gnuplot can connect the points into a grid.
+        f = StringIO()
+        utils.write_array(f, set)
+        content = f.getvalue()
+
+        if inline:
+            return apply(_InlineFileItem, (content,), keyw)
+        elif gp.GnuplotOpts.prefer_fifo_data:
+            return apply(_FIFOFileItem, (content,), keyw)
         else:
-            yvals = utils.float_array(yvals)
-            if yvals.shape != (numy,):
-                raise Errors.DataError(
-                    'The size of yvals must be the same as the size of '
-                    'the second dimension of the data array')
-
-        if inline is _unset:
-            inline = (not binary) and gp.GnuplotOpts.prefer_inline_data
-
-        # xvals, yvals, and data are now all filled with arrays of data.
-        if binary and gp.GnuplotOpts.recognizes_binary_splot:
-            if inline:
-                raise Errors.OptionError('binary inline data not supported')
-            self._data = None
-            # write file in binary format
-
-            # It seems that the gnuplot documentation for binary mode
-            # disagrees with its actual behavior (as of v. 3.7).  The
-            # documentation has the roles of x and y exchanged.  We
-            # ignore the documentation and go with the code.
-
-            mout = Numeric.zeros((numy + 1, numx + 1), Numeric.Float32)
-            mout[0,0] = numx
-            mout[0,1:] = xvals.astype(Numeric.Float32)
-            mout[1:,0] = yvals.astype(Numeric.Float32)
-            try:
-                # try copying without the additional copy implied by astype():
-                mout[1:,1:] = Numeric.transpose(data)
-            except:
-                # if that didn't work then downcasting from double
-                # must be necessary:
-                mout[1:,1:] = Numeric.transpose(data.astype(Numeric.Float32))
-            self.file = TempFile()
-            open(self.file.filename, 'wb').write(mout.tostring())
-
-            # avoid using the temporary filename as the title:
-            if not keyw.has_key('title'):
-                keyw['title'] = None
-            apply(PlotItem.__init__, (self, "'%s'" % self.file.filename), keyw)
-
-            # Include the command-line option to read in binary data:
-            self._options['binary'] = (1, 'binary')
-        else:
-            # output data to file as "x y f(x)" triplets.  This
-            # requires numy copies of each x value and numx copies of
-            # each y value.  First reformat the data:
-            set = Numeric.transpose(
-                Numeric.array(
-                    (Numeric.transpose(Numeric.resize(xvals, (numy, numx))),
-                     Numeric.resize(yvals, (numx, numy)),
-                     data)), (1,2,0))
-
-            # avoid using the temporary filename as the title:
-            if not keyw.has_key('title'):
-                keyw['title'] = None
-
-            # now just output the data with the usual routine.  This
-            # will produce data properly formatted in blocks separated
-            # by blank lines so that gnuplot can connect the points
-            # into a grid.
-            self.inline = inline
-            if self.inline:
-                f = StringIO()
-                utils.write_array(f, set)
-                f.write('e\n')
-                self._data = f.getvalue()
-                apply(PlotItem.__init__, (self, "'-'"), keyw)
-            else:
-                self.file = TempFile()
-                utils.write_array(open(self.file.filename, 'w'), set)
-                apply(PlotItem.__init__,
-                      (self, "'%s'" % self.file.filename), keyw)
-                self._data = None
-
-            self._options['binary'] = (0, None)
-
-    def pipein(self, f):
-        if self._data:
-            f.write(self._data)
+            return apply(_TempFileItem, (content,), keyw)
 
 

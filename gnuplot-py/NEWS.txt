@@ -4,6 +4,54 @@ This file describes the changes introduced in each version of the
 Gnuplot.py package.
 
 
+Version x.x:
+
+* Significant reorganization of PlotItem.py:
+
+  + Deleted the AnyFile classes from PlotItem: AnyFile, TempFile,
+    ArrayFile, and TempArrayFile.  Those classes weren't pulling their
+    weight.
+
+  + Added a new _FileItem class to represent all forms of data that
+    gnuplot treats as a file.
+
+  + Added a new _TempFileItem class to represent PlotItems that are
+    based on a temporary file.
+
+  + Added a new _InlineFileItem class to represent PlotItems whose
+    data is passed to gnuplot inline.
+
+  + Changed PlotItems.File() and PlotItems.Data from classes into
+    factory functions that produce instances of the classes mentioned
+    above.
+
+* Slightly changed the PlotItem interface to support the new derived
+  classes:
+
+  + Removed the basecommand argument to the constructor.  Instead
+    added a get_base_command_string() method to retrieve that string.
+    This function is not defined in PlotItem so it is added to the
+    derived classes.  (This function is used by _FIFOFileItem as the
+    hook where _FIFOWriters are created.
+
+  + Added a new get_command_option_string() method which abstracts out
+    the construction of the option part of the command() method.
+
+* Added support for sending data to gnuplot via FIFOs (named pipes)
+  via a new _FIFOFileItem class.  This mechanism removes the ambiguity
+  about when temporary files should be deleted, therefore making it
+  easier to use Gnuplot.py in script environments, etc.  This feature
+  is only implemented under *nix because Python doesn't implement the
+  required threading module and os.mkfifo() on other operating
+  systems.  Added two new configuration options, support_fifo and
+  prefer_fifo_data, to the gp_*.py files to switch the new feature on
+  and off.
+
+* Removed the oldplot.py module: (1) I doubt anybody is still using
+  it. (2) It seems to be broken anyway. (3) I don't have the energy to
+  fix or maintain it.  Let me know if I'm wrong about point 1.
+
+
 Version 1.6:
 
 * Introduced a general mechanism to make it easy to support multiple
