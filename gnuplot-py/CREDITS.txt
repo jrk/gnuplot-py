@@ -13,10 +13,10 @@ interface version of Gnuplot.py.  His code is still present in many
 components of the current version, and the oldplot.py module is meant
 to be (mostly) backwards compatible with his version.
 
-Berthold Hoellmann <se6y095@public.uni-hamburg.de> introduced me to
-the helpful package `pythondoc', and contributed some docstring
-changes to allow web documentation to be generated from the Gnuplot.py
-source.
+Berthold Hoellmann <bhoel@starship.python.net> introduced me to the
+helpful `pythondoc' package, and contributed some docstring changes to
+allow web documentation to be generated from the Gnuplot.py source.
+He also submitted a setup.py file to be used with Python distutils.
 
 Craig Schardt <lazrnerd@ufl.edu> and Francois Ladouceur
 <f.ladouceur@virtualphotonics.com> contributed changes to enable
@@ -30,9 +30,6 @@ suggestions for automating the tabulation of function values.
 
 Jannie Hofmeyr <jhsh@iafrica.com> suggested using "from os import
 popen" in gp_win32.py for versions of Python subsequent to 2.0.
-
-Berthold Hoellmann <bhoel@starship.python.net> submitted a setup.py
-file to be used with Python distutils.
 
 Daehyok Shin <sdhyok@email.unc.edu> pointed out that support for the
 `axes' keyword was missing.
