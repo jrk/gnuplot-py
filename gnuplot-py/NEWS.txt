@@ -14,6 +14,9 @@ Version 1.4:
   interface to the gnuplot program that could also conceivably be
   useful to somebody.
 
+* Allow access to all of the postscript printer driver options through
+  the hardcopy() method.
+
 * Fixed an import problem in test.py.
 
 

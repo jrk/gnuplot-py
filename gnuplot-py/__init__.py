@@ -24,6 +24,11 @@ by and partly derived from an earlier version by Konrad Hinsen
 please let me know at <mhagger@blizzard.harvard.edu>.  Other feedback
 would also be appreciated.
 
+The Gnuplot.py home page is at
+
+    <http://monsoon.harvard.edu/~mhagger/Gnuplot/Gnuplot.html>.
+
+
 For information about how to use this module:
 
 1.  Check the README file.
@@ -1272,24 +1277,58 @@ class Gnuplot(GnuplotProcess):
 
         self.set_string('title', s)
 
-    def hardcopy(self, filename=None, eps=0, color=0, enhanced=1):
+    def hardcopy(self, filename=None,
+                 mode=None,
+                 eps=None,
+                 enhanced=None,
+                 color=None,
+                 solid=None,
+                 duplexing=None,
+                 fontname=None,
+                 fontsize=None,
+                 ):
         """Create a hardcopy of the current plot.
 
-        Create a postscript hardcopy of the current plot.
+        Create a postscript hardcopy of the current plot to the
+        default printer (if configured) or to the specified filename.
+
+        Note that gnuplot remembers the postscript suboptions across
+        terminal changes.  Therefore if you set, for example, color=1
+        for one hardcopy then the next hardcopy will also be color
+        unless you explicitly choose color=0.  Alternately you can
+        force all of the options to their defaults by setting
+        mode='default'.  I consider this a bug in gnuplot.
 
         Keyword arguments:
 
           'filename=<string>' -- if a filename is specified, save the
               output in that file; otherwise print it immediately
               using the 'default_lpr' configuration option.
-          'eps=<bool>' -- if eps is set, generate encapsulated
-              postscript using gnuplot's 'set terminal post eps'.
-          'color=<bool>' -- if color is set, create a plot with color.
-          'enhanced=<bool>' -- if enhanced is set (the default), then
-              generate enhanced postscript, which allows extra
-              features like font-switching in axis labels.  (Some old
-              gnuplot versions do not support enhanced postscript; if
-              this is the case set enhanced=0.)
+          'mode=<string>' -- set the postscript submode ('landscape',
+              'portrait', 'eps', or 'default').  The default is
+              to leave this option unspecified.
+          'eps=<bool>' -- shorthand for 'mode="eps"'; asks gnuplot to
+              generate encapsulated postscript.
+          'enhanced=<bool>' -- if set (the default), then generate
+              enhanced postscript, which allows extra features like
+              font-switching, superscripts, and subscripts in axis
+              labels.  (Some old gnuplot versions do not support
+              enhanced postscript; if this is the case set
+              GnuplotOpts.prefer_enhanced_postscript=None.)
+          'color=<bool>' -- if set, create a plot with color.  Default
+              is to leave this option unchanged.
+          'solid=<bool>' -- if set, force lines to be solid (i.e., not
+              dashed).
+          'duplexing=<string>' -- set duplexing option ('defaultplex',
+              'simplex', or 'duplex').  Only request double-sided
+              printing if your printer can handle it.  Actually this
+              option is probably meaningless since hardcopy() can only
+              print a single plot at a time.
+          'fontname=<string>' -- set the default font to <string>,
+              which must be a valid postscript font.  The default is
+              to leave this option unspecified.
+          'fontsize=<double>' -- set the default font size, in
+              postscript points.
 
         Note that this command will return immediately even though it
         might take gnuplot a while to actually finish working.  Be
@@ -1304,19 +1343,48 @@ class Gnuplot(GnuplotProcess):
                                    'print to a file.')
             filename = GnuplotOpts.default_lpr
 
-        # First set to postscript mode with default settings, because
-        # gnuplot remembers nondefault settings across terminal
-        # changes:
-        self('set terminal postscript default')
+        # Be careful processing the options.  If the user didn't
+        # request an option explicitly, do not specify it on the 'set
+        # terminal' line (don't even specify the default value for the
+        # option).  This is to avoid confusing older versions of
+        # gnuplot that do not support all of these options.  The
+        # exception is 'enhanced', which is just too useful to have to
+        # specify each time!
 
         setterm = ['set', 'terminal', 'postscript']
-        if eps: setterm.append('eps')
-        else: setterm.append('default')
-        if enhanced: setterm.append('enhanced')
-        if color: setterm.append('color')
+        if eps:
+            assert mode is None or mode=='eps', \
+                   OptionException('eps option and mode are incompatible')
+            setterm.append('eps')
+        else:
+            if mode is not None:
+                assert mode in ['landscape', 'portrait', 'eps', 'default'], \
+                       OptionException('illegal mode "%s"' % mode)
+                setterm.append(mode)
+        if enhanced is None:
+            enhanced = GnuplotOpts.prefer_enhanced_postscript
+        if enhanced is not None:
+            if enhanced: setterm.append('enhanced')
+            else: setterm.append('noenhanced')
+        if color is not None:
+            if color: setterm.append('color')
+            else: setterm.append('monochrome')
+        if solid is not None:
+            if solid: setterm.append('solid')
+            else: setterm.append('dashed')
+        if duplexing is not None:
+            assert duplexing in ['defaultplex', 'simplex', 'duplex'], \
+                   OptionException('illegal duplexing mode "%s"' % duplexing)
+            setterm.append(duplexing)
+        if fontname is not None:
+            setterm.append('"%s"' % fontname)
+        if fontsize is not None:
+            setterm.append('%s' % fontsize)
         self(string.join(setterm))
         self.set_string('output', filename)
+        # replot the current figure (to the printer):
         self.refresh()
+        # reset the terminal to its `default' setting:
         self('set terminal %s' % GnuplotOpts.default_term)
         self.set_string('output')
 

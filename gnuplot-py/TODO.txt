@@ -4,13 +4,6 @@ Some ideas for future work.  I don't know whether I'll get around to
 any of these items; some of them are probably better left undone
 anyway.  Of course if anybody else wants to take one up...
 
-* Enhance the hardcopy() command so that it can handle more printer
-  options.  There are scads of postscript options allowed by gnuplot
-  3.7 that I haven't implemented yet, not to mention the possibility
-  of printing to other printer types.  Also, the 'set terminal
-  postscript default' is hokey and I wonder if it might make pre-3.7
-  versions of gnuplot gag.
-
 * Implement missing values.  Gnuplot allows you to specify that values
   are missing from data files via the `set missing' command.  I'm
   thinking about implementing this as an optional 'mask' argument to

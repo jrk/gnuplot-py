@@ -101,6 +101,14 @@ class GnuplotOpts:
     # also add options to the print command if needed.
     default_lpr = '| lpr'
 
+    # Enhanced postscript is an option to the postscript terminal
+    # driver that requests enhanced treatment of strings (for example,
+    # font changes, superscripts, and subscripts).  Set to 1 to enable
+    # or 0 to disable.  If you have a version of gnuplot earlier than
+    # 3.7, you should set this to None (*not* 0!) so that the option
+    # is not used at all.
+    prefer_enhanced_postscript = 1
+
 # ############ End of configuration options ############################
 
 from os import popen

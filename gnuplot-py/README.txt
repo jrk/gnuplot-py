@@ -1,5 +1,10 @@
 Gnuplot.py -- A pipe-based interface to the gnuplot plotting program.
 
+The current version of Gnuplot.py can be obtained from
+
+    http://monsoon.harvard.edu/~mhagger/Gnuplot/Gnuplot.html
+
+
 Documentation
 -------------
 
@@ -99,11 +104,13 @@ Installation on the Macintosh
 
 Thanks to more user help, Gnuplot.py should now work on the Macintosh
 too.  Since pipes don't exist on the Mac, communication with gnuplot
-is via a python module called gnuplot_Suites.py (included).  Note that
-you will have to convert the python files to Mac text files (different
-end-of-line character).  Currently it is not possible to print
-directly to a printer; however, it should be possible to print to a
-postscript file and print that file manually.
+is via a python module called gnuplot_Suites.py (included) which uses
+AppleEvents.  Note that you will have to convert the python files to
+Mac text files (different end-of-line character).  Currently it is not
+possible to print directly to a printer; however, it should be
+possible to print to a postscript file and print that file manually.
+Also, inline data does not seem to be supported.  Let me know if you
+find other problems.
 
 
 Feedback
