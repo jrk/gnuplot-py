@@ -39,26 +39,28 @@ Installation on Windows
 -----------------------
 
 I don't run Windows, but thanks to the help of users there is now a
-scheme that supposedly works on Windows.  Any feedback or additional
+scheme that works on that platform.  Any feedback or additional
 suggestions having to do with Windows would be especially appreciated,
 especially if you know how to make Gnuplot.py work under Windows
 without having to install pgnuplot.exe.
 
-Apparently the MS-Windows gnuplot executable (wgnuplot.exe) doesn't
-accept commands on standard input, and so Gnuplot.py cannot
-communicate with it directly.  However, there is a simple little
-self-contained program called `pgnuplot.exe' that accepts commands on
-stdin and passes them to wgnuplot.  So to run Gnuplot.py on Windows,
-first install pgnuplot.exe.  You can get pgnuplot.c from a recent beta
-version of gnuplot (version 3.7.0.8, for example) or by downloading
-`testing/windows-stdin.zip' from one of the gnuplot archives (e.g.,
+Because the MS-Windows gnuplot executable (wgnuplot.exe) doesn't
+accept commands on standard input, Gnuplot.py cannot communicate with
+it directly.  However, there is a simple little self-contained program
+called `pgnuplot.exe' that accepts commands on stdin and passes them
+to wgnuplot.  So to run Gnuplot.py on Windows, first install
+pgnuplot.exe.  You can get its C program source (pgnuplot.c) from a
+recent beta version of gnuplot (version 3.7.0.8, for example) or by
+downloading `testing/windows-stdin.zip' from one of the gnuplot
+archives (e.g.,
 <ftp://ftp.gnuplot.vt.edu/pub/gnuplot/testing/windows-stdin.zip>).
-You will have to compile pgnuplot.c yourself as I don't know of a
-source of the executable version of that program.
+You will have to compile pgnuplot.c yourself as there doesn't
+currently appear to be a source of the executable version of that
+program.
 
-[Does anybody know if it is possible to use pgnuplot.exe with earlier
-versions of gnuplot?  That would save users the trouble of
-reinstalling the whole gnuplot package.]
+Here's the good news: you can use pgnuplot.exe with older versions of
+gnuplot; you do not have to install the beta version of gnuplot in
+order to use pgnuplot.exe.
 
 After pgnuplot.exe is installed, install Gnuplot.py as described
 in the previous section.
