@@ -187,6 +187,18 @@ class Gnuplot:
         self.plotcmd = 'plot'
         self('set terminal %s' % (gp.GnuplotOpts.default_term,))
 
+    def close(self):
+        # This may cause a wait for the gnuplot process to finish
+        # working, which is generally a good thing because it delays
+        # the deletion of temporary files.
+        if self.gnuplot is not None:
+            self.gnuplot.close()
+            self.gnuplot = None
+
+    def __del__(self):
+        self.close()
+        self._clear_queue()
+
     def __call__(self, s):
         """Send a command string to gnuplot.
 
