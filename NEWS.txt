@@ -45,6 +45,9 @@ Version 1.5:
 
 * Added support for the `axes' parameter of the `plot' command.
 
+* Reworked the comment strings in an effort to make them work nicely
+  with happydoc.
+
 
 Version 1.4:
 

@@ -5,7 +5,7 @@
 # MacGnuplot.2.0b4.  Thanks to Anthony M. Ingraldi and Noboru Yamamoto
 # for helping with this.
 
-# file contains 
+# file contains
 #
 #  class gnuplot_Suite
 #  class odds_and_ends

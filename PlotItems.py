@@ -1,19 +1,19 @@
 # $Id$
 
+# Copyright (C) 1998-2001 Michael Haggerty <mhagger@alum.mit.edu>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or (at
+# your option) any later version.  This program is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+# the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE.  See the GNU General Public License for more details; it is
+# available at <http://www.fsf.org/copyleft/gpl.html>, or by writing to
+# the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
+
 """PlotItems.py -- Objects that can be plotted by Gnuplot.
-
-Copyright (C) 1998-2001 Michael Haggerty <mhagger@alum.mit.edu>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at
-your option) any later version.  This program is distributed in the
-hope that it will be useful, but WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the GNU General Public License for more details; it is
-available at <http://www.fsf.org/copyleft/gpl.html>, or by writing to
-the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-Boston, MA 02111-1307, USA.
 
 This module contains several types of PlotItems.  PlotItems can be
 plotted by passing them to a Gnuplot.Gnuplot object.  You can derive
@@ -62,35 +62,36 @@ class PlotItem:
     options and their setting mechanism to be inherited conveniently.
     Note first that there are some options that can only be set in the
     constructor then never modified, and others that can be set in the
-    constructor and/or modified using the set_option() member
-    function.  The former are always processed within __init__.  The
-    latter are always processed within set_option, which is called by
-    the constructor.
+    constructor and/or modified using the 'set_option()' member
+    function.  The former are always processed within '__init__'.  The
+    latter are always processed within 'set_option', which is called
+    by the constructor.
 
-    set_option is driven by a class-wide dictionary called
-    _option_list, which maps option names to the function objects used
-    to set or change them.  <setter> is a function object that takes
-    two parameters: 'self' (the PlotItem instance) and the new 'value'
-    requested for the option.  If <setter> is None, then the option is
-    not allowed to be changed after construction and an exception is
-    raised.
+    'set_option' is driven by a class-wide dictionary called
+    '_option_list', which is a mapping '{ <option> : <setter> }' from
+    option name to the function object used to set or change the
+    option.  <setter> is a function object that takes two parameters:
+    'self' (the 'PlotItem' instance) and the new value requested for
+    the option.  If <setter> is 'None', then the option is not allowed
+    to be changed after construction and an exception is raised.
 
-    Any PlotItem that needs to add options can add to this dictionary
-    within its class definition.  Follow one of the examples in this
-    file.  Alternatively it could override the set_option member
-    function if it needed to do wilder things.
+    Any 'PlotItem' that needs to add options can add to this
+    dictionary within its class definition.  Follow one of the
+    examples in this file.  Alternatively it could override the
+    'set_option' member function if it needs to do wilder things.
 
     Members:
-    
+
       '_basecommand' -- a string holding the elementary argument that
           must be passed to gnuplot's `plot' command for this item;
           e.g., 'sin(x)' or '"filename.dat"'.
+
       '_options' -- a dictionary of (<option>,<string>) tuples
           corresponding to the plot options that have been set for
           this instance of the PlotItem.  <option> is the option as
           specified by the user; <string> is the string that needs to
           be set in the command line to set that option (or None if no
-          string is needed).  Example:
+          string is needed).  Example::
 
               {'title' : ('Data', 'title "Data"'),
                'with' : ('linespoints', 'with linespoints')}
@@ -117,13 +118,15 @@ class PlotItem:
 
           'with=<string>' -- choose how item will be plotted, e.g.,
               with='points 3 3'.
+
           'title=<string>' -- set the title to be associated with the item
               in the plot legend.
+
           'title=None' -- choose 'notitle' option (omit item from legend).
 
         Note that omitting the title option is different than setting
-        `title=None'; the former chooses gnuplot's default whereas the
-        latter chooses `notitle'.
+        'title=None'; the former chooses gnuplot's default whereas the
+        latter chooses 'notitle'.
 
         """
 
@@ -142,11 +145,11 @@ class PlotItem:
     def set_option(self, **keyw):
         """Set or change a plot option for this PlotItem.
 
-        See documentation for __init__ for information about allowed
+        See documentation for '__init__' for information about allowed
         options.  This function can be overridden by derived classes
         to allow additional options, in which case those options will
-        also be allowed by __init__ for the derived class.  However,
-        it is easier to define a new _option_list variable for the
+        also be allowed by '__init__' for the derived class.  However,
+        it is easier to define a new '_option_list' variable for the
         derived class.
 
         """
@@ -181,10 +184,10 @@ class PlotItem:
             pass
 
     def command(self):
-        """Build the 'plot' command to be sent to gnuplot.
+        """Build the plot command to be sent to gnuplot.
 
-        Build and return the 'plot' command, with options, necessary
-        to display this item.
+        Build and return the plot command, with options, necessary to
+        display this item.
 
         """
 
@@ -211,16 +214,17 @@ class Func(PlotItem):
     """Represents a mathematical expression to plot.
 
     Func represents a mathematical expression that is to be computed by
-    gnuplot itself, as if you would type for example
+    gnuplot itself, as if you would type for example::
 
         gnuplot> plot sin(x)
 
     into gnuplot itself.  The argument to the contructor is a string
-    that should be a mathematical expression.  Example:
+    that should be a mathematical expression.  Example::
 
         g.plot(Func('sin(x)', with='line 3'))
 
-    or a shorthand example:
+    As shorthand, a string passed to the plot method of a Gnuplot
+    object is also treated as a Func::
 
         g.plot('sin(x)')
 
@@ -247,9 +251,9 @@ class AnyFile:
     """
 
     def __init__(self, filename=None):
-        """Make an 'AnyFile' referencing the file with name 'filename'.
+        """Make an 'AnyFile' referencing the file with name <filename>.
 
-        If 'filename' is not specified, choose a random filename (but
+        If <filename> is not specified, choose a random filename (but
         do not create the file).
 
         """
@@ -298,6 +302,7 @@ class ArrayFile(AnyFile):
         Arguments:
 
           'set' -- a Numeric array of arbitrary dimension.
+
           'filename' -- the (optional) name of the file to which the
               array should be written.  If 'filename' is not
               specified, a random filename is chosen.
@@ -317,6 +322,7 @@ class TempArrayFile(ArrayFile, TempFile):
         Arguments:
 
           'set' -- a Numeric array of arbitrary dimension.
+
           'filename' -- the (optional) name of the file to which the
               array should be written.  If 'filename' is not
               specified, a random filename is chosen.
@@ -343,18 +349,22 @@ class File(PlotItem):
     def __init__(self, file, **keyw):
         """Construct a File object.
 
-        '<file>' can be either a string holding the filename of an
+        <file> can be either a string holding the filename of an
         existing file, or it can be an object of any class derived
         from 'AnyFile' (such as a 'TempArrayFile').
 
         Keyword arguments:
 
             'using=<int>' -- plot that column against line number
+
             'using=<tuple>' -- plot using a:b:c:d etc.
+
             'using=<string>' -- plot `using <string>' (allows gnuplot's
                 arbitrary column arithmetic)
+
             'binary=<boolean>' -- data in file is in binary format
                 (only recognized for grid data for splot).
+
             'smooth=<string>' -- smooth the data.  Option should be
                 'unique', 'csplines', 'acsplines', 'bezier', or
                 'sbezier'.
@@ -428,7 +438,7 @@ class Data(PlotItem):
         one or more Float Python Numeric arrays (or objects that can
         be converted to a Float Numeric array).  If the routine is
         passed one array, the last index ranges over the values
-        comprising a single data point (e.g., [x, y, and sigma]) and
+        comprising a single data point (e.g., [<x>, <y>, <sigma>]) and
         the rest of the indices select the data point.  If the routine
         is passed more than one array, they must have identical
         shapes, and then each data point is composed of one point from
@@ -446,9 +456,11 @@ class Data(PlotItem):
                 the columns should be numbered in the python style
                 (starting from 0), not the gnuplot style (starting
                 from 1).
+
             'inline=<bool>' -- transmit the data to gnuplot "inline"
                 rather than through a temporary file.  The default is
                 the value of gp.GnuplotOpts.prefer_inline_data.
+
             'smooth=<string>' -- smooth the data.  Option should be
                 'unique', 'csplines', 'acsplines', 'bezier', or
                 'sbezier'.
@@ -527,9 +539,13 @@ class GridData(PlotItem):
 
             'data' -- the data to plot: a 2-d array with dimensions
                 (numx,numy).
+
             'xvals' -- a 1-d array with dimension 'numx'
+
             'yvals' -- a 1-d array with dimension 'numy'
+
             'binary=<bool>' -- send data to gnuplot in binary format?
+
             'inline=<bool>' -- send data to gnuplot "inline"?
 
         Note the unusual argument order!  The data are specified

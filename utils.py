@@ -2,20 +2,20 @@
 
 # $Id$
 
+# Copyright (C) 1998-2001 Michael Haggerty <mhagger@alum.mit.edu>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.  This program is distributed in
+# the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+# PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details; it is available at <http://www.fsf.org/copyleft/gpl.html>,
+# or by writing to the Free Software Foundation, Inc., 59 Temple Place
+# - Suite 330, Boston, MA 02111-1307, USA.
+
 """utils.py -- Utility functions used by Gnuplot.
-
-Copyright (C) 1998-2001 Michael Haggerty <mhagger@alum.mit.edu>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or (at
-your option) any later version.  This program is distributed in the
-hope that it will be useful, but WITHOUT ANY WARRANTY; without even
-the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.  See the GNU General Public License for more details; it is
-available at <http://www.fsf.org/copyleft/gpl.html>, or by writing to
-the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-Boston, MA 02111-1307, USA.
 
 This module contains utility functions used by Gnuplot.py which aren't
 particularly gnuplot-related.
@@ -58,16 +58,16 @@ def write_array(f, set,
     a great deal of freedom in choosing the output format of the
     array.  The defaults for those parameters give output that is
     gnuplot-readable.  But using '(",", "{", "}", ",\n")' would output
-    an array in a format that Mathematica could read.  item_sep should
-    not contain '%' (or if it does, it should be escaped to '%%')
-    since it is put into a format string.
+    an array in a format that Mathematica could read.  'item_sep'
+    should not contain '%' (or if it does, it should be escaped to
+    '%%') since it is put into a format string.
 
-    The default 2-d file organization is, for example:
+    The default 2-d file organization::
 
         set[0,0] set[0,1] ...
         set[1,0] set[1,1] ...
 
-    The 3-d format is, for example:
+    The 3-d format::
 
         set[0,0,0] set[0,0,1] ...
         set[0,1,0] set[0,1,1] ...
