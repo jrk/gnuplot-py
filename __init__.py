@@ -45,9 +45,9 @@ To obtain the gnuplot plotting program itself, see
 need to have gnuplot installed if you want to use Gnuplot.py.
 
 The old command-based interface to gnuplot has been separated out into
-a separate module, Gnuplot_plot.py.  If you are still using that
-interface you should import that module; otherwise you should stick to
-the more flexible object-oriented interface contained here.
+a separate module, oldplot.py.  If you are still using that interface
+you should import Gnuplot.oldplot; otherwise you should stick to the
+more flexible object-oriented interface contained here.
 
 Features:
 
@@ -170,7 +170,7 @@ Bugs:
 
 """
 
-__version__ = '1.2'
+__version__ = '1.3'
 __cvs_version__ = '$Revision$'
 
 # Other modules that should be loaded for 'from Gnuplot import *':

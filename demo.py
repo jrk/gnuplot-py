@@ -21,7 +21,7 @@ Boston, MA 02111-1307, USA.
 
 """
 
-__version__ = '1.2'
+__version__ = '1.3'
 __cvs_version__ = '$Revision$'
 
 
