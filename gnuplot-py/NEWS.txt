@@ -16,6 +16,11 @@ Version 1.6:
   DataError.  Moved both to Errors.py and derive both from
   Errors.Error.
 
+* Incorporated several changes for Mac OS suggested by Jon Moody.
+
+* Added a gp_macosx.py file to support Mac OS X.  The only difference
+  to gp_unix.py is the default terminal selection.
+
 * Moved import statement in demo.py to global scope for Python 2.2.
 
 
