@@ -154,6 +154,16 @@ def main():
     wait('title="Cosine of x"')
     g.plot(gp.Data(d, title='Cosine of x'))
 
+    print '############### test compute_Data ################################'
+    x = Numeric.arange(100)/5. - 10.
+
+    wait('Plot Data, computed by Gnuplot.py')
+    g.plot(gp.compute_Data(x, lambda x: math.cos(x), inline=0))
+    wait('Same thing, inline data')
+    g.plot(gp.compute_Data(x, lambda x: math.cos(x), inline=1))
+    wait('with="lp 4 4"')
+    g.plot(gp.compute_Data(x, lambda x: math.cos(x), with='lp 4 4'))
+
     print '############### test hardcopy ####################################'
     print '******** Generating postscript file "gp_test.ps" ********'
     wait()
@@ -197,7 +207,7 @@ def main():
     wait('Same thing, inline data')
     g.splot(gp.Data(d, with='linesp', inline=1))
 
-    print '############### test GridData and GridFunc #######################'
+    print '############### test GridData and compute_GridData ###############'
     # set up x and y values at which the function will be tabulated:
     x = Numeric.arange(35)/2.0
     y = Numeric.arange(30)/10.0 - 1.5
@@ -221,12 +231,13 @@ def main():
     wait('The same thing using binary mode')
     g.splot(gp.GridData(m,x,y, binary=1))
 
-    wait('The same thing using GridFunc to tabulate function')
-    g.splot(gp.GridFunc(lambda x,y: math.sin(x) + 0.1*x - y**2, x,y))
+    wait('The same thing using compute_GridData to tabulate function')
+    g.splot(gp.compute_GridData(x,y,
+                                lambda x,y: math.sin(x) + 0.1*x - y**2))
 
-    wait('Use GridFunc in ufunc mode')
-    g.splot(gp.GridFunc(lambda x,y: Numeric.sin(x) + 0.1*x - y**2, x,y,
-                        ufunc=1, binary=1))
+    wait('Use compute_GridData in ufunc and binary mode')
+    g.splot(gp.compute_GridData(x,y, lambda x,y: Numeric.sin(x) + 0.1*x - y**2,
+                                ufunc=1, binary=1))
 
     wait('And now rotate it a bit')
     for view in range(35,70,5):

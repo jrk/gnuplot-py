@@ -27,3 +27,6 @@ Tony Ingraldi <a.m.ingraldi@larc.nasa.gov> got Gnuplot.py to work on
 the Macintosh.  In particular, the gnuplot_Suites.py file was
 contributed by him, as were several changes to the other files.
 
+Stuard Reynolds <S.I.Reynolds@cs.bham.ac.uk> made some helpful
+suggestions for automating the tabulation of function values.
+
