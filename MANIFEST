@@ -1,10 +1,10 @@
-README
-ANNOUNCE
+README.txt
+ANNOUNCE.txt
 MANIFEST
-NEWS
-LICENSE
-CREDITS
-TODO
+NEWS.txt
+LICENSE.txt
+CREDITS.txt
+TODO.txt
 Gnuplot.html
 __init__.py
 _Gnuplot.py
