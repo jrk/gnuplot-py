@@ -232,8 +232,9 @@ class gnuplot:
 	else:
 	    self('set ylabel "' + s + '"')
 
-    def hardcopy(self, filename = '| lpr'):
-	self('set term postscript enhanced')
+    def hardcopy(self, filename = '| lpr', color = 0):
+	if color: self('set term postscript enhanced color')
+	else: self('set term postscript enhanced')
 	self('set output "' + filename + '"')
 	self('replot')
 	self('set term x11')
