@@ -3,7 +3,9 @@ This is to announce the release of version 1.4 of Gnuplot.py.
 Gnuplot.py is a Python [1] package that allows you to create graphs
 from within Python using the gnuplot [2] plotting program.  This
 version adds support for running gnuplot on the Macintosh (thanks to
-the work of Tony Ingraldi).
+the work of Tony Ingraldi).  (Sorry for the rapid succession of
+versions, but improvements are accumulating quickly thanks to user
+contributions.)
 
 Gnuplot.py can be obtained from
 
@@ -44,7 +46,7 @@ Features already present in older versions:
   +  Support for MS Windows, using the `pgnuplot.exe' program.
   +  Support for sending data to gnuplot as `inline' or `binary' data.
      These are optimizations that also remove the need for temporary
-     files.  Temporary files are also still supported.
+     files.  Temporary files are still the default.
 
 
 Footnotes:
