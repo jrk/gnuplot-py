@@ -9,30 +9,58 @@
 interfaces to <a
 href="ftp://ftp.gnuplot.vt.edu/pub/gnuplot/faq/index.html">gnuplot</a>,
 the popular plotting program.  It allows you to use gnuplot from
-within Python to plot arrays of data from memory, data from files, or
+within Python to plot arrays of data from memory, data files, or
 mathematical functions.  If you use Python to perform computations or
 as `glue' for numerical programs, you can use this module to plot data
 on the fly as they are computed.  And the combination with Python
-makes it is easy to create crude `animations' by plotting different
-datasets one after another; the datasets can even be written to
-temporary files in advance of the animation to increase the frame
-rate.
+makes it is easy to automate things, including to create crude
+`animations' by plotting different datasets one after another.
 
-<p> Communication with gnuplot is through a pipe (for commands) and
-temporary files (for data).  It has been written and tested on a unix
-computer; I don't know whether it will run under other operating
-systems (please let me know if you try).
+<p> Commands are communicated to gnuplot through a pipe and data
+either through the same pipe (as "inline" data) or through temporary
+files.  It has been written and tested on a unix computer but should
+also work under MS Windows and possibly other operating systems
+(please give me feedback!)
 
 <p> This module has an object-oriented design that allows the user
 flexibility to set plot options and to run multiple gnuplot sessions
-simultaneously.  If you are more ambitious, it would not be difficult
-to program new types of plottable items by deriving from the
-`PlotItem' class.  For a demonstration, run the python file by typing
-`python Gnuplot.py'.
+simultaneously.  If you are more ambitious, it is not difficult to add
+entirely new types of plottable items by deriving from the `PlotItem'
+class.
+
+<p> For a demonstration, run the python file by typing `python
+Gnuplot.py'.
 
 <h2>News</h2>
 
-<a href="Gnuplot-1.1a.tar.gz">Version 1.1a</a> has been released (9
+<a href="Gnuplot-1.2.tar.gz">Version 1.2</a> has been released and is
+now the current version (8 Aug 1999).  This version adds the following
+features:
+
+<ul>
+  <li> Support for MS Windows, using the `pgnuplot.exe' program.
+       Thanks go especially to Craig Schardt for help with this.
+  <li> Support for using binary files to send grid data to splot.
+       This saves a lot of time and usually saves space compared with
+       the old text files.  (Only works with recent versions of
+       gnuplot.)
+  <li> Support for sending data to gnuplot as `inline data'
+       (i.e., "plot '-'").  This method should be faster than the
+       alternate method, temporary files.  (Only works with recent
+       versions of gnuplot.)
+  <li> Allows PlotItem options to be modified after the PlotItem is
+       constructed.
+  <li> Simplified the PlotItem inheritance hierarchy (Data and
+       GridData are no longer derived from File).
+  <li> Added several configuration options (see top of Gnuplot.py).
+  <li> Separated function-based interface into a separate file
+       (Gnuplot_plot.py).
+  <li> Added a test module, Gnuplot_test.py, which tests most of the
+       features of Gnuplot.py.
+  <li> A README file, lots of documentation changes, etc.
+</ul>
+
+<p> <a href="Gnuplot-1.1a.tar.gz">Version 1.1a</a> has been released (9
 Apr 1999).  This version just addresses a couple of minor portability
 issues.
 
@@ -42,7 +70,7 @@ Jan 1999).  New features:
 <ul>
   <li> 3-D plots are now supported through the new `splot' method:
        <ul>
-	 <li> To create a scatter plot, pass splot 2-D an array
+	 <li> To create a scatter plot, pass splot a 2-D array
 	      containing (x,y,z) triplets;
 	 <li> To create a grid plot, pass a 3-D array consisting of a
 	      2-D array of (x,y,z) triplets; or
@@ -66,86 +94,89 @@ Jan 1999).  New features:
        </pre>
        (both examples plot x squared vs. x).  Similarly, splot can be
        passed three arrays representing the values of x, y, and z.
-       Note that the old interpretation is still used if only a single
+       Note that the old interpretation is still used if a single
        argument is passed to `Data'.
 </ul>
 
 <h2>Documentation</h2>
 
-I think the best quick way to learn how to use Gnuplot.py is to run
-the simple demonstration by typing `python Gnuplot.py', then to look
-at the bottom of the Gnuplot.py file to see the commands that create
-the demo.  One of the examples is probably similar to what you want to
-do.
+The quickest way to learn how to use Gnuplot.py is to run the simple
+demonstration by typing `python Gnuplot.py', then to look at the
+bottom of the Gnuplot.py file to see the commands that create the
+demo.  One of the examples is probably similar to what you want to do.
 
 <p> Thanks to <a
 href="http://starship.skyport.net/crew/danilo/pythondoc/">
 pythondoc</a>, there is now some <a href="Gnuplot-doc/"> online
-documentation </a> for Gnuplot.py, extracted from the module's
+documentation</a> for Gnuplot.py, extracted from the module's
 docstrings.  Alternatively, you can look at the docstrings in
 Gnuplot.py yourself by opening the file in an editor.
 
 <p> To get good use out of Gnuplot.py, you will want to know something
 about gnuplot, for which a good source is the gnuplot help (run
 gnuplot then type `help', or read it online at <a
-href="http://www.cs.dartmouth.edu/gnuplot/gnuplot.html"> this website
-</a>).  You might also want to check out Bernhard Reiter's <a
+href="http://www.cs.dartmouth.edu/gnuplot/gnuplot.html"> this
+website</a>).  You might also want to check out Bernhard Reiter's <a
 href="http://www.usf.Uni-Osnabrueck.DE/~breiter/tools/gnuplot/index.en.html">
-gnuplot information page </a>, which has many more links.
+gnuplot information page</a>, which has many more links.
 
 <h2>Installation</h2>
 
-Before installing Gnuplot.py, first make sure that you have working
-versions of
+More detailed installation instructions are contained in the <a
+href="README"> README file</a>.
+
+Before you can use Gnuplot.py, you will need working versions of
 <ul>
   <li> the <a
        href="ftp://ftp.gnuplot.vt.edu/pub/gnuplot/">gnuplot</a>
        program,
   <li> <a href="http://www.python.org">Python</a>, and
-  <li> the <a
-       href="http://xfiles.llnl.gov/python.htm">Numeric Python
+  <li> the <a href="http://xfiles.llnl.gov/python.htm"> Numeric Python
        extension</a>
 </ul>
+If you want to run under MS Windows, you will also need pgnuplot.exe
+(see the README file for details).
+
 To install Gnuplot.py:
 <ol>
-  <li> Download <a
-       href="Gnuplot.tar.gz">Gnuplot.tar.gz</a>.
-  <li> Gunzip and untar it, which will create a directory called
-       ``Gnuplot-<i>version</i>'' where <i>version</i> is the
-       Gnuplot.py version number.  (For now, the directory only
-       contains one file, ``Gnuplot.py''.)
-  <li> To test the package, change to that directory and type ``python
-       Gnuplot.py''.
-  <li> Copy Gnuplot.py into a directory that is in your PYTHONPATH, or
-       add the ``Gnuplot-<i>version</i>'' directory to your
-       PYTHONPATH.
+  <li> Download either <a href="Gnuplot.tar.gz"> Gnuplot.tar.gz</a>
+       or <a href="Gnuplot.zip"> Gnuplot.zip</a> (these are symlinks
+       to the most recent version).
+  <li> Gunzip and untar (or unzip) it, which will create a directory
+       called ``Gnuplot-<i>version</i>'' where <i>version</i> is the
+       current Gnuplot.py version.
+  <li> Refer to the <a href="REAME"> README</a> file in that
+       directory for further instructions.
 </ol>
-If you don't have gunzip or tar, you can download Gnuplot.py directly
-from <a href="Gnuplot.py">here</a>.
 
 <h2>Copyleft</h2>
 
-Gnuplot.py is released under the GNU General Public License, which
-means that it can be freely copied and used, but that there are some
-restrictions on your rights to incorporate it into commercial
-products.  Please see the details within the Gnuplot.py module.  (If
-these restrictions are a problem for you, please contact me to discuss
-the issue.)
+Gnuplot.py is released under the <a
+href="http://www.fsf.org/copyleft/gpl.html"> GNU General Public
+License</a>, which means that it can be freely copied and used, but
+that there are some restrictions on your rights to incorporate it into
+commercial products.  See the <a href="LICENSE"> LICENCE</a> file for
+more information.  (If these restrictions are a problem for you,
+please contact me to discuss the issue.)
 
 <h2>Credits</h2>
 
 The Gnuplot.py module was written by <a
 href="http://monsoon.harvard.edu/~mhagger/">Michael Haggerty</a>.
 
-<p> The module was inspired by and partly derived from the
-now-obsolete Gnuplot.py module written by <a
-href="http://starship.skyport.net/crew/hinsen/">Konrad Hinsen</a>.
-There is a `plot' function in this module that is roughly
-backwards-compatible with the plot function in Konrad's version.
+<p> The module was inspired by and partly derived from the Gnuplot.py
+module written by <a href="http://starship.skyport.net/crew/hinsen/">
+Konrad Hinsen</a>.  There is a `plot' function in the Gnuplot_plot.py
+module that is roughly backwards compatible with the function in
+Konrad's version.
 
-<p> Thanks also to Berthold H&ouml;llman, who set me on the trail of
-pythondoc and submitted some docstring changes that helped get the
-documentation going.
+<p> Berthold H&ouml;llman introduced me to the helpful <a
+href="http://starship.skyport.net/crew/danilo/pythondoc/pythondoc.htm">
+pythondoc</a> package, and contributed some docstring changes to help
+it create attractive web documentation from the Gnuplot.py source.
+
+<p> Craig Schardt and Francois Ladouceur contributed changes that
+enable Gnuplot.py to work under MS-Windows.
 
 <hr>
 
@@ -159,6 +190,6 @@ Written by <a href="http://monsoon.harvard.edu/~mhagger/">Michael
 Haggerty</a> (email <a href="mailto:mhagger@blizzard.harvard.edu">
 &lt;<i>mhagger@blizzard.harvard.edu</i>&gt;</a>)<br>
 <!-- hhmts start -->
-Last modified: Mon Aug  2 21:16:36 1999
+Last modified: Sun Aug  8 20:34:34 1999
 <!-- hhmts end -->
 </body> </html>
