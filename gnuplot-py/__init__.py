@@ -125,8 +125,10 @@ def test_persist():
 
 
 # raised for unrecognized option(s):
-class OptionException(Exception):
-    pass
+class OptionException(Exception): pass
+
+# raised for data in the wrong format:
+class DataException(Exception): pass
 
 
 class PlotItem:
@@ -608,14 +610,20 @@ def plot(*items, **kw):
     for item in items:
         # assume data is an array:
         item = Numeric.asarray(item, Numeric.Float)
-        if item.shape[1] == 1:
-            # one column; just store one item for tempfile:
-            newitems.append(Data(item, with='lines'))
+        dim = len(item.shape)
+        if dim == 1:
+            newitems.append(Data(item[:, Numeric.NewAxis], with='lines'))
+        elif dim == 2:
+            if item.shape[1] == 1:
+                # one column; just store one item for tempfile:
+                newitems.append(Data(item, with='lines'))
+            else:
+                # more than one column; store item for each 1:2, 1:3, etc.
+                tempf = TempArrayFile(item)
+                for col in range(1, item.shape[1]):
+                    newitems.append(File(tempf, using=(1,col+1), with='lines'))
         else:
-            # more than one column; store item for each 1:2, 1:3, etc.
-            tempf = TempArrayFile(item)
-            for col in range(1, item.shape[1]):
-                newitems.append(File(tempf, using=(1,col+1), with='lines'))
+            raise DataException("Data array must be 1 or 2 dimensional")
     items = tuple(newitems)
     del newitems
 
@@ -660,15 +668,33 @@ if __name__ == '__main__':
              with="points 1 1")
     g2.title('Data can be computed by python or gnuplot')
     g2.xlabel('x')
+    g2.ylabel('x squared')
     g2.plot(d, Func("x**2", title="calculated by gnuplot"))
 
     # Save what we just plotted as a color postscript file:
-    print "\n                 Generating postscript file 'junk.ps'\n"
-    g2.hardcopy('junk.ps', color=1)
+    print "\n            Generating postscript file 'gnuplot_test1.ps'\n"
+    g2.hardcopy('gnuplot_test1.ps', color=1)
 
     sys.stderr.write("Press return to continue...\n")
     sys.stdin.readline()
 
     # ensure processes and temporary files are cleaned up:
     del g1, g2, d
+
+    if 0:
+        # Test old-style gnuplot interface
+
+	# List of (x, y) pairs
+	plot([(0.,1),(1.,5),(2.,3),(3.,4)])
+
+	# List of y values, file output
+        print "\n            Generating postscript file 'gnuplot_test2.ps'\n"
+	plot([1, 5, 3, 4], file='gnuplot_test2.ps')
+
+	# Two plots; each given by a 2d array
+	from Numeric import *
+	x = arange(10)
+	y1 = x**2
+	y2 = (10-x)**2
+	plot(transpose(array([x, y1])), transpose(array([x, y2])))
 
