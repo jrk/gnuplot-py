@@ -195,6 +195,15 @@ else:
 # portability.)
 _recognizes_binary_splot = 1
 
+# Data can be passed to gnuplot through a temporary file or as inline
+# data (i.e., the filename is set to '-' and the data is entered into
+# the gnuplot interpreter followed by 'e').  If _prefer_inline_data is
+# true, then use the inline method as default whenever it is
+# supported.  This should be fast but will use more memory since
+# currently the inline data is put into a big string when the PlotItem
+# is created.
+_prefer_inline_data = 0
+
 # After a hardcopy is produced, we have to set the terminal type back
 # to `on screen'.  If you are using unix, then `x11' is probably
 # correct.  If not, change the following line to the terminal type you
@@ -214,7 +223,12 @@ _default_lpr = '| lpr'
 
 # ############ End of configuration options ############################
 
-import os, string, tempfile, Numeric
+import os, string, tempfile
+try:
+    from cStringIO import StringIO
+except:
+    from StringIO import StringIO
+import Numeric
 
 if sys.platform == 'win32':
     from win32pipe import popen
@@ -471,7 +485,7 @@ class PlotItem:
                 cmd.append(str)
         return string.join(cmd)
 
-    def pipein(self, file):
+    def pipein(self, f):
         """Pipe necessary inline data to gnuplot.
 
         If the plot command requires data to be put on stdin (i.e.,
@@ -701,11 +715,13 @@ class Data(PlotItem):
         Keyword arguments:
 
             cols=<tuple> -- write only the specified columns from each
-                            data point to the file.  Since cols is
-                            used by python, the columns should be
-                            numbered in the python style (starting
-                            from 0), not the gnuplot style (starting
-                            from 1).
+                data point to the file.  Since cols is used by python,
+                the columns should be numbered in the python style
+                (starting from 0), not the gnuplot style (starting
+                from 1).
+            inline=<bool> -- transmit the data to gnuplot "inline"
+                rather than through a temporary file.  The default is
+                the value of _prefer_inline_data.
 
         The keyword arguments recognized by 'PlotItem' can also be
         used here.
@@ -730,19 +746,40 @@ class Data(PlotItem):
                 cols = (cols,)
             set = Numeric.take(set, cols, -1)
 
-        self.file = TempArrayFile(set)
-
         # If no title is specified, then use `notitle' (to avoid using
         # the temporary filename as the title).
         if not keyw.has_key('title'):
             keyw['title'] = None
-        apply(PlotItem.__init__, (self, "'%s'" % self.file.filename), keyw)
 
-    def set_option(self, cols=_unset, **keyw):
+        if keyw.has_key('inline'):
+            self.inline = keyw['inline']
+            del keyw['inline']
+        else:
+            self.inline = _prefer_inline_data
+
+        if self.inline:
+            f = StringIO()
+            write_array(f, set)
+            f.write('e\n')
+            self._data = f.getvalue()
+            apply(PlotItem.__init__, (self, "'-'"), keyw)
+        else:
+            self.file = TempFile()
+            write_array(open(self.file.filename, 'w'), set)
+            self._data = None
+            apply(PlotItem.__init__, (self, "'%s'" % self.file.filename), keyw)
+
+    def set_option(self, cols=_unset, inline=_unset, **keyw):
         if cols is not _unset:
             raise OptionException('Cannot modify cols option!')
+        elif inline is not _unset:
+            raise OptionException('Cannot modify inline option!')
         else:
             apply(PlotItem.set_option, (self,), keyw)
+
+    def pipein(self, f):
+        if self._data is not None:
+            f.write(self._data)
 
 
 class GridData(PlotItem):
@@ -762,7 +799,8 @@ class GridData(PlotItem):
 
     """
 
-    def __init__(self, toplot, xvals=None, yvals=None, binary=1, **keyw):
+    def __init__(self, toplot, xvals=None, yvals=None,
+                 binary=1, inline=_unset, **keyw):
         """GridData constructor.
 
         Arguments:
@@ -772,6 +810,8 @@ class GridData(PlotItem):
                         toplot(x,y) returns a number.
             'xvals' -- a 1-d array with dimension 'numx'
             'yvals' -- a 1-d array with dimension 'numy'
+            'binary=<bool>' -- send data to gnuplot in binary format?
+            'inline=<bool>' -- send data to gnuplot "inline"?
 
         'toplot' can be a data array, in which case it should hold the
         values of a function f(x,y) tabulated on a grid of points,
@@ -834,20 +874,32 @@ class GridData(PlotItem):
                 yvals = float_array(yvals)
                 assert yvals.shape == (numy,)
 
+        if inline is _unset:
+            inline = not binary and _prefer_inline_data
+
         # xvals, yvals, and data are now all filled with arrays of data.
         if binary and _recognizes_binary_splot:
+            assert not inline, \
+                   OptionException('binary inline data not supported!')
+            self._data = None
             # write file in binary format
-            mout = Numeric.zeros((numx + 1, numy + 1), Numeric.Float32)
-            mout[0,0] = numy
-            mout[0,1:] = yvals.astype(Numeric.Float32)
-            mout[1:,0] = xvals.astype(Numeric.Float32)
+
+            # It seems that the gnuplot documentation for binary mode
+            # disagrees with its actual behavior (as of v. 3.7).  The
+            # documentation has the roles of x and y exchanged.  We
+            # ignore the documentation and go with the code.
+
+            mout = Numeric.zeros((numy + 1, numx + 1), Numeric.Float32)
+            mout[0,0] = numx
+            mout[0,1:] = xvals.astype(Numeric.Float32)
+            mout[1:,0] = yvals.astype(Numeric.Float32)
             try:
                 # try copying without the additional copy implied by astype():
-                mout[1:,1:] = data
+                mout[1:,1:] = Numeric.transpose(data)
             except:
                 # if that didn't work then downcasting from double
                 # must be necessary:
-                mout[1:,1:] = data.astype(Numeric.Float32)
+                mout[1:,1:] = Numeric.transpose(data.astype(Numeric.Float32))
             self.file = TempFile()
             open(self.file.filename, 'wb').write(mout.tostring())
 
@@ -867,21 +919,41 @@ class GridData(PlotItem):
                     (Numeric.transpose(Numeric.resize(xvals, (numy, numx))),
                      Numeric.resize(yvals, (numx, numy)),
                      data)), (1,2,0))
+
+            # avoid using the temporary filename as the title:
+            if not keyw.has_key('title'):
+                keyw['title'] = None
+
             # now just output the data with the usual routine.  This
             # will produce data properly formatted in blocks separated
             # by blank lines so that gnuplot can connect the points
             # into a grid.
-            self.file = TempArrayFile(set)
-            # avoid using the temporary filename as the title:
-            if not keyw.has_key('title'):
-                keyw['title'] = None
-            apply(PlotItem.__init__, (self, "'%s'" % self.file.filename), keyw)
+            self.inline = inline
+            if self.inline:
+                f = StringIO()
+                write_array(f, set)
+                f.write('e\n')
+                self._data = f.getvalue()
+                apply(PlotItem.__init__, (self, "'-'"), keyw)
+            else:
+                self.file = TempFile()
+                write_array(open(self.file.filename, 'w'), set)
+                apply(PlotItem.__init__,
+                      (self, "'%s'" % self.file.filename), keyw)
+                self._data = None
+
             self._options['binary'] = (0, None)
 
-    def set_option(self, binary=_unset, **keyw):
+    def set_option(self, binary=_unset, inline=_unset, **keyw):
         if binary is not _unset:
             raise OptionException('Cannot modify binary option!')
+        if inline is not _unset:
+            raise OptionException('Cannot modify inline option!')
         apply(PlotItem.set_option, (self,), keyw)
+
+    def pipein(self, f):
+        if self._data is not None:
+            f.write(self._data)
 
 
 class Gnuplot:
@@ -997,7 +1069,7 @@ class Gnuplot:
 
         Send the string s as a command to gnuplot, followed by a
         newline and flush.  All interaction with the gnuplot process
-        is through this method.
+        is through this method except for inline data.
 
         """
 
@@ -1021,6 +1093,7 @@ class Gnuplot:
         self(self.plotcmd + ' ' + string.join(plotcmds, ', '))
         for item in self.itemlist:
             item.pipein(self.gnuplot)
+        self.gnuplot.flush()
 
     def _clear_queue(self):
         """Clear the PlotItems from the queue."""
