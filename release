@@ -72,7 +72,7 @@ for l in open('MANIFEST', 'r').readlines():
     manifest.append(l)
     inform('\t%s' % (l,))
 
-cvstag = 'v_' + re.sub(r'\.', '_', version)
+cvstag = 'r_' + re.sub(r'\.', '_', version)
 inform('Adding tag %s to CVS archive' % cvstag)
 cmd('cvs tag %s' % cvstag)
 
