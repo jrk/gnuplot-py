@@ -516,6 +516,9 @@ class File(PlotItem):
             'using=<tuple>' -- plot using a:b:c:d etc.
             'using=<string>' -- plot `using <string>' (allows gnuplot's
                                 arbitrary column arithmetic)
+            'binary=<boolean>' -- data in file is in binary format
+                                  (only recognized for grid data for
+                                  splot).
 
         Note that the 'using' option is interpreted by gnuplot, so
         columns must be numbered starting with 1.  The default 'title'
@@ -549,6 +552,14 @@ class File(PlotItem):
                                        string.join(map(repr, value), ':'))
             else:
                 raise OptionException('%s=%s' % (name,value))
+        elif name == 'binary':
+            if value:
+                assert _recognizes_binary_splot, \
+                       OptionException('Gnuplot.py is currently configured to '
+                                       'reject binary data!')
+                self._options[name] = (1, 'binary')
+            else:
+                self._options[name] = (0, None)
         else:
             PlotItem.set_option(self, name, value)
 
