@@ -261,15 +261,7 @@ import Numeric
 if sys.platform == 'win32':
     from win32pipe import popen
 elif sys.platform == 'mac':
-    try:
-        # If the package has been installed correctly, this should work:
-        from Gnuplot import gnuplot_Suites
-    except:
-        # It may be that the user is just testing out the package by
-        # running 'python __init__.py' it the package's directory.  If
-        # that is the case, the following should work:
-        import gnuplot_Suites
-
+    import gnuplot_Suites
     import Required_Suite
     import aetools
     SIGNATURE="GPSE"
@@ -1414,15 +1406,7 @@ class Gnuplot:
 
 
 if __name__ == '__main__':
-    try:
-        # If the package has been installed correctly, this should work:
-        from Gnuplot import demo
-    except:
-        # It may be that the user is just testing out the package by
-        # running 'python __init__.py' it the package's directory.  If
-        # that is the case, the following should work:
-        import demo
-
+    import demo
     demo.demo()
 
 
