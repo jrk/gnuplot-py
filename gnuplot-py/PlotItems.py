@@ -92,7 +92,11 @@ class PlotItem:
         }
 
     # order in which options need to be passed to gnuplot:
-    _option_sequence = ['binary', 'using', 'smooth', 'axes', 'title', 'with']
+    _option_sequence = [
+        'binary',
+        'index', 'every', 'thru', 'using', 'smooth',
+        'axes', 'title', 'with'
+        ]
 
     def __init__(self, **keyw):
         """Construct a 'PlotItem'.
@@ -152,7 +156,7 @@ class PlotItem:
 
         if value is None:
             self._options[option] = (value, default)
-        elif type(value) is type(''):
+        elif type(value) is types.StringType:
             self._options[option] = (value, fmt % value)
         else:
             Errors.OptionError('%s=%s' % (option, value,))
@@ -296,9 +300,9 @@ class _FileItem(PlotItem):
     def set_option_using(self, using):
         if using is None:
             self.clear_option('using')
-        elif type(using) in [type(''), type(1)]:
-            self._options['using'] = (using, 'using %s' % using)
-        elif type(using) is type(()):
+        elif type(using) in [types.StringType, types.IntType]:
+            self._options['using'] = (using, 'using %s' % (using,))
+        elif type(using) is types.TupleType:
             self._options['using'] = (using,
                                       'using %s' %
                                       string.join(map(repr, using), ':'))
