@@ -23,29 +23,28 @@ please let me know at <mhagger@blizzard.harvard.edu>.  Other feedback
 would also be appreciated.
 
 For information about how to use this module:
-1.  Check the README file
-2.  Look at the test code at the bottom of the file (and try running it
-    by typing 'python Gnuplot.py')
-3a. For more details see the extensive documentation strings throughout
-    this file.
+1.  Check the README file.
+2.  Look at the test code at the bottom of the file (and try running
+    it by typing 'python Gnuplot.py').
+3a. For more details see the extensive documentation strings
+    throughout this file.
 3b. The docstrings have also been turned into html which can be read
-    at <http://monsoon.harvard.edu/~mhagger/Gnuplot/Gnuplot-doc/>;
-    however, the formatting is not perfect and some points might be
-    more confusing here.
+    at <http://monsoon.harvard.edu/~mhagger/Gnuplot/Gnuplot-doc/>.
+    However, the formatting is not perfect; when in doubt,
+    double-check the docstrings.
 
-You should import this file with 'import Gnuplot', not with
-'from Gnuplot import *'; otherwise you will have problems with
-conflicting names (specifically, the Gnuplot module name conflicts
-with the Gnuplot class name).
+You should import this file with 'import Gnuplot', not with 'from
+Gnuplot import *', because the module and the main class have the same
+name, `Gnuplot'.
 
 To obtain the gnuplot plotting program itself, see
-<http://www.cs.dartmouth.edu/gnuplot_info.html>.  Obviously you need
-to have gnuplot installed if you want to use Gnuplot.py.
+<ftp://ftp.gnuplot.vt.edu/pub/gnuplot/faq/index.html>.  Obviously you
+need to have gnuplot installed if you want to use Gnuplot.py.
 
 Features:
 
  o  Allows the creation of two or three dimensional plots from
-    python by piping commands to the 'gnuplot' program.
+    python.
 
  o  A gnuplot session is an instance of class 'Gnuplot'.  Multiple
     sessions can be open at once.
@@ -56,7 +55,7 @@ Features:
         g2 = Gnuplot.Gnuplot()
 
     Note that due to a limitation in pgnuplot, opening multiple
-    simultaneous sessions under windows may not work correctly.
+    simultaneous sessions under Windows may not work correctly.
 
  o  The implicitly-generated gnuplot commands can be stored to a file
     instead of executed immediately.
@@ -95,13 +94,13 @@ Features:
     See the documentation strings for those classes for more details.
 
  o  PlotItems are implemented as objects that can be assigned to
-    variables (including their options) and plotted repeatedly---
-    this also saves much of the overhead of plotting the same data
-    multiple times.
+    variables and plotted repeatedly.  Most of their plot options can
+    also be changed then they can be replotted with their new options.
 
- o  Communication of data between python and gnuplot is via temporary
-    files, which are deleted automatically when their associated
-    'PlotItem' is deleted.  (Communication of commands is via a pipe.)
+ o  Communication of commands to gnuplot is via a one-way pipe.
+    Communication of data from python to gnuplot is via inline data
+    (through the same pipe) or via temporary files.  Temp files are
+    deleted automatically when their associated 'PlotItem' is deleted.
     The PlotItems in use by a Gnuplot object at any given time are
     stored in an internal list so that they won't be deleted
     prematurely.
@@ -113,8 +112,8 @@ Features:
     program is exited.  Note that only newer version of gnuplot support
     this option.
 
- o  Can plot either to a postscript printer or to a file via
-    'hardcopy' method.
+ o  Can plot either directly to a postscript printer or to a
+    postscript file via the 'hardcopy' method.
 
  o  Grid data for the splot command can be sent to gnuplot in binary
     format, saving time and disk space.
@@ -147,16 +146,15 @@ Restrictions:
 
 Bugs:
 
- -  No attempt is made to check for errors reported by gnuplot (but
-    on unix they will appear on stderr).
+ -  No attempt is made to check for errors reported by gnuplot.  On
+    unix any gnuplot error messages simply appear on stderr.  (I don't
+    know what happens under Windows.)
 
  -  All of these classes perform their resource deallocation when
-    '__del__' is called.  If you delete things explicitly, there will
-    be no problem.  If you don't, an attempt is made to delete
-    remaining objects when the interpreter is exited, but this is
-    not completely reliable, so sometimes temporary files will be
-    left around.  If anybody knows how to fix this problem, please
-    let me know.
+    '__del__' is called.  Normally this works fine, but there are
+    well-known cases when Python's automatic resource deallocation
+    fails, which can leaving temporary files around.  If you delete
+    objects explicitly, there should be no problem.
 
 """
 
@@ -169,7 +167,7 @@ import sys
 
 # Command to start up the gnuplot program.  If your version of gnuplot
 # is run otherwise, specify the correct command here.  You could also
-# append command-line options here if you wish.
+# specify a full path or append command-line options here if you wish.
 if sys.platform == 'win32':
     _gnuplot_command = 'pgnuplot.exe'
 else:
@@ -190,6 +188,7 @@ if sys.platform == 'win32':
     # wgnuplot doesn't accept this option, so don't bother testing for it:
     _recognizes_persist = 0
 else:
+    # test automatically on first use:
     _recognizes_persist = None
 
 # Recent versions of gnuplot allow you to specify a `binary' option to
@@ -199,7 +198,7 @@ else:
 # space and therefore it is the default for that type of plot.  But if
 # you have an older version of gnuplot (or you prefer text format) you
 # can disable the binary option in either of two ways: (a) set the
-# following variable to 0; (b) pass `binary=0' to the GridData
+# following variable to 0; or (b) pass `binary=0' to the GridData
 # constructor.  (Note that the demo uses binary=0 to maximize
 # portability.)
 _recognizes_binary_splot = 1
@@ -214,8 +213,8 @@ _recognizes_binary_splot = 1
 _prefer_inline_data = 0
 
 # After a hardcopy is produced, we have to set the terminal type back
-# to `on screen'.  If you are using unix, then `x11' is probably
-# correct.  If not, change the following line to the terminal type you
+# to `on screen'.  The following settings are probably correct.  If
+# not, change the following lines to select the terminal type you
 # prefer to use for on-screen work.
 if sys.platform == 'win32':
     _default_term = 'windows'
