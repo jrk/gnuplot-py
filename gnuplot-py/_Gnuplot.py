@@ -185,6 +185,7 @@ class Gnuplot:
         self._clear_queue()
         self.debug = debug
         self.plotcmd = 'plot'
+        self('set terminal %s' % (gp.GnuplotOpts.default_term,))
 
     def __call__(self, s):
         """Send a command string to gnuplot.
