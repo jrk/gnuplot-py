@@ -977,7 +977,7 @@ if __name__ == '__main__':
     # Plot one dataset from an array and one via a gnuplot function;
     # also demonstrate the use of item-specific options:
     g2 = Gnuplot(debug=1)
-    x = arange(10)
+    x = arange(10, typecode=Float)
     y1 = x**2
     # Notice how this plotitem is created here but used later?  This
     # is convenient if the same dataset has to be plotted multiple
@@ -1033,7 +1033,7 @@ if __name__ == '__main__':
 	plot([1, 5, 3, 4], file='gnuplot_test2.ps')
 
 	# Two plots; each given by a 2d array
-	x = arange(10)
+	x = arange(10, typecode=Float)
 	y1 = x**2
 	y2 = (10-x)**2
 	plot(transpose(array([x, y1])), transpose(array([x, y2])))
