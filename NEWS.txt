@@ -51,6 +51,9 @@ Version x.x:
   it. (2) It seems to be broken anyway. (3) I don't have the energy to
   fix or maintain it.  Let me know if I'm wrong about point 1.
 
+* Started a new FAQ.txt file and added an answer to the single most
+  frequently asked question.
+
 
 Version 1.6:
 

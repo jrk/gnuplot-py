@@ -1,0 +1,81 @@
+# $Id$
+
+Frequently Asked Questions
+
+This file is meant to answer the most frequently asked questions about
+the Gnuplot.py package.  If you want to suggest additional questions
+(with or without answers!) please mail them to the Gnuplot.py users
+mailing list, <gnuplot-py-users@lists.sourceforge.net>.
+
+======================================================================
+
+Q1:
+
+When running the following script
+
+------------------------------------------------
+#! /usr/bin/python2
+
+import Gnuplot, Gnuplot.funcutils
+from Numeric import *
+
+g = Gnuplot.Gnuplot()
+g.plot([[0,1.1], [1,5.8], [2,3.3], [3,4.2]])
+------------------------------------------------
+
+I get the error
+
+    gnuplot> plot  '/tmp/@24463.2'
+                   ^
+             can't read data file "/tmp/@24463.2"
+             line 0: (No such file or directory)
+
+However, the same commands work fine if I type them into the
+interpreter!  What's wrong?
+
+A1:
+
+The problem is that in many cases Gnuplot.py sends data to gnuplot via
+a temporary file.  But Gnuplot.py has no way of knowing when it is
+safe to delete the temporary file.  So it deletes it when the
+corresponding PlotItem object is deleted, which is typically when the
+next Gnuplot.plot() command is executed or when the python script
+ends.  (Until you plot something else, the Gnuplot object keeps a
+reference to all of the old plot items to prevent their being garbage
+collected.)
+
+To prevent this problem, there are several possibilities:
+
+1. Switch to Unix.  On that platform, Gnuplot.py now uses FIFOs (named
+   pipes) by default to send data to gnuplot.  This seems to provide a
+   robust and somewhat elegant solution to this problem.
+
+2. Use "inline data" instead of temporary files to communicate with
+   gnuplot.  This is already available in gnuplot for most plotting
+   modes if you specify the "inline=1" option to the constructor of
+   the Data object, or if you set GnuplotOpts.prefer_inline_data=1.
+   Since inline data doesn't involve temporary files, the problem goes
+   away.
+
+3. Introduce a delay between the time you plot and the time you allow
+   the Data object to be deleted.  You could just use time.sleep(), or
+   if you are producing a graphics file you might watch for the
+   creation of the output file and at that point assume that gnuplot
+   is done with the temporary file.  One idea is to explicitly create
+   a PlotItem to represent the data, and keep a reference to the
+   PlotItem for some time after the plot() command is executed; e.g.,
+
+       data = Gnuplot.Data([[0,1.1], [1,5.8], [2,3.3], [3,4.2]])
+       g.plot(data)
+       # ... do something guaranteed to last a couple seconds
+       del data # temporary file is deleted at this moment
+
+4. Change Gnuplot.py itself to implement two-way communication between
+   gnuplot and Gnuplot.py.  Then, for example, Gnuplot.py could delete
+   temporary files when the next gnuplot prompt appears.  This would
+   be a lot of work but it would allow other new features such as
+   detecting gnuplot errors, reading gnuplot fit command output back
+   to python, etc.
+
+======================================================================
+

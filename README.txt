@@ -5,24 +5,45 @@ The Gnuplot.py home page is
     http://gnuplot-py.sourceforge.net
 
 There you can get the latest version, view the documentation, or
-report bugs.
+report bugs.  There is also a mailing list for Gnuplot.py users.  You
+can subscribe to the mailing list or view the archive of old articles
+at
+
+    http://lists.sourceforge.net/mailman/listinfo/gnuplot-py-users
 
 
 Documentation
 -------------
 
-The best way to get started is to install it then run the demo by
-typing `python demo.py'.  This should pop up a few gnuplot windows,
-one after another, containing simple graphs, and also write a
-postscript file called `gp_test.ps' to the current directory.  Then
-look at the code for the demo which is in the function `demo()' at the
-bottom of demo.py.  This should be enough to get you started making
-simple plots of your own.
+The quickest way to learn how to use Gnuplot.py is to install it and
+run the simple demonstration by typing `python demo.py', then look at
+the demo.py file to see the commands that created the demo.  One of
+the examples is probably similar to what you want to do.
 
-Documentation for Gnuplot.py is in the doc/ subdirectory (which is
-generated automatically from the docstrings using happydoc).  And
-don't be shy, just open up the Python files with your favorite text
-editor and take a look.
+Don't forget to read the Gnuplot.html, README.txt, and FAQ.txt files
+in the Gnuplot.py distribution.
+
+HTML documentation for the Python classes is included in the doc/
+directory of the distribution and is also available online (follow
+links from the home page).  This documentation is extracted
+automatically from the package's docstrings using happydoc and should
+be helpful though it is known to have some formatting problems.
+Alternatively, you can look at the docstrings yourself by opening the
+python files in an editor.
+
+Finally, there is a new mailing list for Gnuplot.py users.  For more
+information about subscribing to the list or viewing the archive of
+old articles, please go to
+
+     http://lists.sourceforge.net/lists/listinfo/gnuplot-py-users
+
+To get good use out of Gnuplot.py, you will want to know something
+about gnuplot, for which a good source is the gnuplot help (run
+gnuplot then type `help', or read it online at
+
+    http://www.gnuplot.info/gnuplot.html
+
+).
 
 For a relatively thorough test of Gnuplot.py, type `python test.py'
 which goes systematically through most Gnuplot.py features.
@@ -50,20 +71,15 @@ rename it to "Gnuplot".
 
 There are some configuration options that can be set near the top of
 the platform-dependent files gp-unix.py (Unix), gp_mac.py (Macintosh),
-and gp_win32.py (Windows).  (Obviously, you should change the file
-corresponding to your platform.)  See the extensive comments in
-gp_unix.py for a description of the meaning of each configuration
-variable.  Sensible values are already chosen, so it is quite possible
-that you don't have to change anything.
+gp_macosx.py (Mac OS X), and gp_win32.py (Windows).  (Obviously, you
+should change the file corresponding to your platform.)  See the
+extensive comments in gp_unix.py for a description of the meaning of
+each configuration variable.  Sensible values are already chosen, so
+it is quite possible that you don't have to change anything.
 
 Import the main part of the package into your python programs using
 `import Gnuplot'.  Some other features can be found in the modules
 Gnuplot.funcutils and Gnuplot.PlotItems.
-
-For backwards compatibility, an old function-based interface to
-Gnuplot.py (derived from Konrad Hinsen's original Gnuplot.py) is
-available in a separate file, oldplot.py.  However, this old interface
-is deprecated and will no longer be developed.
 
 
 Installation on Windows
@@ -108,21 +124,60 @@ Also, inline data does not seem to be supported.  Let me know if you
 find other problems or have patches to fix Mac limitations.
 
 
+Assistance
+----------
+
+If you are having trouble installing or using Gnuplot.py, please check
+the following sources for help:
+
+1. Read the documentation!  For simple questions, start with the
+   Gnuplot.html, README.txt, and FAQ.txt files in the distribution.
+   For more detailed information, check the online class documentation
+   at
+
+       http://gnuplot-py.sourceforge.net/doc/
+
+2. Check the mailing list archives.  Chances are that somebody has
+   already asked a similar questions and you are one quick search away
+   from the answer.  Information about the mailing list is available
+   at
+
+       http://lists.sourceforge.net/mailman/listinfo/gnuplot-py-users
+
+3. Ask your question on the mailing list.  I am trying to move most
+   email traffic about Gnuplot.py to the mailing list, partly because
+   there are many questions (for example about Windows or Macintosh
+   platforms) that I am completely unable to answer.  The mailing list
+   also provides an archive of old articles which should build up into
+   a valuable resource, and a place to exchange ideas about future
+   changes.
+
+
 Feedback
 --------
 
 I would love to have feedback from people letting me know whether they
 find Gnuplot.py useful.  And certainly let me know about any problems,
-suggestions, or enhancements.  My address is at the bottom of this
-file.
+suggestions, or enhancements.  For most purposes, please send your
+emails to the Gnuplot.py users mailing list:
 
-Gnuplot.py has been tested with gnuplot version 3.7, and I believe it
-should work with version 3.5 (though some features, like enhanced
+    gnuplot-py-users@lists.sourceforge.net
+
+Information about the mailing list can be obtained at
+
+    http://lists.sourceforge.net/mailman/listinfo/gnuplot-py-users
+
+
+Compatibility
+-------------
+
+Gnuplot.py has been tested with version 3.7 of gnuplot, and I believe
+it should work with version 3.5 (though some features, like enhanced
 postscript mode and binary splot mode, will not work).  Let me know if
 you have trouble.
 
 Gnuplot.py was developed under Linux and Digital Unix; it should work
-without much problem on other unix computers.  If you need to modify
+without much problem on other versions of Unix.  If you need to modify
 it for your system tell me what was necessary and I'll include your
 changes in a future release.
 

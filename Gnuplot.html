@@ -29,6 +29,9 @@ width="88" height="31" border="0" alt="SourceForge Logo"></a></h1></center>
   <li> The <a
        href="http://gnuplot-py.sourceforge.net/doc">online
        documentation</a>
+  <li> The <a
+       href="http://lists.sourceforge.net/lists/listinfo/gnuplot-py-users">Gnuplot.py
+       users' mailing list</a>
 </ul>
 </td>
 </tr>
@@ -47,10 +50,10 @@ easy to automate things, including to create crude `animations' by
 plotting different datasets one after another. </p>
 
 <p> Commands are communicated to gnuplot through a pipe and data
-either through the same pipe (as "inline" data) or through temporary
-files.  It has been written and tested on a unix computer but is also
-reported to work on MS Windows and the Macintosh (please give me
-feedback!) </p>
+either through the same pipe (as "inline" data), through FIFOs (named
+pipes), or through temporary files.  It has been developed under Unix
+and is known to work under various forms of Unix (including Linux), MS
+Windows, MacOS, and Mac OS X. </p>
 
 <p> This package has an object-oriented design that allows the user
 flexibility to set plot options and to run multiple gnuplot sessions
@@ -78,15 +81,24 @@ then to look at the <tt>demo.py</tt> file to see the commands that
 create the demo.  One of the examples is probably similar to what you
 want to do. </p>
 
-<p> HTML documentation is included in the doc/ directory of the
-distribution and is also available <a
+<p> Don't forget to read the Gnuplot.html, README.txt and FAQ.txt
+files in the Gnuplot.py distribution. </p>
+
+<p> HTML documentation for the Python classes is included in the doc/
+directory of the distribution and is also available <a
 href="doc/index.html">online</a>.  This documentation is extracted
 automatically from the package's docstrings using <a
 href="http://sourceforge.net/projects/happydoc/"> happydoc</a> and is
-known to have some formatting problems. </p>
+known to have some formatting problems.  Alternatively, you can look
+at the docstrings yourself by opening the python files in an
+editor. </p>
 
-<p> Finally, you can look at the docstrings yourself by opening the
-file <tt>__init__.py</tt> in an editor. </p>
+<p> Finally, there is a new <a
+href="mailto:gnuplot-py-users@lists.sourceforge.net">mailing list</a>
+for Gnuplot.py users.  For more information about subscribing to the
+list or viewing the archive of old articles, please click <a
+href="http://lists.sourceforge.net/lists/listinfo/gnuplot-py-users">here</a>.
+</p>
 
 <p> To get good use out of Gnuplot.py, you will want to know something
 about gnuplot, for which a good source is the gnuplot help (run
