@@ -24,7 +24,13 @@ __cvs_version__ = '$Revision$'
 import math, time
 import Numeric
 from Numeric import *
-import Gnuplot
+try:
+    import Gnuplot
+except:
+    # kludge in case Gnuplot hasn't been installed as a module yet:
+    import __init__
+    Gnuplot = __init__
+
 gp = Gnuplot # abbreviation
 
 def wait(str=None, prompt='Press return to show results...\n'):
