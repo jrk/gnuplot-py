@@ -34,7 +34,7 @@ import Numeric
 
 # The real work is done by Gnuplot.py; this module is just a wrapper.
 import Gnuplot
-from Gnuplot import Data, File, TempArrayFile, DataException
+from Gnuplot import Data, File, TempArrayFile, DataError
 from utils import float_array
 from gp import test_persist
 
@@ -80,7 +80,7 @@ def plot(*items, **keyw):
                 for col in range(1, item.shape[1]):
                     newitems.append(File(tempf, using=(1,col+1), with='lines'))
         else:
-            raise DataException('Data array must be 1 or 2 dimensional')
+            raise DataError('Data array must be 1 or 2 dimensional')
     items = tuple(newitems)
     del newitems
 

@@ -21,6 +21,9 @@
 __cvs_version__ = '$Revision$'
 
 
+import Errors
+
+
 # ############ Configuration variables: ################################
 
 class GnuplotOpts:
@@ -97,8 +100,9 @@ class GnuplotProcess:
 
         """
 
-        assert not persist, \
-               OptionException('-persist is not supported on the Macintosh!')
+        if persist:
+            raise Errors.OptionError(
+                '-persist is not supported on the Macintosh!')
 
         self.gnuplot = _GNUPLOT()
 
