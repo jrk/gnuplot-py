@@ -24,8 +24,8 @@ would also be appreciated.
 
 For information about how to use this module:
 1.  Check the README file.
-2.  Look at the test code at the bottom of the file (and try running
-    it by typing 'python Gnuplot.py').
+2.  Look at the test code in the 'demo' routine at the bottom of this
+    file (and try running it by typing 'python Gnuplot.py').
 3a. For more details see the extensive documentation strings
     throughout this file.
 3b. The docstrings have also been turned into html which can be read
@@ -40,6 +40,11 @@ name, `Gnuplot'.
 To obtain the gnuplot plotting program itself, see
 <ftp://ftp.gnuplot.vt.edu/pub/gnuplot/faq/index.html>.  Obviously you
 need to have gnuplot installed if you want to use Gnuplot.py.
+
+The old command-based interface to gnuplot has been separated out into
+a separate module, Gnuplot_plot.py.  If you are still using that
+interface you should import that module; otherwise you should stick to
+the more flexible object-oriented interface contained here.
 
 Features:
 
@@ -85,8 +90,8 @@ Features:
     * 'File('filename')' -- data from an existing data file (permits
                             additional option 'using' )
 
-    * 'Func('exp(4.0 * sin(x))')' -- functions (passed as a string
-                                     for gnuplot to evaluate)
+    * 'Func('exp(4.0 * sin(x))')' -- functions (passed as a string,
+                                     evaluated by gnuplot)
 
     * 'GridData(m, x, y)' -- data tabulated on a grid of (x,y) values
                              (usually to be plotted in 3-D)
@@ -95,11 +100,12 @@ Features:
 
  o  PlotItems are implemented as objects that can be assigned to
     variables and plotted repeatedly.  Most of their plot options can
-    also be changed then they can be replotted with their new options.
+    also be changed with the new 'set_option()' member functions then
+    they can be replotted with their new options.
 
  o  Communication of commands to gnuplot is via a one-way pipe.
     Communication of data from python to gnuplot is via inline data
-    (through the same pipe) or via temporary files.  Temp files are
+    (through the command pipe) or via temporary files.  Temp files are
     deleted automatically when their associated 'PlotItem' is deleted.
     The PlotItems in use by a Gnuplot object at any given time are
     stored in an internal list so that they won't be deleted
@@ -137,7 +143,8 @@ Restrictions:
         g('set data style linespoints')
         g('set pointsize 5')
 
-    I might add a more organized way of setting arbitrary options.
+    I might add a more organized way of setting arbitrary options, but
+    there doesn't seem to be a pressing need for it.
 
  -  There is no provision for missing data points in array data
     (which gnuplot would allow by specifying '?' as a data point).
@@ -440,7 +447,7 @@ class PlotItem:
             raise KeyError('option %s is not set!' % name)
 
     def set_option(self, with=_unset, title=_unset, **keyw):
-        """Set a plot option to be associated with this PlotItem.
+        """Set or change a plot option for this PlotItem.
 
         See documentation for __init__ for information about allowed
         options.  This function should be overridden by derived
@@ -672,6 +679,8 @@ class File(PlotItem):
         apply(PlotItem.__init__, (self, "'%s'" % self.file.filename), keyw)
 
     def set_option(self, using=_unset, binary=_unset, **keyw):
+        """Set or change options associated with this plotitem."""
+
         if using is not _unset:
             if using is None:
                 self.clear_option('using')
@@ -778,6 +787,13 @@ class Data(PlotItem):
             apply(PlotItem.__init__, (self, "'%s'" % self.file.filename), keyw)
 
     def set_option(self, cols=_unset, inline=_unset, **keyw):
+        """Set or change options associated with this plotitem.
+
+        Note that the 'cols' and the 'inline' options cannot be
+        changed via this routine.
+
+        """
+
         if cols is not _unset:
             raise OptionException('Cannot modify cols option!')
         elif inline is not _unset:
@@ -786,7 +802,7 @@ class Data(PlotItem):
             apply(PlotItem.set_option, (self,), keyw)
 
     def pipein(self, f):
-        if self._data is not None:
+        if self._data:
             f.write(self._data)
 
 
@@ -814,7 +830,7 @@ class GridData(PlotItem):
         Arguments:
 
             'toplot' -- the thing to plot: a 2-d array with dimensions
-                        (numx,numy), OR callable object for which
+                        (numx,numy), OR a callable object for which
                         toplot(x,y) returns a number.
             'xvals' -- a 1-d array with dimension 'numx'
             'yvals' -- a 1-d array with dimension 'numy'
@@ -953,6 +969,10 @@ class GridData(PlotItem):
             self._options['binary'] = (0, None)
 
     def set_option(self, binary=_unset, inline=_unset, **keyw):
+        """Set or change options associated with this plotitem.
+
+        Note that the binary and inline options cannot be changed."""
+
         if binary is not _unset:
             raise OptionException('Cannot modify binary option!')
         if inline is not _unset:
@@ -960,19 +980,21 @@ class GridData(PlotItem):
         apply(PlotItem.set_option, (self,), keyw)
 
     def pipein(self, f):
-        if self._data is not None:
+        if self._data:
             f.write(self._data)
 
 
 class Gnuplot:
-    """gnuplot plotting object.
+    """Interface to a gnuplot program.
 
     A Gnuplot represents a running gnuplot program and a pipe to
-    communicate with it.  It keeps a reference to each of the
-    PlotItems used in the current plot, so that they (and their
-    associated temporary files) are not deleted prematurely.  The
-    communication is one-way; gnuplot's text output just goes to
-    stdout with no attempt to check it for error messages.
+    communicate with it.  It can plot 'PlotItem's, which represent
+    each thing to be plotted on the current graph.  It keeps a
+    reference to each of the PlotItems used in the current plot, so
+    that they (and their associated temporary files) are not deleted
+    prematurely.  The communication is one-way; gnuplot's text output
+    just goes to stdout with no attempt to check it for error
+    messages.
 
     Members:
 
@@ -989,30 +1011,31 @@ class Gnuplot:
 
     '__init__' -- if a filename argument is specified, the commands
                   will be written to that file instead of being piped
-                  to gnuplot immediately.
+                  to gnuplot.
     'plot' -- clear the old plot and old PlotItems, then plot the
               arguments in a fresh plot command.  Arguments can be: a
               PlotItem, which is plotted along with its internal
               options; a string, which is plotted as a Func; or
               anything else, which is plotted as a Data.
+    'splot' -- like 'plot', except for 3-d plots.
     'hardcopy' -- replot the plot to a postscript file (if filename
-                  argument is specified) or pipe it to lpr othewise.
-                  If the option `color' is set to true, then output
-                  color postscript.
+                  argument is specified) or pipe it to the printer as
+                  postscript othewise.  If the option `color' is set
+                  to true, then output color postscript.
     'replot' -- replot the old items, adding any arguments as
                 additional items as in the plot method.
     'refresh' -- issue (or reissue) the plot command using the current
                  PlotItems.
     '__call__' -- pass an arbitrary string to the gnuplot process,
                   followed by a newline.
-    'xlabel', 'ylabel', 'title' -- set attribute to be a string.
+    'xlabel', 'ylabel', 'title' -- set corresponding plot attribute.
     'interact' -- read lines from stdin and send them, one by one, to
                   the gnuplot interpreter.  Basically you can type
                   commands directly to the gnuplot command processor.
     'load' -- load a file (using the gnuplot `load' command).
     'save' -- save gnuplot commands to a file (using gnuplot `save'
               command) If any of the PlotItems is a temporary file, it
-              will be deleted at the usual time and the save file might
+              will be deleted at the usual time and the save file will
               be pretty useless :-).
     'clear' -- clear the plot window (but not the itemlist).
     'reset' -- reset all gnuplot settings to their defaults and clear
@@ -1063,7 +1086,7 @@ class Gnuplot:
         self.plotcmd = 'plot'
 
     def __del__(self):
-        """Cause the gnuplot process to exit."""
+        """Disconnect from the gnuplot process (causing it to exit)."""
 
         # pgnuplot (on windows) sends `exit' to gnuplot itself, and if
         # we send it also pgnuplot seems to hang.  On Unix, gnuplot
@@ -1076,8 +1099,8 @@ class Gnuplot:
         """Send a command string to gnuplot.
 
         Send the string s as a command to gnuplot, followed by a
-        newline and flush.  All interaction with the gnuplot process
-        is through this method except for inline data.
+        newline and flush.  All communication with the gnuplot process
+        (except for inline data) is through this method.
 
         """
 
@@ -1152,7 +1175,6 @@ class Gnuplot:
 
         """
 
-        # remove old files:
         self.plotcmd = 'plot'
         self._clear_queue()
         self._add_to_queue(items)
@@ -1182,7 +1204,6 @@ class Gnuplot:
 
         """
 
-        # remove old files:
         self.plotcmd = 'splot'
         self._clear_queue()
         self._add_to_queue(items)
