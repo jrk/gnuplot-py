@@ -397,7 +397,9 @@ class PlotItem:
 
         See documentation for __init__ for information about allowed
         options.  This function should be overridden by derived
-        classes to allow additional options.
+        classes to allow additional options, in which case those
+        options will also be allowed by __init__ for the derived
+        class.
 
         """
 
