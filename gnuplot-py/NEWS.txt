@@ -4,7 +4,7 @@ This file describes the changes introduced in each version of the
 Gnuplot.py package.
 
 
-Version ???:
+Version 1.5:
 
 * Broke up the module a bit for better maintainability.  The most
   commonly-used facilities are still available through "import
@@ -36,11 +36,9 @@ Version ???:
 * Added a prefer_persist option to serve as the default `persist'
   choice.
 
-* Following a suggestion by Jannie Hofmeyr <jhsh@iafrica.com>, try
-  using "from os import popen" in gp_win32.py if the win32 extensions
-  are not found.  This change should allow Gnuplot.py to work with
-  Python 2.0.  I don't use windows, so let me know if this doesn't
-  work.
+* Following a suggestion by Jannie Hofmeyr <jhsh@iafrica.com>, use
+  "from os import popen" for Python 2.0 under Windows.  I don't use
+  Windows, so let me know how this works.
 
 * Added a setup.py file so that Gnuplot.py can be installed using
   Python distutils.
