@@ -36,8 +36,9 @@ import Numeric
 
 # The real work is done by Gnuplot.py; this module is just a wrapper.
 import Gnuplot
-from Gnuplot import Data, File, TempArrayFile, DataException, \
-     float_array, test_persist
+from Gnuplot import Data, File, TempArrayFile, DataException
+from utils import float_array
+from gp import test_persist
 
 
 # When persist is not available, the plotters will be stored here to

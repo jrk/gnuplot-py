@@ -24,20 +24,21 @@ Boston, MA 02111-1307, USA.
 __version__ = '1.4'
 __cvs_version__ = '$Revision$'
 
-import math, time
+import math, time, tempfile
 import Numeric
 from Numeric import NewAxis
 
 try:
-    import Gnuplot, Gnuplot.funcutils
+    import Gnuplot, Gnuplot.PlotItems, Gnuplot.funcutils
 except ImportError:
     # kludge in case Gnuplot hasn't been installed as a module yet:
     import __init__
     Gnuplot = __init__
+    import PlotItems
+    Gnuplot.PlotItems = PlotItems
     import funcutils
     Gnuplot.funcutils = funcutils
 
-gp = Gnuplot # abbreviation
 
 def wait(str=None, prompt='Press return to show results...\n'):
     if str is not None:
@@ -49,19 +50,21 @@ def main():
     """Exercise the Gnuplot module."""
 
     wait('Popping up a blank gnuplot window on your screen.')
-    g = gp.Gnuplot()
+    g = Gnuplot.Gnuplot()
     g.clear()
 
     # Make a temporary file:
-    file1 = gp.TempFile() # will be deleted upon exit
-    f = open(file1.filename, 'w')
+    filename1 = tempfile.mktemp()
+    f = open(filename1, 'w')
     for x in Numeric.arange(100)/5. - 10.:
         f.write('%s %s %s\n' % (x, math.cos(x), math.sin(x)))
     f.close()
+    # ensure that file will be deleted upon exit:
+    file1 = Gnuplot.PlotItems.TempFile(filename1)
 
     print '############### test Func ########################################'
     wait('Plot a gnuplot-generated function')
-    g.plot(gp.Func('sin(x)'))
+    g.plot(Gnuplot.Func('sin(x)'))
 
     wait('Set title and axis labels and try replot()')
     g.title('Title')
@@ -70,14 +73,14 @@ def main():
     g.replot()
 
     wait('Style linespoints')
-    g.plot(gp.Func('sin(x)', with='linespoints'))
+    g.plot(Gnuplot.Func('sin(x)', with='linespoints'))
     wait('title=None')
-    g.plot(gp.Func('sin(x)', title=None))
+    g.plot(Gnuplot.Func('sin(x)', title=None))
     wait('title="Sine of x"')
-    g.plot(gp.Func('sin(x)', title='Sine of x'))
+    g.plot(Gnuplot.Func('sin(x)', title='Sine of x'))
 
     print 'Change Func attributes after construction:'
-    f = gp.Func('sin(x)')
+    f = Gnuplot.Func('sin(x)')
     wait('Original')
     g.plot(f)
     wait('Style linespoints')
@@ -92,25 +95,25 @@ def main():
 
     print '############### test File ########################################'
     wait('Generate a File from a filename')
-    g.plot(gp.File(file1.filename))
+    g.plot(Gnuplot.File(filename1))
     wait('Generate a File given a TempFile object')
-    g.plot(gp.File(file1))
+    g.plot(Gnuplot.File(file1))
 
     wait('Style lines')
-    g.plot(gp.File(file1.filename, with='lines'))
+    g.plot(Gnuplot.File(filename1, with='lines'))
     wait('using=1, using=(1,)')
-    g.plot(gp.File(file1.filename, using=1, with='lines'),
-           gp.File(file1.filename, using=(1,), with='points'))
+    g.plot(Gnuplot.File(filename1, using=1, with='lines'),
+           Gnuplot.File(filename1, using=(1,), with='points'))
     wait('using=(1,2), using="1:3"')
-    g.plot(gp.File(file1.filename, using=(1,2)),
-           gp.File(file1.filename, using='1:3'))
+    g.plot(Gnuplot.File(filename1, using=(1,2)),
+           Gnuplot.File(filename1, using='1:3'))
     wait('title=None')
-    g.plot(gp.File(file1.filename, title=None))
+    g.plot(Gnuplot.File(filename1, title=None))
     wait('title="title"')
-    g.plot(gp.File(file1.filename, title='title'))
+    g.plot(Gnuplot.File(filename1, title='title'))
 
     print 'Change File attributes after construction:'
-    f = gp.File(file1.filename)
+    f = Gnuplot.File(filename1)
     wait('Original')
     g.plot(f)
     wait('Style linespoints')
@@ -130,46 +133,46 @@ def main():
     d = Numeric.transpose((x,y1,y2))
 
     wait('Plot Data, specified column-by-column')
-    g.plot(gp.Data(x,y2, inline=0))
+    g.plot(Gnuplot.Data(x,y2, inline=0))
     wait('Same thing, inline data')
-    g.plot(gp.Data(x,y2, inline=1))
+    g.plot(Gnuplot.Data(x,y2, inline=1))
 
     wait('Plot Data, specified by an array')
-    g.plot(gp.Data(d, inline=0))
+    g.plot(Gnuplot.Data(d, inline=0))
     wait('Same thing, inline data')
-    g.plot(gp.Data(d, inline=1))
+    g.plot(Gnuplot.Data(d, inline=1))
     wait('with="lp 4 4"')
-    g.plot(gp.Data(d, with='lp 4 4'))
+    g.plot(Gnuplot.Data(d, with='lp 4 4'))
     wait('cols=0')
-    g.plot(gp.Data(d, cols=0))
+    g.plot(Gnuplot.Data(d, cols=0))
     wait('cols=(0,1), cols=(0,2)')
-    g.plot(gp.Data(d, cols=(0,1), inline=0),
-           gp.Data(d, cols=(0,2), inline=0))
+    g.plot(Gnuplot.Data(d, cols=(0,1), inline=0),
+           Gnuplot.Data(d, cols=(0,2), inline=0))
     wait('Same thing, inline data')
-    g.plot(gp.Data(d, cols=(0,1), inline=1),
-           gp.Data(d, cols=(0,2), inline=1))
+    g.plot(Gnuplot.Data(d, cols=(0,1), inline=1),
+           Gnuplot.Data(d, cols=(0,2), inline=1))
     wait('Change title and replot()')
     g.title('New title')
     g.replot()
     wait('title=None')
-    g.plot(gp.Data(d, title=None))
+    g.plot(Gnuplot.Data(d, title=None))
     wait('title="Cosine of x"')
-    g.plot(gp.Data(d, title='Cosine of x'))
+    g.plot(Gnuplot.Data(d, title='Cosine of x'))
 
     print '############### test compute_Data ################################'
     x = Numeric.arange(100)/5. - 10.
 
     wait('Plot Data, computed by Gnuplot.py')
-    g.plot(gp.funcutils.compute_Data(x, lambda x: math.cos(x), inline=0))
+    g.plot(Gnuplot.funcutils.compute_Data(x, lambda x: math.cos(x), inline=0))
     wait('Same thing, inline data')
-    g.plot(gp.funcutils.compute_Data(x, lambda x: math.cos(x), inline=1))
+    g.plot(Gnuplot.funcutils.compute_Data(x, math.cos, inline=1))
     wait('with="lp 4 4"')
-    g.plot(gp.funcutils.compute_Data(x, lambda x: math.cos(x), with='lp 4 4'))
+    g.plot(Gnuplot.funcutils.compute_Data(x, math.cos, with='lp 4 4'))
 
     print '############### test hardcopy ####################################'
     print '******** Generating postscript file "gp_test.ps" ********'
     wait()
-    g.plot(gp.Func('cos(0.5*x*x)', with='linespoints 2 2',
+    g.plot(Gnuplot.Func('cos(0.5*x*x)', with='linespoints 2 2',
                    title='cos(0.5*x^2)'))
     g.hardcopy('gp_test.ps')
 
@@ -206,9 +209,9 @@ def main():
 
     print '############### test splot #######################################'
     wait('a 3-d curve')
-    g.splot(gp.Data(d, with='linesp', inline=0))
+    g.splot(Gnuplot.Data(d, with='linesp', inline=0))
     wait('Same thing, inline data')
-    g.splot(gp.Data(d, with='linesp', inline=1))
+    g.splot(Gnuplot.Data(d, with='linesp', inline=1))
 
     print '############### test GridData and compute_GridData ###############'
     # set up x and y values at which the function will be tabulated:
@@ -227,20 +230,20 @@ def main():
     g('set contour base')
     g.xlabel('x')
     g.ylabel('y')
-    g.splot(gp.GridData(m,x,y, binary=0, inline=0))
+    g.splot(Gnuplot.GridData(m,x,y, binary=0, inline=0))
     wait('Same thing, inline data')
-    g.splot(gp.GridData(m,x,y, binary=0, inline=1))
+    g.splot(Gnuplot.GridData(m,x,y, binary=0, inline=1))
 
     wait('The same thing using binary mode')
-    g.splot(gp.GridData(m,x,y, binary=1))
+    g.splot(Gnuplot.GridData(m,x,y, binary=1))
 
     wait('The same thing using compute_GridData to tabulate function')
-    g.splot(gp.funcutils.compute_GridData(
+    g.splot(Gnuplot.funcutils.compute_GridData(
         x,y, lambda x,y: math.sin(x) + 0.1*x - y**2,
         ))
 
     wait('Use compute_GridData in ufunc and binary mode')
-    g.splot(gp.funcutils.compute_GridData(
+    g.splot(Gnuplot.funcutils.compute_GridData(
         x,y, lambda x,y: Numeric.sin(x) + 0.1*x - y**2,
         ufunc=1, binary=1,
         ))
