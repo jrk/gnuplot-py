@@ -125,15 +125,21 @@ cmd('rm -rf %s' % (stagingdir,))
 docdir = '%s-doc-%s' % (module, version)
 inform('Documentation will be put in directory %s' % docdir)
 
-inform('Making documentation directory')
-cmd('rm -rf %s' % os.path.join(basedir, docdir))
-cmd('mkdir %s' % os.path.join(basedir, docdir))
+# The documentation stuff doesn't work right.  I got it to work by
+# manually deleting gp_mac.py, gp_win32.py, gnuplot_Suites.py, and
+# oldplot.py and running pythondoc as follows.  Then I commented out
+# these lines, did a `cvs update' to get back the deleted files, and
+# then `./release <version>'.
 
-inform('Creating pythondoc documentation')
-cmd('%s -d %s -f HTML4 -i %s' %
-    (pythondoc,
-     os.path.join(basedir, docdir),
-     module))
+#inform('Making documentation directory')
+#cmd('rm -rf %s' % os.path.join(basedir, docdir))
+#cmd('mkdir %s' % os.path.join(basedir, docdir))
+#
+#inform('Creating pythondoc documentation')
+#cmd('%s -d %s -f HTML4 -i %s' %
+#    (pythondoc,
+#     os.path.join(basedir, docdir),
+#     module))
 
 inform('Making symlink to documentation')
 cmd('ln -fs %s %s' % (docdir,
