@@ -277,51 +277,23 @@ class TempFile(AnyFile):
         os.unlink(self.filename)
 
 
-class ArrayFile(AnyFile):
-    """A file to which, upon creation, an array is written.
+class file(plotitem):
+    """a plotitem representing a file that contains gnuplot data."""
 
-    When an ArrayFile is constructed, it creates a file and fills it
-    with the contents of a 2-d or 3-d Numeric array in the format
-    expected by gnuplot (see 'write_array()' for details).  The
-    filename can be specified, otherwise a random filename is chosen.
-    The file is NOT deleted automatically.
-
-    """
-
-    def __init__(self, set, filename=None):
-        """Create a file and write an array to it.
-
-        Arguments:
-
-          'set' -- a Numeric array of arbitrary dimension.
-
-          'filename' -- the (optional) name of the file to which the
-              array should be written.  If 'filename' is not
-              specified, a random filename is chosen.
-
-        """
-
-        AnyFile.__init__(self, filename)
-        utils.write_array(open(self.filename, 'w'), set)
-
-
-class File(PlotItem):
-    """A PlotItem representing a file that contains gnuplot data."""
-
-    _option_list = PlotItem._option_list.copy()
+    _option_list = plotitem._option_list.copy()
     _option_list.update({
         'smooth' : lambda self, smooth: self.set_string_option(
-            'smooth', smooth, None, 'smooth %s'),
+            'smooth', smooth, none, 'smooth %s'),
         'using' : lambda self, using: self.set_option_using(using),
         'binary' : lambda self, binary: self.set_option_binary(binary),
         })
 
     def __init__(self, file, **keyw):
-        """Construct a File object.
+        """construct a file object.
 
         <file> can be either a string holding the filename of an
         existing file, or it can be an object of any class derived
-        from 'AnyFile' (such as a 'TempArrayFile').
+        from 'AnyFile'.
 
         Keyword arguments:
 
