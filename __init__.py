@@ -254,8 +254,7 @@ def write_array(f, set,
         # This case could be done with recursion, but `unroll' for
         # efficiency.
         (points, columns) = set.shape
-        assert points > 0
-        assert columns > 0
+        assert points > 0 and columns > 0
         fmt = string.join(['%s'] * columns, item_sep)
         f.write(nest_prefix + nest_prefix)
         f.write(fmt % tuple(set[0].tolist()))
@@ -266,7 +265,7 @@ def write_array(f, set,
             f.write(nest_suffix)
         f.write(nest_suffix)
     else:
-        # Recurse
+        # Use recursion for three or more dimensions:
         assert set.shape[0] > 0
         f.write(nest_prefix)
         write_array(f, set[0],
@@ -336,21 +335,21 @@ class PlotItem:
 
         """
 
-        c = self.basecommand
+        c = [self.basecommand]
         if self.options.get('binary', 0):
-            c = c + ' binary'
+            c.append('binary')
         if self.options.has_key('using'):
-            c = c + ' using ' + self.options['using']
+            c.append('using %s' % self.options['using'])
         if self.options.has_key('title'):
             # Note that having no title option is different than
             # having a notitle option.
             if self.options['title'] is None:
-                c = c + ' notitle'
+                c.append('notitle')
             else:
-                c = c + (' title "%s"' % self.options['title'])
+                c.append('title "%s"' % self.options['title'])
         if self.options.has_key('with'):
-            c = c + ' with ' + self.options['with']
-        return c
+            c.append('with %s' % self.options['with'])
+        return string.join(c)
 
     # if the plot command requires data to be put on stdin (i.e.,
     # `plot "-"'), this method should put that data there.
