@@ -96,6 +96,9 @@ Features:
     * 'GridData(m, x, y)' -- data tabulated on a grid of (x,y) values
                              (usually to be plotted in 3-D)
 
+    * 'GridFunc(f, xvals, yvals)' -- a function f which is to be
+                                     tabulated on a grid of (x,y) pairs.
+
     See the documentation strings for those classes for more details.
 
  o  PlotItems are implemented as objects that can be assigned to
@@ -294,8 +297,9 @@ def float_array(m):
         # Try Float32 (this will refuse to downcast)
         return Numeric.asarray(m, Numeric.Float32)
     except TypeError:
-        # That failed for some reason; try to convert to the largest
-        # floating-point type:
+        # That failure might have been because the input array was
+        # of a wider data type than Float32; try to convert to the
+        # largest floating-point type available:
         return Numeric.asarray(m, Numeric.Float)
 
 
@@ -361,7 +365,7 @@ def write_array(f, set,
         f.write(nest_suffix)
 
 
-def grid_function(f, xvals, yvals, typecode=Numeric.Float32):
+def grid_function(f, xvals, yvals, typecode=None, ufunc=0):
     """Evaluate and tabulate a function on a grid.
 
     'xvals' and 'yvals' should be 1-D arrays listing the values of x
@@ -370,20 +374,32 @@ def grid_function(f, xvals, yvals, typecode=Numeric.Float32):
     M where 'M[i,j] = f(xvals[i],yvals[j])', which can for example be
     used in the 'GridData' constructor.
 
-    Note that 'f' is evaluated at each pair of points using a Python
-    loop, which can be slow if the number of points is large.  If
-    speed is an issue, you should if possible compute functions
-    matrix-wise using Numeric's built-in ufuncs.
+    If 'ufunc=0', then 'f' is evaluated at each pair of points using a
+    Python loop.  This can be slow if the number of points is large.
+    If speed is an issue, you should write 'f' in terms of Numeric
+    ufuncs and use the 'ufunc=1' feature described next.
+
+    If called with 'ufunc=1', then 'f' should be a function that is
+    composed entirely of ufuncs (i.e., a function that can operate
+    element-by-element on whole matrices).  It will be passed the
+    xvals and yvals as rectangular matrices.
 
     """
 
-    m = Numeric.zeros((len(xvals), len(yvals)), typecode)
-    for xi in range(len(xvals)):
-        x = xvals[xi]
-        for yi in range(len(yvals)):
-            y = yvals[yi]
-            m[xi,yi] = f(x,y)
-    return m
+    xvals = Numeric.asarray(xvals, typecode)
+    yvals = Numeric.asarray(yvals, typecode)
+
+    if ufunc:
+        return f(xvals[:,Numeric.NewAxis], yvals[Numeric.NewAxis,:])
+    else:
+        ### The typecode used here isn't really right.
+        m = Numeric.zeros((len(xvals), len(yvals)), xvals.typecode())
+        for xi in range(len(xvals)):
+            x = xvals[xi]
+            for yi in range(len(yvals)):
+                y = yvals[yi]
+                m[xi,yi] = f(x,y)
+        return m
 
 
 class OptionException(Exception):
@@ -813,47 +829,41 @@ class GridData(PlotItem):
     rectangular grid.  The data are written to a file; no copy is kept
     in memory.
 
-    If 'binary=1' is passed to the constructor, the data will be
-    passed to gnuplot in binary format and the 'binary' option added
-    to the splot command line.  Binary format is faster and usually
-    saves disk space but is not human-readable.  If your version of
-    gnuplot doesn't support binary format (it is a recently-added
-    feature), it can be disabled by setting the configuration variable
-    '_recognizes_binary_splot=0' at the top of this file.
-
     """
 
-    def __init__(self, toplot, xvals=None, yvals=None,
+    def __init__(self, data, xvals=None, yvals=None,
                  binary=1, inline=_unset, **keyw):
         """GridData constructor.
 
         Arguments:
 
-            'toplot' -- the thing to plot: a 2-d array with dimensions
-                        (numx,numy), OR a callable object for which
-                        toplot(x,y) returns a number.
+            'data' -- the data to plot: a 2-d array with dimensions
+                      (numx,numy).
             'xvals' -- a 1-d array with dimension 'numx'
             'yvals' -- a 1-d array with dimension 'numy'
             'binary=<bool>' -- send data to gnuplot in binary format?
             'inline=<bool>' -- send data to gnuplot "inline"?
 
-        'toplot' can be a data array, in which case it should hold the
-        values of a function f(x,y) tabulated on a grid of points,
-        such that 'toplot[i,j] == f(xvals[i], yvals[j])'.  If 'xvals'
-        and/or 'yvals' are omitted, integers (starting with
-        0) are used for that coordinate.  The data are written to a
-        temporary file; no copy of the data is kept in memory.
-
-        Alternatively 'toplot' can be a function object taking two
-        arguments (and 'xvals' and 'yvals' must be specified
-        explicitly).  In this case 'toplot(x,y)' will be computed at
-        all grid points obtained by combining elements from 'xvals'
-        and 'yvals'.
+        'data' must be a data array holding the values of a function
+        f(x,y) tabulated on a grid of points, such that 'data[i,j] ==
+        f(xvals[i], yvals[j])'.  If 'xvals' and/or 'yvals' are
+        omitted, integers (starting with 0) are used for that
+        coordinate.  The data are written to a temporary file; no copy
+        of the data is kept in memory.
 
         If 'binary=0' then the data are written to a datafile as 'x y
-        f(x,y)' triplets that can be used by gnuplot's 'splot'
-        command.  If 'binary=1' then the data are written to a file in
-        a binary format that 'splot' can understand.
+        f(x,y)' triplets (y changes most rapidly) that can be used by
+        gnuplot's 'splot' command.  Blank lines are included each time
+        the value of x changes so that gnuplot knows to plot a surface
+        through the data.
+
+        If 'binary=1' then the data are written to a file in a binary
+        format that 'splot' can understand.  Binary format is faster
+        and usually saves disk space but is not human-readable.  If
+        your version of gnuplot doesn't support binary format (it is a
+        recently-added feature), this behavior can be disabled by
+        setting the configuration variable
+        '_recognizes_binary_splot=0' at the top of this file.
 
         Thus if you have three arrays in the above format and a
         Gnuplot instance called g, you can plot your data by typing
@@ -861,45 +871,25 @@ class GridData(PlotItem):
 
         """
 
-        try:
-            # Try to interpret data as an array:
-            data = float_array(toplot)
-        except TypeError:
-            # That didn't work; try to interpret data as a callable
-            # object with arguments (x,y):
-            xvals = float_array(xvals)
-            (numx,) = xvals.shape
+        # Try to interpret data as an array:
+        data = float_array(data)
+        assert len(data.shape) == 2
+        (numx, numy) = data.shape
 
-            yvals = float_array(yvals)
-            (numy,) = yvals.shape
-
-            # try evaluating with Numeric.  This will work if the
-            # function is implemented only in terms of Numeric ufuncs
-            # (functions and operators for which matrix-wise
-            # evaluation is defined).
-            try:
-                data = toplot(xvals,yvals)
-            except:
-                # that didn't work; evaluate via a python loop:
-                data = grid_function(toplot, xvals, yvals)
+        if xvals is None:
+            xvals = Numeric.arange(numx)
         else:
-            assert len(data.shape) == 2
-            (numx, numy) = data.shape
+            xvals = float_array(xvals)
+            assert xvals.shape == (numx,)
 
-            if xvals is None:
-                xvals = Numeric.arange(numx)
-            else:
-                xvals = float_array(xvals)
-                assert xvals.shape == (numx,)
-
-            if yvals is None:
-                yvals = Numeric.arange(numy)
-            else:
-                yvals = float_array(yvals)
-                assert yvals.shape == (numy,)
+        if yvals is None:
+            yvals = Numeric.arange(numy)
+        else:
+            yvals = float_array(yvals)
+            assert yvals.shape == (numy,)
 
         if inline is _unset:
-            inline = not binary and _prefer_inline_data
+            inline = (not binary) and _prefer_inline_data
 
         # xvals, yvals, and data are now all filled with arrays of data.
         if binary and _recognizes_binary_splot:
@@ -982,6 +972,57 @@ class GridData(PlotItem):
     def pipein(self, f):
         if self._data:
             f.write(self._data)
+
+
+class GridFunc(GridData):
+    """Holds data representing a function of two variables, for use in splot.
+
+    'GridFunc' computes a function of two variables on a rectangular
+    grid.  After calculation the data are written to a file; no copy
+    is kept in memory.
+
+    """
+
+    def __init__(self, f, xvals, yvals, ufunc=0, **keyw):
+        """GridFunc constructor.
+
+        Arguments:
+
+            'f' -- the function to plot--a callable object for which
+                   f(x,y) returns a number.
+            'xvals' -- a 1-d array with dimension 'numx'
+            'yvals' -- a 1-d array with dimension 'numy'
+            'binary=<bool>' -- send data to gnuplot in binary format?
+            'inline=<bool>' -- send data to gnuplot "inline"?
+            'ufunc=<bool>' -- evaluate 'f' as a ufunc?
+
+        'f' should be a callable object taking two arguments.
+        'f(x,y)' will be computed at all grid points obtained by
+        combining elements from 'xvals' and 'yvals'.
+
+        If called with 'ufunc=1', then 'f' should be a function that
+        is composed entirely of ufuncs, and it will be passed the
+        xvals and yvals as rectangular matrices.
+
+        See the documentation for GridData for an explanation of the
+        'binary' and 'inline' arguments.
+
+        Thus if you have a function f and two vectors xvals and yvals
+        and a Gnuplot instance called g, you can plot the function by
+        typing 'g.splot(Gnuplot.GridFunc(data,xvals,yvals))'.
+
+        """
+
+        xvals = float_array(xvals)
+        (numx,) = xvals.shape
+
+        yvals = float_array(yvals)
+        (numy,) = yvals.shape
+
+        # evaluate function:
+        data = grid_function(f, xvals, yvals, ufunc=ufunc)
+
+        apply(GridData.__init__, (self, data, xvals, yvals), keyw)
 
 
 class Gnuplot:
@@ -1400,8 +1441,16 @@ def demo():
     # binary data.  Change this to `binary=1' (or omit the binary
     # option) to get the advantage of binary format.
     g.splot(GridData(m,x,y, binary=0))
+    raw_input('Please press return to continue...\n')
 
-    # Delay so the user can see the plots:
+    # plot another function, but letting GridFunc tabulate its values
+    # automatically:
+    def f(x,y):
+        import math
+        print x,y
+        return math.exp(- 0.01 * (x**2 + y**2))
+
+    g.splot(GridFunc(f, x,y, binary=0))
     raw_input('Please press return to continue...\n')
 
     # Explicit delete shouldn't be necessary, but if you are having
