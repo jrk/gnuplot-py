@@ -1,4 +1,4 @@
-This is to announce the release of version 1.6 of Gnuplot.py.
+This is to announce the release of version 1.7 of Gnuplot.py.
 
 Gnuplot.py is a Python [1] package that allows you to create graphs
 from within Python using the gnuplot [2] plotting program.
@@ -10,6 +10,12 @@ Gnuplot.py can be obtained from
 Prerequisites (see footnotes):
     the Python interpreter [1]
     the Python Numeric module [3]
+    the gnuplot program [2]
+
+or, to use it under Java (experimental):
+    a Java interpreter
+    the Jython interpreter [4]
+    the Jython version of the Numeric module [5]
     the gnuplot program [2]
 
 Some ways this package can be used:
@@ -56,9 +62,9 @@ Features already present in older versions:
   +  Support for sending data to gnuplot as `inline' or `binary' data.
      These are optimizations that also remove the need for temporary
      files.
-  +  Partly table-driven to make it easy to extend.  Now new terminal
+  +  Partly table-driven to make it easy to extend.  New terminal
      types can be supported easily by adding data to a table.
-  +  Support for distutils.
+  +  Install via distutils.
 
 
 Footnotes:
@@ -73,4 +79,8 @@ Footnotes:
 [3] The Numeric Python extension <http://numpy.sourceforge.net/> is a
     Python module that adds fast and convenient array manipulations to
     the Python language.
+[4] Jython <http://www.jython.org> is a Python interpreter that runs
+    within a Java virtual machine.
+[5] JNumeric <http://jnumerical.sourceforge.net/> is a version of the
+    Numeric module that runs under Java/Jython.
 
