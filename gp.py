@@ -63,7 +63,8 @@ class GnuplotOpts:
     # this option.
     recognizes_persist = None # test automatically on first use
 
-    # What should be the default if persist is not specified?
+    # What should be the default if the persist option is not
+    # specified explicitly?
     prefer_persist = 0
 
     # Recent versions of gnuplot allow you to specify a `binary'
@@ -157,7 +158,7 @@ class GnuplotProcess:
 
     '__init__' -- start up the program.
     '__call__' -- pass an arbitrary string to the gnuplot program,
-                  followed by a newline.
+        followed by a newline.
     'write' -- pass an arbitrary string to the gnuplot program.
     'flush' -- cause pending output to be written immediately.
 
@@ -171,10 +172,11 @@ class GnuplotProcess:
 
         Keyword arguments:
 
-          'persist=1' -- start gnuplot with the '-persist' option
-                         (which creates a new plot window for each
-                         plot command).  This option is not available
-                         on older versions of gnuplot.
+          'persist=1' -- start gnuplot with the '-persist' option,
+              (which leaves the plot window on the screen even after
+              the gnuplot program ends, and creates a new plot window
+              each time the terminal type is set to 'x11').  This
+              option is not available on older versions of gnuplot.
 
         """
 
