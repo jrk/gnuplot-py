@@ -1,4 +1,4 @@
-#!/usr/local/bin/python -t -O
+#!/usr/local/bin/python -tO
 # $Id$
 
 # A more complicated gnuplot interface.
