@@ -8,47 +8,49 @@
 # Hinsen <hinsen@ibs.ibs.fr>.
 
 # For information about how to use this module, see the documentation
-# string for class gnuplot, and the test code at the bottom of the
+# string for class Gnuplot, and the test code at the bottom of the
 # file.  You can run the test code by typing `python gnuplot.py'
 
+# ### Is this still true?
 # You should import this file with `import gnuplot', not with `from
 # gnuplot import *'; otherwise you will have a mess of conflicting
 # names.
 
 # Features:
-#  +  A gnuplot session is an instance of class `gnuplot', so multiple
+#  +  A gnuplot session is an instance of class `Gnuplot', so multiple
 #     sessions can be open at once:
-#         g1 = gnuplot(); g2 = gnuplot()
+#         g1 = Gnuplot(); g2 = Gnuplot()
 #  +  The implicitly-generated gnuplot commands can be stored to a file
 #     instead of executed immediately:
-#         g = gnuplot("commands.gnuplot")
+#         g = Gnuplot("commands.gnuplot")
 #  +  Can pass arbitrary commands to the gnuplot command interpreter:
 #         g("set pointsize 2")
-#  +  A gnuplot object knows how to plot three types of `plotitem':
-#     `data', `file', and `func'tion.  See those classes for
+#  +  A Gnuplot object knows how to plot three types of `PlotItem':
+#     `Data', `File', and `Func'tion.  See those classes for
 #     information.
-#  +  Any plotitem can have optional `title' and/or `with' suboptions.
-#  +  Builtin plotitem types:
-#      *  data(array1) -- data from a Python list or NumPy array
+#  +  Any PlotItem can have optional `title' and/or `with' suboptions.
+#  +  Builtin PlotItem types:
+#      *  Data(array1) -- data from a Python list or NumPy array
 #         (permits additional option `cols')
-#      *  file("filename") -- data from an existing data file (permits
+#      *  File("filename") -- data from an existing data file (permits
 #         additional option `using')
-#      *  func("exp(4.0 * sin(x))") -- functions (passed as a string
+#      *  Func("exp(4.0 * sin(x))") -- functions (passed as a string
 #         for gnuplot to evaluate)
-#  +  Plotitems are implemented as objects that can be assigned to
+#  +  PlotItems are implemented as objects that can be assigned to
 #     variables (including their options) and plotted
 #     repeatedly---this also saves much of the overhead of plotting
 #     the same data multiple times.
 #  +  Communication of data between python and gnuplot is via
 #     temporary files, which are deleted automatically when their
-#     associated plotitem is deleted.  (Communication of commands is
-#     via a pipe.)  The plotitems currently in use by a gnuplot object
+#     associated PlotItem is deleted.  (Communication of commands is
+#     via a pipe.)  The PlotItems currently in use by a Gnuplot object
 #     are stored in an internal list so that they won't be deleted
 #     prematurely.
 #  +  Can use `replot' method to add datasets to an existing plot.
 #  +  Can make persistent gnuplot windows by using the constructor
 #     option `persist=1'.  (`persist' is no longer the default.)  Such
 #     windows stay around even after the gnuplot program is exited.
+#     Note that only newer version of gnuplot support this option.
 #  +  Plotting to a postscript file is via new `hardcopy' method,
 #     which outputs the currently-displayed plot to either a
 #     postscript printer or to a postscript file.
@@ -56,31 +58,34 @@
 #     command from the old Gnuplot.py.
 #
 # Restrictions:
-#  -  Only a small fraction of gnuplot functionality is implemented as
-#     explicit python functions.  However, you can give arbitrary
-#     commands to gnuplot manually; for example:
-#         g = gnuplot()
-#         g('set data style linespoints')
-#         g('set pointsize 5')
-#     etc.  I might add a more organized way of setting arbitrary
-#     options.
 #  -  Relies on the Numeric Python extension.  This can be obtained
 #     from LLNL (See ftp://ftp-icf.llnl.gov/pub/python/README.html).
 #     If you're interested in gnuplot, you would probably also want
 #     NumPy anyway.
+#  -  Probably depends on a unix-type environment.  Anyone who wants
+#     to remedy this situation should get in contact with me.
+#  -  Only a small fraction of gnuplot functionality is implemented as
+#     explicit Gnuplot method functions.  However, you can give
+#     arbitrary commands to gnuplot manually; for example:
+#         g = Gnuplot()
+#         g('set data style linespoints')
+#         g('set pointsize 5')
+#     etc.  I might add a more organized way of setting arbitrary
+#     options.
 #  -  Only 2-d plots are supported so far.
 #  -  There is no provision for missing data points in array data
 #     (which gnuplot would allow by specifying `?' as a data point).
 #     I can't think of a clean way to implement this since NumPy
 #     doesn't seem to support NaN.
 #  -  There is no supported way to change the plotting options of
-#     plotitems after they have been created.
-#  -  Doesn't automatically plot using 1:2, 1:3, 1:4, etc for
-#     multi-columned data as did the old version of Gnuplot.py.
-#     Instead, make a temporary data file then plot that file multiple
-#     times with different `using=' options:
-#         a = temparrayfile(array_nx3)
-#         g.plot(file(a, using=(1,2)), file(a, using=(1,3)))
+#     PlotItems after they have been created.
+#  -  The object-oriented interface doesn't automatically plot
+#     datasets column-by-column using 1:2, 1:3, 1:4, etc as did the
+#     old version of Gnuplot.py.  Instead, make a temporary data file
+#     then plot that file multiple times with different `using='
+#     options:
+#         a = TemparrayFile(array_nx3)
+#         g.plot(File(a, using=(1,2)), File(a, using=(1,3)))
 #  -  Does not support parallel axis plots, as did the old Gnuplot.py.
 #
 # Bugs:
@@ -105,7 +110,7 @@ import sys, os, string, tempfile, Numeric
 # enough to understand the -persist option.
 _recognizes_persist = None
 
-# Test if Gnuplot is new enough to know the option -persist.  It it
+# Test if gnuplot is new enough to know the option -persist.  It it
 # isn't, it will emit an error message with '-persist' in the first
 # line.
 def test_persist():
@@ -124,19 +129,19 @@ class OptionException(Exception):
     pass
 
 
-class plotitem:
-    """plotitem represents an item that can be plotted by gnuplot.
+class PlotItem:
+    """Plotitem represents an item that can be plotted by gnuplot.
 
     For the finest control over the output, you can create the
-    plotitems yourself with additional options or derive new classes
-    from plotitem.
+    PlotItems yourself with additional keyword options, or derive new
+    classes from PlotItem.
 
     Members:
       basecommand -- a string holding the elementary argument that
                      must be passed to gnuplot's `plot' command for
                      this item; e.g., 'sin(x)' or '"filename.dat"'.
       options -- a list of strings that need to be passed as options
-                 to the plot command (in the order required); e.g.,
+                 to the plot command, in the order required; e.g.,
                  ['title "data"', 'with linespoints'].
       title -- the title requested (undefined if not requested).  Note
                that `title=None' implies the `notitle' option, whereas
@@ -160,16 +165,16 @@ class plotitem:
             del keyw['with']
             self.options.append('with ' + self.with)
         if keyw:
-            raise OptionException, keyw
+            raise OptionException(keyw)
 
     def command(self):
-        """Build the `plot' command.
+        """Build the `plot' command to be sent to gnuplot.
 
         Build and return the `plot' command, with options, necessary
         to display this item."""
 
         if self.options:
-            return self.basecommand + ' ' + string.join(self.options, ' ')
+            return self.basecommand + ' ' + string.join(self.options)
         else:
             return self.basecommand
 
@@ -179,30 +184,30 @@ class plotitem:
         pass
 
 
-class func(plotitem):
-    """func: a mathematical expression to plot.
+class Func(PlotItem):
+    """Represents a mathematical expression to plot.
 
-    func represents a mathematical expression that is to be computed
+    Func represents a mathematical expression that is to be computed
     by gnuplot itself, as in
         gnuplot> plot sin(x)
     The argument to the contructor is a string which is a gnuplot
     expression.  Example:
-        g.plot(func("sin(x)", with="line 3"))
+        g.plot(Func("sin(x)", with="line 3"))
     or shorthand
         g.plot("sin(x)")"""
 
     def __init__(self, funcstring, **keyw):
-        apply(plotitem.__init__, (self, funcstring), keyw)
+        apply(PlotItem.__init__, (self, funcstring), keyw)
 
 
-class anyfile:
-    """An anyfile represents a file
+class AnyFile:
+    """An AnyFile represents any kind of file to be used by gnuplot.
 
-    An anyfile represents a file, but presumably one that holds data
+    An AnyFile represents a file, but presumably one that holds data
     in a format readable by gnuplot.  This class simply remembers the
     filename; the existence and format of the file are not checked
-    whatsoever.  Note that this is not a plotitem, though it is used by
-    the `file' plotitem.  Members:
+    whatsoever.  Note that this is not a PlotItem, though it is used by
+    the `File' PlotItem.  Members:
 
         self.filename -- the filename of the file"""
 
@@ -210,23 +215,23 @@ class anyfile:
         self.filename = filename
 
 
-class temp_file(anyfile):
-    """A temp_file is a file that is automatically deleted.
+class TempFile(AnyFile):
+    """A TempFile is a file that is automatically deleted.
 
-    A temp_file is deleted automatically when the python object is
-    deleted.  WARNING: whatever filename you pass to this constructor
-    WILL BE DELETED when the temp_file object is deleted, even if it
-    was a pre-existing file!  This is intended to be used as a parent
-    class of temparrayfile."""
+    A TempFile points to a file.  The file is deleted automatically
+    when the TempFile object is deleted.  WARNING: whatever filename
+    you pass to this constructor WILL BE DELETED when the TempFile
+    object is deleted, even if it was a pre-existing file!  This is
+    intended to be used as a parent class of TempArrayFile."""
 
     def __del__(self):
         os.unlink(self.filename)
 
 
-class arrayfile(anyfile):
-    """An arrayfile is a file to which an array is written upon creation.
+class ArrayFile(AnyFile):
+    """A file to which, upon creation, an array is written.
 
-    When an arrayfile is constructed, it creates a file and fills it
+    When an ArrayFile is constructed, it creates a file and fills it
     with the contents of a 2-d Numeric array in the format expected by
     gnuplot (i.e., whitespace-separated columns).  The filename can be
     specified, otherwise a random filename is chosen.  The file is NOT
@@ -242,48 +247,48 @@ class arrayfile(anyfile):
             filename = tempfile.mktemp()
         f = open(filename, 'w')
         for point in set:
-            f.write(string.join(map(repr, point.tolist()), ' ') + '\n')
+            f.write(string.join(map(repr, point.tolist())) + '\n')
         f.close()
-        anyfile.__init__(self, filename)
+        AnyFile.__init__(self, filename)
 
 
-class temparrayfile(arrayfile, temp_file):
-    """An arrayfile that is deleted automatically."""
+class TempArrayFile(ArrayFile, TempFile):
+    """An ArrayFile that is deleted automatically."""
 
     def __init__(self, set, filename=None):
-        arrayfile.__init__(self, set, filename)
+        ArrayFile.__init__(self, set, filename)
 
 
-class file(plotitem):
-    """A plotitem representing a datafile.
+class File(PlotItem):
+    """A PlotItem representing a DataFile.
 
-    file is a plotitem that represents a file that should be plotted
+    File is a PlotItem that represents a file that should be plotted
     by gnuplot.  <file> can be either a string holding the filename of
-    a file that already exists, or it can be any kind of anyfile (such
-    as a temparrayfile).  Keyword arguments recognized (in addition to
-    those supplied by plotitem):
+    a file that already exists, or it can be anything derived from
+    AnyFile (such as a TempArrayFile).  Keyword arguments recognized
+    (in addition to those supplied by PlotItem):
         using=<n> -- plot that column against line number
         using=<tuple> -- plot using a:b:c:d etc.
         using=<string> -- plot `using <string>' (allows gnuplot's
                           arbitrary column arithmetic) 
     Note that the `using' option is interpreted by gnuplot, so columns
     must be numbered starting with 1.  Other keyword arguments are
-    passed along to plotitem.  The default `title' for an anyfile
-    plotitem is `notitle'."""
+    passed along to PlotItem.  The default `title' for an AnyFile
+    PlotItem is `notitle'."""
 
     def __init__(self, file, using=None, **keyw):
-        if isinstance(file, anyfile):
+        if isinstance(file, AnyFile):
             self.file = file
             # If no title is specified, then use `notitle' for
-            # temp_files (to avoid using the temporary filename as the
+            # TempFiles (to avoid using the temporary filename as the
             # title.)
-            if isinstance(file, temp_file) and not keyw.has_key('title'):
+            if isinstance(file, TempFile) and not keyw.has_key('title'):
                 keyw['title'] = None
         elif type(file) == type(""):
-            self.file = anyfile(file)
+            self.file = AnyFile(file)
         else:
             raise OptionException
-        apply(plotitem.__init__, (self, '"' + self.file.filename + '"'), keyw)
+        apply(PlotItem.__init__, (self, '"' + self.file.filename + '"'), keyw)
         self.using = using
         if self.using is None:
             pass
@@ -296,42 +301,43 @@ class file(plotitem):
         elif type(self.using) == type(1):
             self.options.insert(0, "using " + `self.using`)
         else:
-            raise OptionException, 'using=' + `self.using`
+            raise OptionException('using=' + `self.using`)
 
 
-class data(file):
-    """Used to plot array data with gnuplot.
+class Data(File):
+    """Used to plot array data with Gnuplot.
 
-    Create a plotitem out of a Python numeric array (or something that
-    can be converted to a Float numeric array).  The array is first
+    Create a PlotItem out of a Python Numeric array (or something that
+    can be converted to a Float Numeric array).  The array is first
     written to a temporary file, then that file is plotted.  Keyword
-    arguments recognized (in addition to those supplied by plotitem):
+    arguments recognized (in addition to those supplied by PlotItem):
         cols=<tuple>
     which outputs only the specified columns of the array to the file.
     Since cols is used by python, the columns should be numbered in
-    the python style, not the gnuplot style.  The data are written to
-    the temp file; no copy is kept in memory."""
+    the python style (starting from 0), not the gnuplot style
+    (starting from 1).  The data are written to the temp file; no copy
+    is kept in memory."""
 
     def __init__(self, set, cols=None, **keyw):
         set = Numeric.asarray(set, Numeric.Float)
         if cols is not None:
             set = Numeric.take(set, cols, 1)
-        apply(file.__init__, (self, temparrayfile(set)), keyw)
+        apply(File.__init__, (self, TempArrayFile(set)), keyw)
 
 
-class gnuplot:
+class Gnuplot:
     """gnuplot plotting object.
 
-    A gnuplot represents a running gnuplot process and a pipe to
+    A Gnuplot represents a running gnuplot program and a pipe to
     communicate with it.  It keeps a reference to each of the
-    plotitems used in the current plot, so that they (and their
+    PlotItems used in the current plot, so that they (and their
     associated temporary files) are not deleted prematurely.  The
     communication is one-way; gnuplot's text output just goes to
     stdout with no attempt to check it for error messages.
 
     Members:
         gnuplot -- the pipe to gnuplot or a file gathering the commands
-        itemlist -- a list of the plotitems that are associated with the
+        itemlist -- a list of the PlotItems that are associated with the
                     current plot.  These are deleted whenever a new plot
                     command is issued via the `plot' method.
         debug -- if this flag is set, commands sent to gnuplot will also
@@ -341,43 +347,53 @@ class gnuplot:
         __init__ -- if a filename argument is specified, the commands
                     will be written to that file instead of being piped
                     to gnuplot immediately.
-        __call__ -- pass an arbitrary string to the gnuplot process,
-                    followed by a newline.
-        refresh -- issue (or reissue) the plot command using the current
-                   plotitems.
-        plot -- clear the old plot and old plotitems, then plot its
+        plot -- clear the old plot and old PlotItems, then plot the
                 arguments in a fresh plot command.  Arguments can be: a
-                plotitem, which is plotted along with its internal
-                options; a string, which is plotted as a func(); or
-                anything else, which is plotted as a data().
+                PlotItem, which is plotted along with its internal
+                options; a string, which is plotted as a Func; or
+                anything else, which is plotted as a Data.
+        hardcopy -- replot the plot to a postscript file (if filename
+                    argument is specified) or pipe it to lpr othewise.
+                    If the option `color' is set to true, then output
+                    color postscript.
         replot -- replot the old items, adding any arguments as
                   additional items as in the plot method.
+        refresh -- issue (or reissue) the plot command using the current
+                   PlotItems.
+        __call__ -- pass an arbitrary string to the gnuplot process,
+                    followed by a newline.
+        xlabel,ylabel,title --  set attribute to be a string.
         interact -- read lines from stdin and send them, one by one, to
                     the gnuplot interpreter.  Basically you can type
                     commands directly to the gnuplot command processor
                     (though without command-line editing).
         load -- load a file (using the gnuplot `load' command).
         save -- save gnuplot commands to a file (using gnuplot `save'
-                command, not the saved plotitems).
-        xlabel,ylabel,title --  set attribute to be a string.
-        hardcopy -- replot the plot to a postscript file (if filename
-                    argument is specified) or pipe it to lpr othewise.
-                    If the option `color' is set to true, then output
-                    color postscript."""
+                command) If any of the PlotItems is a temporary file,
+                it will be deleted at the usual time and the save file
+                might be pretty useless :-).
+        clear -- clear the plot window (but not the itemlist).
+        reset -- reset all gnuplot settings to their defaults and clear
+                 the current itemlist.
+        set_string -- set or unset a gnuplot option whose value is a
+                      string.
+        _clear_queue -- clear the current PlotItem list.
+        _add_to_queue -- add the specified items to the current
+                         PlotItem list."""
 
     def __init__(self, filename=None, persist=0, debug=0):
-        """Create a gnuplot object.
+        """Create a Gnuplot object.
 
-        gnuplot(filename=None, persist=0, debug=0):
-        Create a gnuplot object.  By default, this starts a gnuplot
+        Gnuplot(filename=None, persist=0, debug=0):
+        Create a Gnuplot object.  By default, this starts a gnuplot
         process and prepares to write commands to it.  If a filename
         is specified, the commands are instead written to that file
         (i.e., for later use using `load').  If persist is set,
         gnuplot will be started with the `-persist' option (which
-        creates a new X11 plot window for each plot command).  This
-        option is not available on older version of gnuplot.  If debug
-        is set, the gnuplot commands are echoed to stderr as well as
-        being send to gnuplot."""
+        creates a new X11 plot window for each plot command).  (This
+        option is not available on older version of gnuplot.)  If
+        debug is set, the gnuplot commands are echoed to stderr as
+        well as being send to gnuplot."""
 
         if filename:
             # put gnuplot commands into a file:
@@ -412,10 +428,10 @@ class gnuplot:
             sys.stderr.write("gnuplot> %s\n" % (s,))
 
     def refresh(self):
-        """Refresh the plot, using the current plotitems.
+        """Refresh the plot, using the current PlotItems.
 
-        Refresh the current plot by reissuing the same gnuplot plot
-        command."""
+        Refresh the current plot by reissuing the gnuplot plot
+        command corresponding to the current itemlist."""
 
         plotcmds = []
         for item in self.itemlist:
@@ -425,26 +441,26 @@ class gnuplot:
             item.pipein(self.gnuplot)
 
     def _clear_queue(self):
-        """Clear the plotitems from the queue."""
+        """Clear the PlotItems from the queue."""
 
         self.itemlist = []
 
     def _add_to_queue(self, items):
         """Add a list of items to the itemlist, but don't plot them.
 
-        An item can be a plotitem of any kind, a string (interpreted
+        An item can be a PlotItem of any kind, a string (interpreted
         as a function string for gnuplot to evaluate), or a Numeric
         array (or something that can be converted to a Numeric
         array)."""
 
         for item in items:
-            if isinstance(item, plotitem):
+            if isinstance(item, PlotItem):
                 self.itemlist.append(item)
             elif type(item) is type(""):
-                self.itemlist.append(func(item))
+                self.itemlist.append(Func(item))
             else:
                 # assume data is an array:
-                self.itemlist.append(data(item))
+                self.itemlist.append(Data(item))
 
     def plot(self, *items, **kw):
         """Draw a new plot.
@@ -453,18 +469,19 @@ class gnuplot:
         containing the specified items.  Arguments can be of the
         following types:
 
-        plotitem (i.e., data, file, func):
+        PlotItem (e.g., Data, File, Func):
             This is the most flexible way to call plot because the
-            plotitems can contain suboptions.  Moreover, plotitems can
+            PlotItems can contain suboptions.  Moreover, PlotItems can
             be saved to variables so that their lifetime is longer
             than one plot command--thus they can be replotted with
             minimal overhead.
         string (i.e., "sin(x)"):
-            The string is interpreted as a func() (a function that is
+            The string is interpreted as a Func() (a function that is
             computed by gnuplot).
         Anything else:
-            The object is converted to a data() item, and thus plotted
-            as two-column data."""
+            The object is converted to a Data() item, and thus plotted
+            as two-column data.  If the conversion fails, an exception
+            is raised."""
 
         # remove old files:
         self._clear_queue()
@@ -472,7 +489,7 @@ class gnuplot:
         self.refresh()
 
     def replot(self, *items):
-        """Replot the data, possibly adding new plotitems.
+        """Replot the data, possibly adding new PlotItems.
 
         Replot the existing graph, using the items in the current
         itemlist.  If arguments are specified, they are interpreted as
@@ -564,6 +581,9 @@ class gnuplot:
         self('set output')
 
 
+# The following is a command defined for compatibility with Hinson's
+# old Gnuplot.py module.  Its use is deprecated.
+
 # When the plot command is called and persist is not available, the
 # plotters will be stored here to prevent their being closed:
 _gnuplot_processes = []
@@ -573,11 +593,11 @@ def plot(*items, **kw):
 
     This command is roughly compatible with old Gnuplot plot command.
     It is provided for backwards compatibility only.  It is
-    recommended that you use the new gnuplot interface, which is much
-    more flexible.
+    recommended that you use the new object-oriented Gnuplot
+    interface, which is much more flexible.
 
-    It can only plot array data.  In this routine an NxM array is
-    plotted as M-1 separate datasets, using columns 1:2, 1:3, ...,
+    It can only plot Numeric array data.  In this routine an NxM array
+    is plotted as M-1 separate datasets, using columns 1:2, 1:3, ...,
     1:M.
 
     Limitations:
@@ -590,28 +610,28 @@ def plot(*items, **kw):
         item = Numeric.asarray(item, Numeric.Float)
         if item.shape[1] == 1:
             # one column; just store one item for tempfile:
-            newitems.append(data(item, with='lines'))
+            newitems.append(Data(item, with='lines'))
         else:
             # more than one column; store item for each 1:2, 1:3, etc.
-            tempf = temparrayfile(item)
+            tempf = TempArrayFile(item)
             for col in range(1, item.shape[1]):
-                newitems.append(file(tempf, using=(1,col+1), with='lines'))
+                newitems.append(File(tempf, using=(1,col+1), with='lines'))
     items = tuple(newitems)
     del newitems
 
     if kw.has_key('file'):
-        g = gnuplot()
+        g = Gnuplot()
         # setup plot without actually plotting (so data don't appear
         # on the screen):
         g._add_to_queue(items)
         g.hardcopy(kw['file'])
         # process will be closed automatically
     elif test_persist():
-        g = gnuplot(persist=1)
+        g = Gnuplot(persist=1)
         apply(g.plot, items)
         # process will be closed automatically
     else:
-        g = gnuplot()
+        g = Gnuplot()
         apply(g.plot, items)
         # prevent process from being deleted:
         _gnuplot_processes.append(g)
@@ -622,24 +642,27 @@ if __name__ == '__main__':
     from Numeric import *
     import sys
 
-    # a more straightforward use of gnuplot:
-    g1 = gnuplot(debug=1)
-    g1('set data style linesp')
-    # List of (x, y) pairs
-    g1.plot([(0.,1.1),(1.,5.8),(2.,3.3),(3.,4.2)])
+    # a straightforward use of gnuplot:
+    g1 = Gnuplot(debug=1)
+    g1.title('A simple example') # (optional)
+    g1('set data style linespoints') # give gnuplot an arbitrary command
+    # Plot a list of (x, y) pairs (tuples or a Numeric array would
+    # also be OK):
+    g1.plot([[0.,1.1], [1.,5.8], [2.,3.3], [3.,4.2]])
 
-
-    # Two plots given by arrays and one by a gnuplot function:
-    g2 = gnuplot(debug=1)
+    # Plot one dataset from an array and one via a gnuplot function;
+    # also demonstrate the use of item-specific options:
+    g2 = Gnuplot(debug=1)
     x = arange(10)
     y1 = x**2
-    y2 = (10-x)**2
-    d = data(transpose((x, y1)),
+    d = Data(transpose((x, y1)),
              title="calculated by python",
              with="points 1 1")
     g2.title('Data can be computed by python or gnuplot')
     g2.xlabel('x')
-    g2.plot(d, func("x**2", title="calculated by gnuplot"))
+    g2.plot(d, Func("x**2", title="calculated by gnuplot"))
+
+    # Save what we just plotted as a color postscript file:
     print "\n                 Generating postscript file 'junk.ps'\n"
     g2.hardcopy('junk.ps', color=1)
 
