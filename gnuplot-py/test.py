@@ -21,6 +21,7 @@ Boston, MA 02111-1307, USA.
 __cvs_version__ = 'CVS version $Revision$'
 
 import sys, math
+import Numeric
 from Numeric import *
 import Gnuplot
 gp = Gnuplot # abbreviation
@@ -40,18 +41,53 @@ def main():
     f.close()
 
     g = gp.Gnuplot()
+
+    ############### test Func ########################################
+    print 'Plot a gnuplot-generated function'
+    g.plot(gp.Func('sin(x)'))
+    wait()
+
+    print 'Set title and axis labels and try replot()'
+    g.title('Title')
+    g.xlabel('x')
+    g.ylabel('y')
+    g.replot()
+    wait()
+
+    print 'Style linespoints'
+    g.plot(gp.Func('sin(x)', with='linespoints'))
+    wait()
+    print 'title=None'
+    g.plot(gp.Func('sin(x)', title=None))
+    wait()
+    print 'title="Sine of x"'
+    g.plot(gp.Func('sin(x)', title='Sine of x'))
+    wait()
+
+    print 'Change Func attributes after construction:'
+    f = gp.Func('sin(x)')
+    print 'Original'
+    g.plot(f)
+    wait()
+    print 'Style linespoints'
+    f.set_option(with='linespoints')
+    g.plot(f)
+    wait()
+    print 'title=None'
+    f.set_option(title=None)
+    g.plot(f)
+    wait()
+    print 'title="Sine of x"'
+    f.set_option(title='Sine of x')
+    g.plot(f)
+    wait()
+
+    ############### test File ########################################
     print 'Generate a File from a filename'
     g.plot(gp.File(file1.filename))
     wait()
     print 'Generate a File given a TempFile object'
     g.plot(gp.File(file1))
-    wait()
-
-    g.title('Title')
-    g.xlabel('x')
-    g.ylabel('y')
-    print 'Set title and axis labels'
-    g.replot()
     wait()
 
     print 'Style lines'
@@ -72,7 +108,7 @@ def main():
     g.plot(gp.File(file1.filename, title='title'))
     wait()
 
-    print 'Test changing File attributes after construction:'
+    print 'Change File attributes after construction:'
     f = gp.File(file1.filename)
     print 'Original'
     g.plot(f)
@@ -90,12 +126,41 @@ def main():
     g.plot(f)
     wait()
 
-    g.ylabel('x^2') # take advantage of enhanced postscript mode
-    print ('\n******** Generating postscript file '
-           '"gnuplot_test_plot.ps" ********\n')
-    g.hardcopy('gnuplot_test_plot.ps', enhanced=1, color=1)
+    ############### test Data ########################################
+    x = arange(100)/5. - 10.
+    y1 = Numeric.cos(x)
+    y2 = Numeric.sin(x)
+    d = Numeric.array((x,y1,y2))
 
-    # Demonstrate a 3-d plot:
+    print 'Plot Data, specified column-by-column'
+    g.plot(gp.Data(x,y1))
+    wait()
+    print 'Plot Data, specified by an array'
+    g.plot(gp.Data(d))
+    wait()
+    print 'with="lp 4 4"'
+    g.plot(gp.Data(d, with='lp 4 4'))
+    wait()
+    print 'cols=0'
+    g.plot(gp.Data(d, cols=0))
+    wait()
+    print 'cols=(0,1), cols=(0,2)'
+    g.plot(gp.Data(d, cols=(0,1)),
+           gp.Data(d, cols=(0,2)))
+    wait()
+    print 'title=None'
+    g.plot(gp.Data(d, title=None))
+    wait()
+    print 'title="Cosine of x"'
+    g.plot(gp.Data(d, title='Cosine of x'))
+    wait()
+
+    ############### test shortcuts ###################################
+    print 'plot Func and Data using shortcuts'
+    g.plot('sin(x)', d)
+    wait()
+
+    ############### test GridData ####################################
     # set up x and y values at which the function will be tabulated:
     x = arange(35)/2.0
     y = arange(30)/10.0 - 1.5
@@ -120,10 +185,11 @@ def main():
     # option) to get the advantage of binary format.
     g.splot(gp.GridData(m,x,y, binary=0))
 
-    # Delay so the user can see the plots:
-    sys.stderr.write('Three plots should have appeared on your screen '
-                     '(they may be overlapping).\n')
-    wait()
+    ############### test HardCopy ####################################
+    g.ylabel('x^2') # take advantage of enhanced postscript mode
+    print ('\n******** Generating postscript file '
+           '"gnuplot_test_plot.ps" ********\n')
+    g.hardcopy('gnuplot_test_plot.ps', enhanced=1, color=1)
 
 
 if __name__ == '__main__':
