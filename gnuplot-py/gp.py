@@ -24,7 +24,7 @@ defined in this file.
 
 """
 
-__version__ = '1.3'
+__version__ = '1.4'
 __cvs_version__ = '$Revision$'
 
 

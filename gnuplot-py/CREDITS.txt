@@ -6,9 +6,8 @@ earlier version by Konrad Hinsen.  I maintain it and continue to
 develop it, though by now it has most of the features that I had
 planned for it.
 
-Any errors in Gnuplot.py are mine; however, I would like to
-acknowledge and express my appreciation to the following people for
-their contributions:
+I would like to acknowledge and express my appreciation to the
+following people for their contributions:
 
 Konrad Hinsen <hinsen@ibs.ibs.fr> wrote the first, procedural
 interface version of Gnuplot.py.  His code is still present in many
@@ -21,7 +20,7 @@ changes to allow web documentation to be generated from the Gnuplot.py
 source.
 
 Craig Schardt <lazrnerd@ufl.edu> and Francois Ladouceur
-<f.ladouceur@virtualphotonics.com> contributed changes that enable
+<f.ladouceur@virtualphotonics.com> contributed changes to enable
 Gnuplot.py to work under MS-Windows.
 
 Tony Ingraldi <a.m.ingraldi@larc.nasa.gov> got Gnuplot.py to work on

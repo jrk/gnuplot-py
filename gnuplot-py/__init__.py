@@ -62,9 +62,9 @@ Features:
         g1 = Gnuplot.Gnuplot()
         g2 = Gnuplot.Gnuplot()
 
-    Note that due to a limitation in pgnuplot, opening multiple
-    simultaneous sessions under Windows may not work correctly.  It is
-    unknown whether multiple sessions will work on the Macintosh.
+    Note that due to limitations on those platforms, opening multiple
+    simultaneous sessions on Windows or Macintosh may not work
+    correctly.  (Feedback?)
 
  o  The implicitly-generated gnuplot commands can be stored to a file
     instead of executed immediately.
@@ -169,7 +169,7 @@ Bugs:
 
 """
 
-__version__ = '1.3'
+__version__ = '1.4'
 __cvs_version__ = '$Revision$'
 
 # Other modules that should be loaded for 'from Gnuplot import *':

@@ -9,10 +9,10 @@ Version 1.4:
 * Added support for the Macintosh, thanks to help from Tony Ingraldi.
 
 * Split the platform-dependent code, including the configuration
-  options, out into separate modules: gp.py, gp_mac.py, and
-  gp_win32.py.  The GnuplotProcess class defined in those files is a
-  lightweight interface to the gnuplot program that could also
-  conceivably be useful to somebody.
+  options, into separate modules: gp.py, gp_mac.py, and gp_win32.py.
+  The GnuplotProcess class defined in those files is a lightweight
+  interface to the gnuplot program that could also conceivably be
+  useful to somebody.
 
 * Fixed an import problem in test.py.
 
