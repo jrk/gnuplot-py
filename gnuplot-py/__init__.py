@@ -575,7 +575,7 @@ class Data(PlotItem):
         apply(PlotItem.__init__, (self, '"' + self.file.filename + '"'), keyw)
 
 
-class GridData(File):
+class GridData(PlotItem):
     """Holds data representing a function of two variables, for use in splot.
 
     GridData represents a function that has been tabulated on a
@@ -625,15 +625,13 @@ class GridData(File):
             xvals = Numeric.arange(numx)
         else:
             xvals = float_array(xvals)
-            assert len(xvals.shape) == 1
-            assert xvals.shape[0] == numx
+            assert xvals.shape == (numx,)
 
         if yvals is None:
             yvals = Numeric.arange(numy)
         else:
             yvals = float_array(yvals)
-            assert len(yvals.shape) == 1
-            assert yvals.shape[0] == numy
+            assert yvals.shape == (numy,)
 
         if binary and _recognizes_binary_splot:
             # write file in binary format
@@ -648,9 +646,13 @@ class GridData(File):
                 # if that didn't work then downcasting from double
                 # must be necessary:
                 mout[1:,1:] = data.astype(Numeric.Float32)
-            f = TempFile()
-            open(f.filename, 'wb').write(mout.tostring())
-            apply(File.__init__, (self, f), keyw)
+            self.file = TempFile()
+            open(self.file.filename, 'wb').write(mout.tostring())
+
+            # avoid using the temporary filename as the title:
+            keyw['title'] = keyw.get('title', None)
+            apply(PlotItem.__init__, (self, '"%s"' % self.file.filename), keyw)
+
             # Include the command-line option to read in binary data:
             self.options['binary'] = 1
         else:
@@ -659,7 +661,10 @@ class GridData(File):
                     (Numeric.transpose(Numeric.resize(xvals, (numy, numx))),
                      Numeric.resize(yvals, (numx, numy)),
                      data)), (1,2,0))
-            apply(File.__init__, (self, TempArrayFile(set)), keyw)
+            self.file = TempArrayFile(set)
+            # avoid using the temporary filename as the title:
+            keyw['title'] = keyw.get('title', None)
+            apply(PlotItem.__init__, (self, '"%s"' % self.file.filename), keyw)
 
 
 def grid_function(f, xvals, yvals):
