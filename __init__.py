@@ -504,7 +504,7 @@ class File(PlotItem):
             raise OptionException('using=' + `self.using`)
 
 
-class Data(File):
+class Data(PlotItem):
     """Allows data from memory to be plotted with Gnuplot.
 
     Takes a numeric array from memory and outputs it to a temporary
@@ -557,7 +557,33 @@ class Data(File):
         if keyw.has_key('cols') and keyw['cols'] is not None:
             set = Numeric.take(set, keyw['cols'], -1)
             del keyw['cols']
-        apply(File.__init__, (self, TempArrayFile(set)), keyw)
+
+        self.file = TempArrayFile(set)
+
+        # Data used to be subclassed from File, and most of the
+        # following was basically taken from File.__init__:
+        if keyw.has_key('using'):
+            self.using = keyw['using']
+            del keyw['using']
+        else:
+            self.using = None
+        # If no title is specified, then use `notitle' (to avoid using
+        # the temporary filename as the title).
+        if not keyw.has_key('title'):
+            keyw['title'] = None
+        apply(PlotItem.__init__, (self, '"' + self.file.filename + '"'), keyw)
+        if self.using is None:
+            pass
+        elif type(self.using) == type(''):
+            self.options.insert(0, 'using ' + self.using)
+        elif type(self.using) == type(()):
+            self.options.insert(0,
+                                'using ' +
+                                string.join(map(repr, self.using), ':'))
+        elif type(self.using) == type(1):
+            self.options.insert(0, 'using ' + `self.using`)
+        else:
+            raise OptionException('using=' + `self.using`)
 
 
 class GridData(File):
@@ -1130,16 +1156,16 @@ if __name__ == '__main__':
 
     # Enable the following code to test the old-style gnuplot interface
     if 0:
-	# List of (x, y) pairs
-	plot([(0.,1),(1.,5),(2.,3),(3.,4)])
+        # List of (x, y) pairs
+        plot([(0.,1),(1.,5),(2.,3),(3.,4)])
 
-	# List of y values, file output
+        # List of y values, file output
         print '\n            Generating postscript file "gnuplot_test2.ps"\n'
-	plot([1, 5, 3, 4], file='gnuplot_test2.ps')
+        plot([1, 5, 3, 4], file='gnuplot_test2.ps')
 
-	# Two plots; each given by a 2d array
-	x = arange(10, typecode=Float)
-	y1 = x**2
-	y2 = (10-x)**2
-	plot(transpose(array([x, y1])), transpose(array([x, y2])))
+        # Two plots; each given by a 2d array
+        x = arange(10, typecode=Float)
+        y1 = x**2
+        y2 = (10-x)**2
+        plot(transpose(array([x, y1])), transpose(array([x, y2])))
 
