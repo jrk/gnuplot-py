@@ -107,9 +107,6 @@ Features:
  o  Can plot either to a postscript printer or to a file via
     'hardcopy' method.
 
- o  There is a 'plot' command which is roughly compatible with the
-    command from Konrad Hinsen's old 'Gnuplot.py'.
-
  o  Grid data for the splot command can be sent to gnuplot in binary
     format, saving time and disk space.
 
@@ -1229,68 +1226,6 @@ class Gnuplot:
         self.set_string('output')
 
 
-# When the plot command is called and persist is not available, the
-# plotters will be stored here to prevent their being closed:
-_gnuplot_processes = []
-
-def plot(*items, **keyw):
-    """Plot data using gnuplot through Gnuplot.
-
-    This command is roughly compatible with old Gnuplot plot command.
-    It is provided for backwards compatibility with the old functional
-    interface only.  It is recommended that you use the new
-    object-oriented Gnuplot interface, which is much more flexible.
-
-    It can only plot Numeric array data.  In this routine an NxM array
-    is plotted as M-1 separate datasets, using columns 1:2, 1:3, ...,
-    1:M.
-
-    Limitations:
-
-        - If persist is not available, the temporary files are not
-          deleted until final python cleanup.
-
-    """
-
-    newitems = []
-    for item in items:
-        # assume data is an array:
-        item = float_array(item)
-        dim = len(item.shape)
-        if dim == 1:
-            newitems.append(Data(item[:, Numeric.NewAxis], with='lines'))
-        elif dim == 2:
-            if item.shape[1] == 1:
-                # one column; just store one item for tempfile:
-                newitems.append(Data(item, with='lines'))
-            else:
-                # more than one column; store item for each 1:2, 1:3, etc.
-                tempf = TempArrayFile(item)
-                for col in range(1, item.shape[1]):
-                    newitems.append(File(tempf, using=(1,col+1), with='lines'))
-        else:
-            raise DataException('Data array must be 1 or 2 dimensional')
-    items = tuple(newitems)
-    del newitems
-
-    if keyw.has_key('file'):
-        g = Gnuplot()
-        # setup plot without actually plotting (so data don't appear
-        # on the screen):
-        g._add_to_queue(items)
-        g.hardcopy(keyw['file'])
-        # process will be closed automatically
-    elif test_persist():
-        g = Gnuplot(persist=1)
-        apply(g.plot, items)
-        # process will be closed automatically
-    else:
-        g = Gnuplot()
-        apply(g.plot, items)
-        # prevent process from being deleted:
-        _gnuplot_processes.append(g)
-
-
 def demo():
     """Demonstrate the package."""
 
@@ -1333,8 +1268,8 @@ def demo():
     # support enhanced mode, set `enhanced=0' below.
     g2.ylabel('x^2') # take advantage of enhanced postscript mode
     print ('\n******** Generating postscript file '
-           '"gnuplot_test_plot.ps" ********\n')
-    g2.hardcopy('gnuplot_test_plot.ps', enhanced=1, color=1)
+           '"gp_test.ps" ********\n')
+    g2.hardcopy('gp_test.ps', enhanced=1, color=1)
 
     # Demonstrate a 3-d plot:
     g3 = Gnuplot(debug=1)
@@ -1371,21 +1306,6 @@ def demo():
     # trouble with temporary files being left behind, uncomment the
     # following:
     #del g1, g2, g3, d
-
-    # Enable the following code to test the old-style gnuplot interface
-    if 0:
-        # List of (x, y) pairs
-        plot([(0.,1),(1.,5),(2.,3),(3.,4)])
-
-        # List of y values, file output
-        print '\n            Generating postscript file "gnuplot_test2.ps"\n'
-        plot([1, 5, 3, 4], file='gnuplot_test2.ps')
-
-        # Two plots; each given by a 2d array
-        x = arange(10, typecode=Float)
-        y1 = x**2
-        y2 = (10-x)**2
-        plot(transpose(array([x, y1])), transpose(array([x, y2])))
 
 
 if __name__ == '__main__':
