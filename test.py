@@ -26,7 +26,6 @@ __cvs_version__ = '$Revision$'
 
 import math, time
 import Numeric
-from Numeric import *
 try:
     import Gnuplot
 except:
@@ -206,6 +205,7 @@ def main():
     wait(prompt='Press return to end the test.\n')
 
 
-# when executed or imported, just run main():
-main()
+# when executed, just run main():
+if __name__ == '__main__':
+    main()
 
