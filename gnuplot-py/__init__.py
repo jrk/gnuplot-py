@@ -293,7 +293,7 @@ def write_array(f, set,
         f.write(nest_suffix)
 
 
-def grid_function(f, xvals, yvals):
+def grid_function(f, xvals, yvals, typecode = Numeric.Float32):
     """Compute a function on a grid.
 
     'xvals' and 'yvals' should be 1-D arrays listing the values of x
@@ -309,7 +309,7 @@ def grid_function(f, xvals, yvals):
 
     """
 
-    m = Numeric.zeros((len(xvals), len(yvals)), Numeric.Float)
+    m = Numeric.zeros((len(xvals), len(yvals)), typecode=typecode)
     for xi in range(len(xvals)):
         x = xvals[xi]
         for yi in range(len(yvals)):
@@ -622,8 +622,11 @@ class Data(PlotItem):
             # transpose so that the last index selects x vs. y:
             set = Numeric.transpose(set, (dims-1,) + tuple(range(dims-1)))
         if keyw.has_key('cols'):
-            set = Numeric.take(set, keyw['cols'], -1)
+            cols = keyw['cols']
             del keyw['cols']
+            if type(cols) is type(1):
+                cols = (cols,)
+            set = Numeric.take(set, cols, -1)
 
         self.file = TempArrayFile(set)
 
@@ -658,46 +661,80 @@ class GridData(PlotItem):
 
     """
 
-    def __init__(self, data, xvals=None, yvals=None, binary=1, **keyw):
+    def __init__(self, toplot, xvals=None, yvals=None, binary=1, **keyw):
         """GridData constructor.
 
         Arguments:
 
-            'data' -- a 2-d array with dimensions (numx,numy)
+            'toplot' -- the thing to plot: a 2-d array with dimensions
+                        (numx,numy), OR callable object for which
+                        toplot(x,y) returns a number.
             'xvals' -- a 1-d array with dimension (numx)
             'yvals' -- a 1-d array with dimension (numy)
 
-        'data' is meant to hold the values of a function f(x,y) tabulated
-        on a grid of points, such that 'data[i,j] == f(xvals[i],
-        yvals[j])'.  These data are written to a datafile as 'x y f(x,y)'
-        triplets that can be used by gnuplot's splot command.  Thus if you
-        have three arrays in the above format and a Gnuplot instance
-        called g, you can plot your data by typing for example:
-
-            g.splot(Gnuplot.GridData(data,xvals,yvals))
-
-        If 'xvals' and/or 'yvals' are omitted, integers (starting with
+        'toplot' can be a data array, in which case it should hold the
+        values of a function f(x,y) tabulated on a grid of points,
+        such that 'toplot[i,j] == f(xvals[i], yvals[j])'.  If 'xvals'
+        and/or 'yvals' are omitted, integers (starting with
         0) are used for that coordinate.  The data are written to a
         temporary file; no copy of the data is kept in memory.
 
+        Alternatively 'toplot' can be a function object taking two
+        arguments, in which case toplot(x,y) will be computed at all
+        grid points with x and y taken from xvals and yvals
+        respectively.
+
+        If binary=0 then the data are written to a datafile as 'x y
+        f(x,y)' triplets that can be used by gnuplot's splot command.
+        If binary=1 then the data are written to a file in a binary
+        format that splot can understand.
+
+        Thus if you have three arrays in the above format and a
+        Gnuplot instance called g, you can plot your data by typing
+        for example:
+
+            g.splot(Gnuplot.GridData(data,xvals,yvals))
+
         """
 
-        data = float_array(data)
-        assert len(data.shape) == 2
-        (numx, numy) = data.shape
-
-        if xvals is None:
-            xvals = Numeric.arange(numx)
-        else:
+        try:
+            # Try to interpret data as an array:
+            data = float_array(toplot)
+        except TypeError:
+            # That didn't work; try to interpret data as a callable
+            # object with arguments (x,y):
             xvals = float_array(xvals)
-            assert xvals.shape == (numx,)
+            (numx,) = xvals.shape
 
-        if yvals is None:
-            yvals = Numeric.arange(numy)
-        else:
             yvals = float_array(yvals)
-            assert yvals.shape == (numy,)
+            (numy,) = yvals.shape
 
+            # try evaluating with Numeric.  This will work if the
+            # function is implemented only in terms of Numeric ufuncs
+            # (functions and operators for which matrix-wise
+            # evaluation is defined).
+            try:
+                data = toplot(xvals,yvals)
+            except:
+                # that didn't work; evaluate via a python loop:
+                data = grid_function(toplot, xvals, yvals)
+        else:
+            assert len(data.shape) == 2
+            (numx, numy) = data.shape
+
+            if xvals is None:
+                xvals = Numeric.arange(numx)
+            else:
+                xvals = float_array(xvals)
+                assert xvals.shape == (numx,)
+
+            if yvals is None:
+                yvals = Numeric.arange(numy)
+            else:
+                yvals = float_array(yvals)
+                assert yvals.shape == (numy,)
+
+        # xvals, yvals, and data are now all filled with arrays of data.
         if binary and _recognizes_binary_splot:
             # write file in binary format
             mout = Numeric.zeros((numx + 1, numy + 1), Numeric.Float32)
@@ -722,11 +759,18 @@ class GridData(PlotItem):
             # Include the command-line option to read in binary data:
             self._options['binary'] = (1, 'binary')
         else:
+            # output data to file as "x y f(x)" triplets.  This
+            # requires numy copies of each x value and numx copies of
+            # each y value.  First reformat the data:
             set = Numeric.transpose(
                 Numeric.array(
                     (Numeric.transpose(Numeric.resize(xvals, (numy, numx))),
                      Numeric.resize(yvals, (numx, numy)),
                      data)), (1,2,0))
+            # now just output the data with the usual routine.  This
+            # will produce data properly formatted in blocks separated
+            # by blank lines so that gnuplot can connect the points
+            # into a grid.
             self.file = TempArrayFile(set)
             # avoid using the temporary filename as the title:
             if not keyw.has_key('title'):
@@ -900,12 +944,12 @@ class Gnuplot:
         plot containing the specified items.  Arguments can be of the
         following types:
 
-        'PlotItem' (e.g., 'Data', 'File', 'Func', 'GridData') -- This
-                   is the most flexible way to call plot because the
-                   PlotItems can contain suboptions.  Moreover,
-                   PlotItems can be saved to variables so that their
-                   lifetime is longer than one plot command--thus they
-                   can be replotted with minimal overhead.
+        'PlotItem' (e.g., 'Data', 'File', 'Func') -- This is the most
+                   flexible way to call plot because the PlotItems can
+                   contain suboptions.  Moreover, PlotItems can be
+                   saved to variables so that their lifetime is longer
+                   than one plot command--thus they can be replotted
+                   with minimal overhead.
 
         'string' (i.e., 'sin(x)') -- The string is interpreted as
                  'Func(string)' (a function that is computed by
