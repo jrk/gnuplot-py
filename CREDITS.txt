@@ -34,3 +34,5 @@ popen" in gp_win32.py for versions of Python subsequent to 2.0.
 Daehyok Shin <sdhyok@email.unc.edu> pointed out that support for the
 `axes' keyword was missing.
 
+Jon Moody suggested some changes for Mac OS.
+
