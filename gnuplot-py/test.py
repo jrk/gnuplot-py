@@ -132,6 +132,9 @@ def main():
         y2 = Numeric.sin(x)
         d = Numeric.transpose((x,y1,y2))
 
+        wait('Plot Data against its index')
+        g.plot(Gnuplot.Data(y2, inline=0))
+
         wait('Plot Data, specified column-by-column')
         g.plot(Gnuplot.Data(x,y2, inline=0))
         wait('Same thing, inline data')
