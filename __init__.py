@@ -20,12 +20,18 @@ Written by Michael Haggerty <mhagger@blizzard.harvard.edu>.  Inspired
 by and partly derived from an earlier version by Konrad Hinsen
 <hinsen@ibs.ibs.fr>.  If you find a problem or have a suggestion,
 please let me know at <mhagger@blizzard.harvard.edu>.  Other feedback
-is also welcome.
+would also be appreciated.
 
-For information about how to use this module, see the comments below,
-the documentation string for class Gnuplot, and the test code at the
-bottom of the file.  You can run the test code by typing
-'python Gnuplot.py'.
+For information about how to use this module:
+1.  Check the README file
+2.  Look at the test code at the bottom of the file (and try running it
+    by typing 'python Gnuplot.py')
+3a. For more details see the extensive documentation strings throughout
+    this file.
+3b. The docstrings have also been turned into html which can be read
+    at <http://monsoon.harvard.edu/~mhagger/Gnuplot/Gnuplot-doc/>;
+    however, the formatting is not perfect and some points might be
+    more confusing here.
 
 You should import this file with 'import Gnuplot', not with
 'from Gnuplot import *'; otherwise you will have problems with
@@ -151,7 +157,7 @@ Bugs:
 
 """
 
-__version__ = '1.1a'
+__version__ = '1.2'
 __cvs_version__ = '$Revision$'
 
 import sys
