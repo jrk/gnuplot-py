@@ -63,13 +63,18 @@ class GnuplotOpts:
 
 
 try:
-    # The win32 extensions provide a popen that can be used with
-    # gnuplot:
-    from win32pipe import popen
+    from sys import hexversion
 except ImportError:
+    hexversion = 0
+
+if hexversion >= 0x02000000:
     # Apparently at least as of Python 2.0b1, popen support for
     # windows is adequate.  Give that a try:
     from os import popen
+else:
+    # For earlier versions, you have to have the win32 extensions
+    # installed and we use the popen that it provides.
+    from win32pipe import popen
 
 
 # Mac doesn't recognize persist.
