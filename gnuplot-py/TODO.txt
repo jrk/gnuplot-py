@@ -26,7 +26,11 @@ anyway.  Of course if anybody else wants to take one up...
   object.  Or maybe treat sub-windows as a kind of meta-PlotItem that
   can itself contain PlotItems.
 
-* Add a way to use Gnuplot without Numeric.  This would probably not
-  require too much work, and would also be convenient for Jython users
-  since JNumeric is not as far along as Numeric.
+* Add a way to use Gnuplot.py without Numeric.  This would probably
+  not require too much work, and would also be convenient for Jython
+  users since JNumeric is not as far along as Numeric.
+
+* Support gnuplot's new abilities to allow user interaction via the
+  mouse.  I believe this will require 2-way communication between
+  Gnuplot.py and gnuplot.
 
