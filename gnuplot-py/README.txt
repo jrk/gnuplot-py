@@ -1,8 +1,11 @@
 Gnuplot.py -- A pipe-based interface to the gnuplot plotting program.
 
-The current version of Gnuplot.py can be obtained from
+The Gnuplot.py home page is
 
-    http://monsoon.harvard.edu/~mhagger/Gnuplot/Gnuplot.html
+    http://gnuplot-py.sourceforge.net
+
+There you can get the latest version, view the documentation, or
+report bugs.
 
 
 Documentation
@@ -10,18 +13,18 @@ Documentation
 
 The best way to get started is to run the demo by typing `python
 demo.py'.  This should pop up a few gnuplot windows, one after
-another, on your screen containing simple graphs, and also write a
-postscript file called `gp_test.ps' to the current directory.  Then
-look at the code for the demo which is in the function `demo()' at the
-bottom of demo.py.  This should be enough to get you started making
-simple plots of your own.
+another, containing simple graphs, and also write a postscript file
+called `gp_test.ps' to the current directory.  Then look at the code
+for the demo which is in the function `demo()' at the bottom of
+demo.py.  This should be enough to get you started making simple plots
+of your own.
 
 More detailed documentation is contained in the package itself, as
 documentation strings and comments.  Don't be shy, just open up
 __init__.py with your favorite text editor and take a look.
-Alternatively you can check out the documentation online at
-<http://monsoon.harvard.edu/~mhagger/Gnuplot/Gnuplot-doc/>, which
-contains the same docstrings but in a prettier format.
+Alternatively you can check out the online documentation at the
+Gnuplot.py homepage, which contains the same docstrings but in a
+prettier format.
 
 For a relatively thorough test of Gnuplot.py, type `python test.py'
 which goes systematically through most Gnuplot.py features.
@@ -32,41 +35,41 @@ Installation
 
 Obviously, you must have the gnuplot program if Gnuplot.py is to be of
 any use to you.  Gnuplot can be obtained via
-<http://www.cs.dartmouth.edu/gnuplot_info.html>.
+<http://www.cs.dartmouth.edu/gnuplot_info.html>.  You also need
+Python's Numerical extension, which is available from
+<http://numpy.sourceforge.net>.
 
-You can try out the demonstration before installing the package.  Just
-untar or unzip the package, change to the directory that was created,
-and type `python demo.py'.
+Gnuplot.py uses Python distutils
+<http://www.python.org/doc/current/inst/inst.html> and can be
+installed by untarring the package, changing into the top-level
+directory, and typing "python setup.py install".  The Gnuplot.py
+package is pure Python--no compilation is necessary.
 
-Gnuplot.py is structured as a python package.  That means that it must
-be installed as a subdirectory called `Gnuplot' within a directory
-that is in your python path.  Usually this means you should install it
-within your site-packages directory, which may be in
-/usr/local/lib/python1.5.  The easiest thing is to change to that
-directory and untar or unzip the distribution there.  This will create
-a directory called `Gnuplot-<version>'.  Then either create a symbolic
-link to that directory called `Gnuplot' or change the name of that
-directory to `Gnuplot'.
+If you want to try out the demonstration before installing the
+package, type `python demo.py'.
 
-The Gnuplot.py package is pure Python.  The main file is __init__.py.
-Aside from that are the platform-dependent files gp.py (Unix),
-gp_mac.py (Macintosh), and gp_win32.py (Windows).  Near the top of
-each of these files are some configuration options that you can
-change.  (Obviously, you should change the version appropriate to your
-platform.)  See the extensive comments in gp.py for a description of
-the meaning of each configuration variable.  Sensible values are
-already chosen, so it is quite possible that you won't have to change
-anything.
+Gnuplot.py is structured as a python package.  That means that it
+installs itself as a subdirectory called `Gnuplot' under a directory
+of your python path (usually site-packages).  If you don't want to use
+distutils you can just move the main Gnuplot.py directory there and
+rename it to "Gnuplot".
 
-You can import the main part of the package into your python programs
-using `import Gnuplot'.
+There are some configuration options that can be set near the top of
+the platform-dependent files gp-unix.py (Unix), gp_mac.py (Macintosh),
+and gp_win32.py (Windows).  (Obviously, you should change the file
+corresponding to your platform.)  See the extensive comments in
+gp_unix.py for a description of the meaning of each configuration
+variable.  Sensible values are already chosen, so it is quite possible
+that you don't have to change anything.
 
-The function-based interface (i.e., the plot() command) inherited from
-Konrad Hinsen's original Gnuplot.py has been separated into a separate
-file, `plot.py'.  You can import it using `import Gnuplot.oldplot' or
-`from Gnuplot.oldplot import plot'.  However, it is recommended that
-you try out the object-oriented interface since it is far more
-flexible and the old interface will no longer be developed.
+Import the main part of the package into your python programs using
+`import Gnuplot'.  Some other features can be found in the modules
+Gnuplot.funcutils and Gnuplot.PlotItems.
+
+For backwards compatibility, an old function-based interface to
+Gnuplot.py (derived from Konrad Hinsen's original Gnuplot.py) is
+available in a separate file, oldplot.py.  However, this old interface
+is deprecated and will no longer be developed.
 
 
 Installation on Windows
@@ -87,14 +90,14 @@ accept commands on standard input, Gnuplot.py cannot communicate with
 it directly.  However, there is a simple little program called
 `pgnuplot.exe' that accepts commands on stdin and passes them to
 wgnuplot.  So to run Gnuplot.py on Windows, you need to make sure that
-pgnuplot.exe is installed.  It comes with the latest version of
-gnuplot (3.7.1).  Or (if you don't want to install the latest version
-of gnuplot) you can get pgnuplot.exe by downloading
-`testing/windows-stdin.zip' from one of the gnuplot archives (e.g.,
+pgnuplot.exe is installed.  It comes with gnuplot since at least
+version 3.7.1.  Alternatively you can get pgnuplot.exe alone by
+downloading `testing/windows-stdin.zip' from one of the gnuplot
+archives (e.g.,
 <ftp://ftp.gnuplot.vt.edu/pub/gnuplot/testing/windows-stdin.zip>).
 
-Assuming pgnuplot.exe is installed, install Gnuplot.py as described in
-the previous section.
+Continue installing Gnuplot.py by following the instructions in the
+previous section.
 
 
 Installation on the Macintosh
@@ -108,7 +111,7 @@ Mac text files (different end-of-line character).  Currently it is not
 possible to print directly to a printer; however, it should be
 possible to print to a postscript file and print that file manually.
 Also, inline data does not seem to be supported.  Let me know if you
-find other problems.
+find other problems or have patches to fix Mac limitations.
 
 
 Feedback
@@ -129,7 +132,7 @@ without much problem on other unix computers.  If you need to modify
 it for your system tell me what was necessary and I'll include your
 changes in a future release.
 
-Gnuplot.py should now work under Windows and Macintosh (see above).
+Gnuplot.py should also work under Windows and Macintosh (see above).
 Feedback for these platforms is especially appreciated since I can't
 test them myself.
 
