@@ -1,20 +1,20 @@
 #!/usr/local/bin/python -t
 # $Id$
 
-# A pipe-based interface to the gnuplot plotting program.
+# A pipe-based interface to the gnuplot plotting program.  To obtain
+# gnuplot, see <http://www.cs.dartmouth.edu/gnuplot_info.html>.
 
 # Written by Michael Haggerty <mhagger@blizzard.harvard.edu>.
 # Inspired by and partly derived from an earlier version by Konrad
 # Hinsen <hinsen@ibs.ibs.fr>.
 
+# This module is provided with no warranties whatsoever.  However, if
+# you find a problem or have a suggestion, please let me know at
+# <mhagger@blizzard.harvard.edu>.  Any feedback is welcome.
+
 # For information about how to use this module, see the documentation
 # string for class Gnuplot, and the test code at the bottom of the
 # file.  You can run the test code by typing `python gnuplot.py'
-
-# ### Is this still true?
-# You should import this file with `import gnuplot', not with `from
-# gnuplot import *'; otherwise you will have a mess of conflicting
-# names.
 
 # Features:
 #  +  A gnuplot session is an instance of class `Gnuplot', so multiple
@@ -75,8 +75,8 @@
 #  -  Only 2-d plots are supported so far.
 #  -  There is no provision for missing data points in array data
 #     (which gnuplot would allow by specifying `?' as a data point).
-#     I can't think of a clean way to implement this since NumPy
-#     doesn't seem to support NaN.
+#     I can't think of a clean way to implement this; maybe one could
+#     use NaN for machines that support IEEE floating point.
 #  -  There is no supported way to change the plotting options of
 #     PlotItems after they have been created.
 #  -  The object-oriented interface doesn't automatically plot
