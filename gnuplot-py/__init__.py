@@ -299,9 +299,9 @@ class PlotItem:
     'basecommand' -- a string holding the elementary argument that
                      must be passed to gnuplot's `plot' command for
                      this item; e.g., 'sin(x)' or '"filename.dat"'.
-    'options' -- a list of strings that need to be passed as options
-                 to the plot command, in the order required; e.g.,
-                 ['title "data"', 'with linespoints'].
+    'options' -- a dictionary of strings that need to be passed as
+                 options to the plot command; e.g., {'title':'data',
+                 'with':'linespoints'}.
     'title' -- the title requested (undefined if not requested).  Note
                that `title=None' implies the `notitle' option,
                whereas omitting the title option implies no option
@@ -313,18 +313,18 @@ class PlotItem:
 
     def __init__(self, basecommand, **keyw):
         self.basecommand = basecommand
-        self.options = []
+        self.options = {}
         if keyw.has_key('title'):
             self.title = keyw['title']
             del keyw['title']
             if self.title is None:
-                self.options.append('notitle')
+                self.options['title'] = None
             else:
-                self.options.append('title "' + self.title + '"')
+                self.options['title'] = self.title
         if keyw.has_key('with'):
             self.with = keyw['with']
             del keyw['with']
-            self.options.append('with ' + self.with)
+            self.options['with'] = self.with
         if keyw:
             raise OptionException(keyw)
 
@@ -336,10 +336,19 @@ class PlotItem:
 
         """
 
-        if self.options:
-            return self.basecommand + ' ' + string.join(self.options)
-        else:
-            return self.basecommand
+        c = self.basecommand
+        if self.options.get('binary', 0):
+            c = c + ' binary'
+        if self.options.has_key('using'):
+            c = c + ' using ' + self.options['using']
+        if self.options.has_key('title'):
+            if self.options['title'] is None:
+                c = c + ' notitle'
+            else:
+                c = c + (' title "%s"' % self.options['title'])
+        if self.options.has_key('with'):
+            c = c + ' with ' + self.options['with']
+        return c
 
     # if the plot command requires data to be put on stdin (i.e.,
     # `plot "-"'), this method should put that data there.
@@ -493,13 +502,11 @@ class File(PlotItem):
         if self.using is None:
             pass
         elif type(self.using) == type(''):
-            self.options.insert(0, 'using ' + self.using)
+            self.options['using'] = self.using
         elif type(self.using) == type(()):
-            self.options.insert(0,
-                                'using ' +
-                                string.join(map(repr, self.using), ':'))
+            self.options['using'] = string.join(map(repr, self.using), ':')
         elif type(self.using) == type(1):
-            self.options.insert(0, 'using ' + `self.using`)
+            self.options['using'] = `self.using`
         else:
             raise OptionException('using=' + `self.using`)
 
@@ -575,13 +582,11 @@ class Data(PlotItem):
         if self.using is None:
             pass
         elif type(self.using) == type(''):
-            self.options.insert(0, 'using ' + self.using)
+            self.options['using'] = self.using
         elif type(self.using) == type(()):
-            self.options.insert(0,
-                                'using ' +
-                                string.join(map(repr, self.using), ':'))
+            self.options['using'] = string.join(map(repr, self.using), ':')
         elif type(self.using) == type(1):
-            self.options.insert(0, 'using ' + `self.using`)
+            self.options['using'] = `self.using`
         else:
             raise OptionException('using=' + `self.using`)
 
@@ -663,7 +668,7 @@ class GridData(File):
             open(f.filename, 'wb').write(mout.tostring())
             apply(File.__init__, (self, f), keyw)
             # Include the command-line option to read in binary data:
-            self.options.insert(0, 'binary')
+            self.options['binary'] = 1
         else:
             set = Numeric.transpose(
                 Numeric.array(
