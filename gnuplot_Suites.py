@@ -1,8 +1,8 @@
 # $Id$
 
 # This file is provided as part of the Gnuplot.py package for the
-# convenience of Mac users.  It was originally part of
-# MacGnuplot.2.0b4.  Thanks to Anthony M. Ingraldi and Noboru Yamamoto
+# convenience of Mac users.  It was generated primarily using gensuitemodule
+# with Mac gnuplot 3.7.1a.  Thanks to Anthony M. Ingraldi and Noboru Yamamoto
 # for helping with this.
 
 # file contains
@@ -15,7 +15,7 @@
 """Suite gnuplot Suite: Events supplied by gnuplot
 Level 1, version 1
 
-Generated from Power HD:Applications:Analysis/Plotting:gnuplot.2.0a34:gnuplot (PPC)
+Generated from Alpha:Desktop Folder:gnuplot.1:gnuplot 3.7.1a
 AETE/AEUT resource version 1/0, language 0, script 0
 """
 
@@ -26,358 +26,578 @@ import MacOS
 
 _code = 'GPSE'
 
-_Enum_DIAG = {
-   'label' : 'labl', # label dialog
-   'offsets' : 'oset',  # offsets dialog
-   'textformat' : 'text',  # text format dialog
-   'gxtextformat' : 'gxtx',   # gx text format dialog
-   'linestyles' : 'line',  # line styles dialog
-   'preferences' : 'pref', # preferences dialog
-}
-
-_Enum_lyty = {
-   'lines' : 'typ1', # lines
-   'points' : 'typ2',   # points
-   'impulses' : 'typ3', # impulses
-   'linespoints' : 'typ4', # lines with points
-   'dots' : 'typ5',  # dots
-   'steps' : 'typ6', # steps
-   'fsteps' : 'typ7',   # use two line segments
-   'errorbars' : 'typ8',   # error bars
-   'xerrorbars' : 'typ9',  # horizontal error bars
-   'yerrorbars' : 'ty10',  # vertical error bars
-   'xyerrorbars' : 'ty11', # horizontal and vertical error bars
-   'boxes' : 'ty12', # boxes
-   'boxerrorbars' : 'ty13',   # boxes and error bars
-   'boxxyerrorbars' : 'ty14', # boxes and xy error bars
-   'vector' : 'ty19',   # vector
-}
-
 class gnuplot_Suite:
 
-   _argmap_exec = {
-      'with_client' : 'CLIE',
-      'with_creator' : 'CREA',
-      'with_type' : 'TYPE',
-   }
+    def gnuexec(self, _object=None, _attributes={}, **_arguments):
+        """exec: execute a gnuplot command
+        Required argument: gnuplot command
+        Keyword argument _attributes: AppleEvent attribute dictionary
+        """
+        _code = 'GPSE'
+        _subcode = 'exec'
 
-   def gnuexec(self, _object=None, _attributes={}, **_arguments):
-      """gnuexec: execute a gnuplot command
-      Required argument: a gnuplot command
-      Keyword argument with_client: client application
-      Keyword argument with_creator: creator code for any output
-      Keyword argument with_type: file type for any output
-      Keyword argument _attributes: AppleEvent attribute dictionary
-      Returns: what gnuplot said
-      """
-      _code = 'GPSE'
-      _subcode = 'exec'
-
-      aetools.keysubst(_arguments, self._argmap_exec)
-      _arguments['----'] = _object
-
-      aetools.enumsubst(_arguments, 'with_client', self._argmap_exec)
-      aetools.enumsubst(_arguments, 'with_creator', self._argmap_exec)
-      aetools.enumsubst(_arguments, 'with_type', self._argmap_exec)
-
-      _reply, _arguments, _attributes = self.send(_code, _subcode,
-            _arguments, _attributes)
-      if _arguments.has_key('errn'):
-         raise aetools.Error, aetools.decodeerror(_arguments)
-      # XXXX Optionally decode result
-      if _arguments.has_key('----'):
-         # XXXX Should do enum remapping here...
-         return _arguments['----']
-
-   def halt(self, _no_object=None, _attributes={}, **_arguments):
-      """halt: halt any processing
-      Keyword argument _attributes: AppleEvent attribute dictionary
-      """
-      _code = 'GPSE'
-      _subcode = 'HALT'
-
-      if _arguments: raise TypeError, 'No optional args expected'
-      if _no_object != None: raise TypeError, 'No direct arg expected'
+        if _arguments: raise TypeError, 'No optional args expected'
+        _arguments['----'] = _object
 
 
-      _reply, _arguments, _attributes = self.send(_code, _subcode,
-            _arguments, _attributes)
-      if _arguments.has_key('errn'):
-         raise aetools.Error, aetools.decodeerror(_arguments)
-      # XXXX Optionally decode result
-      if _arguments.has_key('----'):
-         # XXXX Should do enum remapping here...
-         return _arguments['----']
+        _reply, _arguments, _attributes = self.send(_code, _subcode,
+                _arguments, _attributes)
+        if _arguments.has_key('errn'):
+            raise aetools.Error, aetools.decodeerror(_arguments)
+        # XXXX Optionally decode result
+        if _arguments.has_key('----'):
+            return _arguments['----']
 
-   def open_dialog(self, _object=None, _attributes={}, **_arguments):
-      """open dialog: open a gnuplot dialog
-      Required argument: the dialog to open
-      Keyword argument _attributes: AppleEvent attribute dictionary
-      """
-      _code = 'GPLT'
-      _subcode = 'DIAG'
-
-      if _arguments: raise TypeError, 'No optional args expected'
-      _arguments['----'] = _object
+    def plot(self, _object=None, _attributes={}, **_arguments):
+        """plot: create a 2-D plot
 
 
-      _reply, _arguments, _attributes = self.send(_code, _subcode,
-            _arguments, _attributes)
-      if _arguments.has_key('errn'):
-         raise aetools.Error, aetools.decodeerror(_arguments)
-      # XXXX Optionally decode result
-      if _arguments.has_key('----'):
-         # XXXX Should do enum remapping here...
-         return _arguments['----']
+        Required argument: data to be plotted
+        Keyword argument _attributes: AppleEvent attribute dictionary
+        """
+        _code = 'GPLT'
+        _subcode = 'plot'
 
-   _argmap_plot = {
-      'with' : 'line',
-   }
-
-   def plot(self, _object=None, _attributes={}, **_arguments):
-      """plot: do a 2d plot of files or data
-      Required argument: the data to plot
-      Keyword argument with: line style
-      Keyword argument _attributes: AppleEvent attribute dictionary
-      Returns: what gnuplot said
-      """
-      _code = 'GPLT'
-      _subcode = 'plot'
-
-      aetools.keysubst(_arguments, self._argmap_plot)
-      _arguments['----'] = _object
-
-      aetools.enumsubst(_arguments, 'line', _Enum_lyty)
-
-      _reply, _arguments, _attributes = self.send(_code, _subcode,
-            _arguments, _attributes)
-      if _arguments.has_key('errn'):
-         raise aetools.Error, aetools.decodeerror(_arguments)
-      # XXXX Optionally decode result
-      if _arguments.has_key('----'):
-         # XXXX Should do enum remapping here...
-         return _arguments['----']
-
-   _argmap_splot = {
-      'with' : 'line',
-   }
-
-   def splot(self, _object=None, _attributes={}, **_arguments):
-      """splot: do a 3d plot files or data
-      Required argument: the data to plot
-      Keyword argument with: line style
-      Keyword argument _attributes: AppleEvent attribute dictionary
-      Returns: what gnuplot said
-      """
-      _code = 'GPLT'
-      _subcode = 'splt'
-
-      aetools.keysubst(_arguments, self._argmap_splot)
-      _arguments['----'] = _object
-
-      aetools.enumsubst(_arguments, 'line', _Enum_lyty)
-
-      _reply, _arguments, _attributes = self.send(_code, _subcode,
-            _arguments, _attributes)
-      if _arguments.has_key('errn'):
-         raise aetools.Error, aetools.decodeerror(_arguments)
-      # XXXX Optionally decode result
-      if _arguments.has_key('----'):
-         # XXXX Should do enum remapping here...
-         return _arguments['----']
+        if _arguments: raise TypeError, 'No optional args expected'
+        _arguments['----'] = _object
 
 
-#    Class 'graph' ('cGRF') -- 'graph - subclass of window'
-#        property 'picture' ('PICT') 'PICT' -- 'the graph picture' [enum]
-#        property 'graph number' ('NUMB') 'shor' -- 'the number of the graph' [enum]
-#        property 'title' ('TITL') 'TEXT' -- 'the title of the graph' [enum]
-"""Suite odds and ends: Things that should be in some standard suite, but aren't
+        _reply, _arguments, _attributes = self.send(_code, _subcode,
+                _arguments, _attributes)
+        if _arguments.has_key('errn'):
+            raise aetools.Error, aetools.decodeerror(_arguments)
+        # XXXX Optionally decode result
+        if _arguments.has_key('----'):
+            return _arguments['----']
+
+    def splot(self, _object=None, _attributes={}, **_arguments):
+        """splot: create a 3-D plot
+        Required argument: data to be plotted
+        Keyword argument _attributes: AppleEvent attribute dictionary
+        """
+        _code = 'GPLT'
+        _subcode = 'splt'
+
+        if _arguments: raise TypeError, 'No optional args expected'
+        _arguments['----'] = _object
+
+
+        _reply, _arguments, _attributes = self.send(_code, _subcode,
+                _arguments, _attributes)
+        if _arguments.has_key('errn'):
+            raise aetools.Error, aetools.decodeerror(_arguments)
+        # XXXX Optionally decode result
+        if _arguments.has_key('----'):
+            return _arguments['----']
+
+
+class graph(aetools.ComponentItem):
+    """graph - graph - a subclass of window"""
+    want = 'cGRF'
+class picture(aetools.NProperty):
+    """picture - gnuplot graph in "PICT" format"""
+    which = 'PICT'
+    want = 'PICT'
+graph._propdict = {
+    'picture' : picture,
+}
+graph._elemdict = {
+}
+_Enum_lyty = {
+    'line' : 'typ1',    # line
+    'points' : 'typ2',  # points
+    'impulses' : 'typ3',    # impulses
+    'linespoints' : 'typ4', # linespoints
+    'dots' : 'typ5',    # dots
+    'steps' : 'typ6',   # steps
+    'fsteps' : 'typ7',  # fsteps
+    'errorbars' : 'typ8',   # errorbars
+    'xerrorbars' : 'typ9',  # xerrorbars
+    'yerrorbars' : 'ty10',  # yerrorbars
+    'xyerrorbars' : 'ty11', # xyerrorbars
+    'boxes' : 'ty12',   # boxes
+    'boxerrorbars' : 'ty13',    # boxerrorbars
+    'boxxyerrorbars' : 'ty14',  # boxxyerrorbars
+    'vector' : 'ty19',  # vector
+}
+
+
+#
+# Indices of types declared in this module
+#
+_classdeclarations = {
+    'cGRF' : graph,
+}
+
+_propdeclarations = {
+    'PICT' : picture,
+}
+
+_compdeclarations = {
+}
+
+_enumdeclarations = {
+    'lyty' : _Enum_lyty,
+}
+
+
+"""Suite odds and ends: Things that should be in some standard suite, but aren’t
 Level 1, version 1
 
-Generated from Power HD:Applications:Analysis/Plotting:gnuplot.2.0a34:gnuplot (PPC)
+Generated from Alpha:Desktop Folder:gnuplot.1:gnuplot 3.7.1a
 AETE/AEUT resource version 1/0, language 0, script 0
 """
+
+import aetools
+import MacOS
 
 _code = 'Odds'
 
 class odds_and_ends:
 
-   def select(self, _object=None, _attributes={}, **_arguments):
-      """select: select the specified object
-      Required argument: the object to select
-      Keyword argument _attributes: AppleEvent attribute dictionary
-      """
-      _code = 'misc'
-      _subcode = 'slct'
+    def select(self, _object=None, _attributes={}, **_arguments):
+        """select: Select the specified object
+        Required argument: the object to select
+        Keyword argument _attributes: AppleEvent attribute dictionary
+        """
+        _code = 'misc'
+        _subcode = 'slct'
 
-      if _arguments: raise TypeError, 'No optional args expected'
-      _arguments['----'] = _object
+        if _arguments: raise TypeError, 'No optional args expected'
+        _arguments['----'] = _object
 
 
-      _reply, _arguments, _attributes = self.send(_code, _subcode,
-            _arguments, _attributes)
-      if _arguments.has_key('errn'):
-         raise aetools.Error, aetools.decodeerror(_arguments)
-      # XXXX Optionally decode result
-      if _arguments.has_key('----'):
-         # XXXX Should do enum remapping here...
-         return _arguments['----']
+        _reply, _arguments, _attributes = self.send(_code, _subcode,
+                _arguments, _attributes)
+        if _arguments.has_key('errn'):
+            raise aetools.Error, aetools.decodeerror(_arguments)
+        # XXXX Optionally decode result
+        if _arguments.has_key('----'):
+            return _arguments['----']
+
+
+#
+# Indices of types declared in this module
+#
+_classdeclarations = {
+}
+
+_propdeclarations = {
+}
+
+_compdeclarations = {
+}
+
+_enumdeclarations = {
+}
 
 """Suite Standard Suite: Common terms for most applications
 Level 1, version 1
 
-Generated from Power HD:Applications:Analysis/Plotting:gnuplot.2.0a34:gnuplot (PPC)
+Generated from Alpha:Desktop Folder:gnuplot.1:gnuplot 3.7.1a
 AETE/AEUT resource version 1/0, language 0, script 0
 """
+
+import aetools
+import MacOS
 
 _code = 'CoRe'
 
 class Standard_Suite:
 
-   _argmap_save = {
-      '_in' : 'kfil',
-   }
+    _argmap_close = {
+        'saving' : 'savo',
+        '_in' : 'kfil',
+    }
 
-   def save(self, _object, _attributes={}, **_arguments):
-      """save: save an object
-      Required argument: the object to save
-      Keyword argument _in: the file in which to save the object
-      Keyword argument _attributes: AppleEvent attribute dictionary
-      """
-      _code = 'core'
-      _subcode = 'save'
+    def close(self, _object, _attributes={}, **_arguments):
+        """close: Close an object
+        Required argument: the objects to close
+        Keyword argument saving: specifies whether or not changes should be saved before closing
+        Keyword argument _in: the file in which to save the object
+        Keyword argument _attributes: AppleEvent attribute dictionary
+        """
+        _code = 'core'
+        _subcode = 'clos'
 
-      aetools.keysubst(_arguments, self._argmap_save)
-      _arguments['----'] = _object
+        aetools.keysubst(_arguments, self._argmap_close)
+        _arguments['----'] = _object
 
-      aetools.enumsubst(_arguments, 'kfil', _Enum_fss )
+        aetools.enumsubst(_arguments, 'savo', _Enum_savo)
 
-      _reply, _arguments, _attributes = self.send(_code, _subcode,
-            _arguments, _attributes)
-      if _arguments.has_key('errn'):
-         raise aetools.Error, aetools.decodeerror(_arguments)
-      # XXXX Optionally decode result
-      if _arguments.has_key('----'):
-         # XXXX Should do enum remapping here...
-         return _arguments['----']
+        _reply, _arguments, _attributes = self.send(_code, _subcode,
+                _arguments, _attributes)
+        if _arguments.has_key('errn'):
+            raise aetools.Error, aetools.decodeerror(_arguments)
+        # XXXX Optionally decode result
+        if _arguments.has_key('----'):
+            return _arguments['----']
 
-   def get(self, _object, _attributes={}, **_arguments):
-      """get: get the data for an object
-      Required argument: the object whose data is to be returned
-      Keyword argument _attributes: AppleEvent attribute dictionary
-      Returns: the data from the object
-      """
-      _code = 'core'
-      _subcode = 'getd'
+    def data_size(self, _object, _attributes={}, **_arguments):
+        """data size: Return the size in bytes of an object
+        Required argument: the object whose data size is to be returned
+        Keyword argument _attributes: AppleEvent attribute dictionary
+        Returns: the size of the object in bytes
+        """
+        _code = 'core'
+        _subcode = 'dsiz'
 
-      if _arguments: raise TypeError, 'No optional args expected'
-      _arguments['----'] = _object
-
-
-      _reply, _arguments, _attributes = self.send(_code, _subcode,
-            _arguments, _attributes)
-      if _arguments.has_key('errn'):
-         raise aetools.Error, aetools.decodeerror(_arguments)
-      # XXXX Optionally decode result
-      if _arguments.has_key('----'):
-         # XXXX Should do enum remapping here...
-         return _arguments['----']
-
-   _argmap_set = {
-      'to' : 'data',
-   }
-
-   def set(self, _object, _attributes={}, **_arguments):
-      """set: set an objects data
-      Required argument: the object whose data is to be changed
-      Keyword argument to: the new value
-      Keyword argument _attributes: AppleEvent attribute dictionary
-      """
-      _code = 'core'
-      _subcode = 'setd'
-
-      aetools.keysubst(_arguments, self._argmap_set)
-      _arguments['----'] = _object
+        if _arguments: raise TypeError, 'No optional args expected'
+        _arguments['----'] = _object
 
 
-      _reply, _arguments, _attributes = self.send(_code, _subcode,
-            _arguments, _attributes)
-      if _arguments.has_key('errn'):
-         raise aetools.Error, aetools.decodeerror(_arguments)
-      # XXXX Optionally decode result
-      if _arguments.has_key('----'):
-         # XXXX Should do enum remapping here...
-         return _arguments['----']
+        _reply, _arguments, _attributes = self.send(_code, _subcode,
+                _arguments, _attributes)
+        if _arguments.has_key('errn'):
+            raise aetools.Error, aetools.decodeerror(_arguments)
+        # XXXX Optionally decode result
+        if _arguments.has_key('----'):
+            return _arguments['----']
+
+    def get(self, _object, _attributes={}, **_arguments):
+        """get: Get the data for an object
+        Required argument: the object whose data is to be returned
+        Keyword argument _attributes: AppleEvent attribute dictionary
+        Returns: The data from the object
+        """
+        _code = 'core'
+        _subcode = 'getd'
+
+        if _arguments: raise TypeError, 'No optional args expected'
+        _arguments['----'] = _object
 
 
-#    Class 'application' ('capp') -- 'application properties'
-#        property 'clipboard' ('clip') '****' -- "gnuplot's clipboard" [mutable]
-#        property 'terminals' ('TLST') 'TEXT' -- 'list of the currently available terminals' [list]
-#        property 'graph creator' ('QDCR') 'fltp' -- 'creator code for QuickDraw graphs' [mutable]
-#        property 'file creator' ('CREA') 'fltp' -- 'creator code for text plots' [mutable]
-#        property 'file type' ('TYPE') 'fltp' -- 'file type for text plots' [mutable]
-#        property 'working folder' ('wfdr') 'alis' -- 'the path to the default folder for the command\320line plot and load commands' [mutable]
-#        property 'current terminal' ('TERM') 'TEXT' -- 'the name of the current terminal' []
-#        property 'text font' ('FONT') 'TEXT' -- 'the font for graphs' [mutable]
-#        property 'text size' ('SIZE') 'shor' -- 'the text size for graphs' [mutable]
-#        property 'graph size' ('GSIZ') 'QDpt' -- 'dimensions of the next graph' [mutable]
-#        element 'cwin' as ['indx', 'name']
+        _reply, _arguments, _attributes = self.send(_code, _subcode,
+                _arguments, _attributes)
+        if _arguments.has_key('errn'):
+            raise aetools.Error, aetools.decodeerror(_arguments)
+        # XXXX Optionally decode result
+        if _arguments.has_key('----'):
+            return _arguments['----']
 
-#    Class 'window' ('cwin') -- 'a window'
-#        property 'bounds' ('pbnd') 'qdrt' -- 'the boundary rectangle for the window' [enum]
-#        property 'closeable' ('hclb') 'bool' -- 'does the window have a close box?' [enum]
-#        property 'index' ('pidx') 'shor' -- 'the number of the window' [enum]
-#        property 'floating' ('isfl') 'bool' -- 'does the window float?' [enum]
-#        property 'modal' ('pmod') 'bool' -- 'is the window modal?' [enum]
-#        property 'resizable' ('prsz') 'bool' -- 'is the window resizable?' [enum]
-#        property 'zoomable' ('iszm') 'bool' -- 'is the window zoomable?' [enum]
-#        property 'zoomed' ('pzum') 'bool' -- 'is the window zoomed?' [mutable enum]
-#        property 'name' ('pnam') 'TEXT' -- 'the title of the window' [enum]
-#        property 'visible' ('pvis') 'bool' -- 'is the window visible?' [mutable enum]
-#        property 'position' ('ppos') 'QDpt' -- 'upper left coordinates of window' [mutable enum]
+    _argmap_make = {
+        'new' : 'kocl',
+        'at' : 'insh',
+        'with_data' : 'data',
+        'with_properties' : 'prdt',
+    }
 
-"""Suite Miscelaneous Events: Some other events
+    def make(self, _no_object=None, _attributes={}, **_arguments):
+        """make: Make a new element
+        Keyword argument new: the class of the new element
+        Keyword argument at: the location at which to insert the element
+        Keyword argument with_data: the initial data for the element
+        Keyword argument with_properties: the initial values for the properties of the element
+        Keyword argument _attributes: AppleEvent attribute dictionary
+        Returns: Object specifier for the new element
+        """
+        _code = 'core'
+        _subcode = 'crel'
+
+        aetools.keysubst(_arguments, self._argmap_make)
+        if _no_object != None: raise TypeError, 'No direct arg expected'
+
+
+        _reply, _arguments, _attributes = self.send(_code, _subcode,
+                _arguments, _attributes)
+        if _arguments.has_key('errn'):
+            raise aetools.Error, aetools.decodeerror(_arguments)
+        # XXXX Optionally decode result
+        if _arguments.has_key('----'):
+            return _arguments['----']
+
+    def open(self, _object, _attributes={}, **_arguments):
+        """open: Open the specified object(s)
+        Required argument: Objects to open. Can be a list of files or an object specifier.
+        Keyword argument _attributes: AppleEvent attribute dictionary
+        """
+        _code = 'aevt'
+        _subcode = 'odoc'
+
+        if _arguments: raise TypeError, 'No optional args expected'
+        _arguments['----'] = _object
+
+
+        _reply, _arguments, _attributes = self.send(_code, _subcode,
+                _arguments, _attributes)
+        if _arguments.has_key('errn'):
+            raise aetools.Error, aetools.decodeerror(_arguments)
+        # XXXX Optionally decode result
+        if _arguments.has_key('----'):
+            return _arguments['----']
+
+    def _print(self, _object, _attributes={}, **_arguments):
+        """print: Print the specified object(s)
+        Required argument: Objects to print. Can be a list of files or an object specifier.
+        Keyword argument _attributes: AppleEvent attribute dictionary
+        """
+        _code = 'aevt'
+        _subcode = 'pdoc'
+
+        if _arguments: raise TypeError, 'No optional args expected'
+        _arguments['----'] = _object
+
+
+        _reply, _arguments, _attributes = self.send(_code, _subcode,
+                _arguments, _attributes)
+        if _arguments.has_key('errn'):
+            raise aetools.Error, aetools.decodeerror(_arguments)
+        # XXXX Optionally decode result
+        if _arguments.has_key('----'):
+            return _arguments['----']
+
+    _argmap_save = {
+        '_in' : 'kfil',
+        'as' : 'fltp',
+    }
+
+    def save(self, _object, _attributes={}, **_arguments):
+        """save: save a set of objects
+        Required argument: Objects to save.
+        Keyword argument _in: the file in which to save the object(s)
+        Keyword argument as: the file type of the document in which to save the data
+        Keyword argument _attributes: AppleEvent attribute dictionary
+        """
+        _code = 'core'
+        _subcode = 'save'
+
+        aetools.keysubst(_arguments, self._argmap_save)
+        _arguments['----'] = _object
+
+
+        _reply, _arguments, _attributes = self.send(_code, _subcode,
+                _arguments, _attributes)
+        if _arguments.has_key('errn'):
+            raise aetools.Error, aetools.decodeerror(_arguments)
+        # XXXX Optionally decode result
+        if _arguments.has_key('----'):
+            return _arguments['----']
+
+    _argmap_set = {
+        'to' : 'data',
+    }
+
+    def set(self, _object, _attributes={}, **_arguments):
+        """set: Set an object’s data
+        Required argument: the object to change
+        Keyword argument to: the new value
+        Keyword argument _attributes: AppleEvent attribute dictionary
+        """
+        _code = 'core'
+        _subcode = 'setd'
+
+        aetools.keysubst(_arguments, self._argmap_set)
+        _arguments['----'] = _object
+
+
+        _reply, _arguments, _attributes = self.send(_code, _subcode,
+                _arguments, _attributes)
+        if _arguments.has_key('errn'):
+            raise aetools.Error, aetools.decodeerror(_arguments)
+        # XXXX Optionally decode result
+        if _arguments.has_key('----'):
+            return _arguments['----']
+
+
+class application(aetools.ComponentItem):
+    """application - An application program"""
+    want = 'capp'
+#        element 'cwin' as ['indx', 'name', 'rele']
+#        element 'docu' as ['name']
+
+class window(aetools.ComponentItem):
+    """window - A Window"""
+    want = 'cwin'
+class bounds(aetools.NProperty):
+    """bounds - the boundary rectangle for the window"""
+    which = 'pbnd'
+    want = 'qdrt'
+class closeable(aetools.NProperty):
+    """closeable - Does the window have a close box?"""
+    which = 'hclb'
+    want = 'bool'
+class titled(aetools.NProperty):
+    """titled - Does the window have a title bar?"""
+    which = 'ptit'
+    want = 'bool'
+class index(aetools.NProperty):
+    """index - the number of the window"""
+    which = 'pidx'
+    want = 'long'
+class floating(aetools.NProperty):
+    """floating - Does the window float?"""
+    which = 'isfl'
+    want = 'bool'
+class modal(aetools.NProperty):
+    """modal - Is the window modal?"""
+    which = 'pmod'
+    want = 'bool'
+class resizable(aetools.NProperty):
+    """resizable - Is the window resizable?"""
+    which = 'prsz'
+    want = 'bool'
+class zoomable(aetools.NProperty):
+    """zoomable - Is the window zoomable?"""
+    which = 'iszm'
+    want = 'bool'
+class zoomed(aetools.NProperty):
+    """zoomed - Is the window zoomed?"""
+    which = 'pzum'
+    want = 'bool'
+class name(aetools.NProperty):
+    """name - the title of the window"""
+    which = 'pnam'
+    want = 'itxt'
+class visible(aetools.NProperty):
+    """visible - is the window visible?"""
+    which = 'pvis'
+    want = 'bool'
+class position(aetools.NProperty):
+    """position - upper left coordinates of window"""
+    which = 'ppos'
+    want = 'QDpt'
+
+class document(aetools.ComponentItem):
+    """document - A Document"""
+    want = 'docu'
+# repeated property name the title of the document
+class modified(aetools.NProperty):
+    """modified - Has the document been modified since the last save?"""
+    which = 'imod'
+    want = 'bool'
+application._propdict = {
+}
+application._elemdict = {
+    'window' : window,
+    'document' : document,
+}
+window._propdict = {
+    'bounds' : bounds,
+    'closeable' : closeable,
+    'titled' : titled,
+    'index' : index,
+    'floating' : floating,
+    'modal' : modal,
+    'resizable' : resizable,
+    'zoomable' : zoomable,
+    'zoomed' : zoomed,
+    'name' : name,
+    'visible' : visible,
+    'position' : position,
+}
+window._elemdict = {
+}
+document._propdict = {
+    'name' : name,
+    'modified' : modified,
+}
+document._elemdict = {
+}
+_Enum_savo = {
+    'yes' : 'yes ', # Save objects now
+    'no' : 'no  ',  # Do not save objects
+    'ask' : 'ask ', # Ask the user whether to save
+}
+
+
+#
+# Indices of types declared in this module
+#
+_classdeclarations = {
+    'cwin' : window,
+    'docu' : document,
+    'capp' : application,
+}
+
+_propdeclarations = {
+    'ptit' : titled,
+    'pidx' : index,
+    'ppos' : position,
+    'pnam' : name,
+    'pbnd' : bounds,
+    'imod' : modified,
+    'isfl' : floating,
+    'hclb' : closeable,
+    'iszm' : zoomable,
+    'pmod' : modal,
+    'pzum' : zoomed,
+    'pvis' : visible,
+    'prsz' : resizable,
+}
+
+_compdeclarations = {
+}
+
+_enumdeclarations = {
+    'savo' : _Enum_savo,
+}
+
+"""Suite Miscellaneous Events: Useful events that aren’t in any other suite
 Level 1, version 1
 
-Generated from Power HD:Applications:Analysis/Plotting:gnuplot.2.0a34:gnuplot (PPC)
+Generated from Alpha:Desktop Folder:gnuplot.1:gnuplot 3.7.1a
 AETE/AEUT resource version 1/0, language 0, script 0
 """
+
+import aetools
+import MacOS
 
 _code = 'misc'
 
 class Miscellaneous_Events:
 
-   _argmap_DoScript = {
-      'with_client' : 'CLIE',
-      'with_creator' : 'CREA',
-      'with_type' : 'TYPE',
-   }
+    def revert(self, _object, _attributes={}, **_arguments):
+        """revert: Revert an object to the most recently saved version
+        Required argument: object to revert
+        Keyword argument _attributes: AppleEvent attribute dictionary
+        """
+        _code = 'misc'
+        _subcode = 'rvrt'
 
-   def DoScript(self, _object=None, _attributes={}, **_arguments):
-      """DoScript: execute a gnuplot script
-      Required argument: a gnuplot script to execute
-      Keyword argument with_client: client application
-      Keyword argument with_creator: creator code for any output
-      Keyword argument with_type: file type for any output
-      Keyword argument _attributes: AppleEvent attribute dictionary
-      Returns: what gnuplot said
-      """
-      _code = 'misc'
-      _subcode = 'dosc'
+        if _arguments: raise TypeError, 'No optional args expected'
+        _arguments['----'] = _object
 
-      aetools.keysubst(_arguments, self._argmap_DoScript)
-      _arguments['----'] = _object
 
-      aetools.enumsubst(_arguments, 'with_client', self._argmap_DoScript)
-      aetools.enumsubst(_arguments, 'with_creator', self._argmap_DoScript)
-      aetools.enumsubst(_arguments, 'with_type', self._argmap_DoScript)
+        _reply, _arguments, _attributes = self.send(_code, _subcode,
+                _arguments, _attributes)
+        if _arguments.has_key('errn'):
+            raise aetools.Error, aetools.decodeerror(_arguments)
+        # XXXX Optionally decode result
+        if _arguments.has_key('----'):
+            return _arguments['----']
 
-      _reply, _arguments, _attributes = self.send(_code, _subcode,
-            _arguments, _attributes)
-      if _arguments.has_key('errn'):
-         raise aetools.Error, aetools.decodeerror(_arguments)
-      # XXXX Optionally decode result
-      if _arguments.has_key('----'):
-         # XXXX Should do enum remapping here...
-         return _arguments['----']
+    def do_script(self, _object=None, _attributes={}, **_arguments):
+        """do script: execute a gnuplot script
+        Required argument: a gnuplot script 
+        Keyword argument _attributes: AppleEvent attribute dictionary
+        """
+        _code = 'misc'
+        _subcode = 'dosc'
 
+        if _arguments: raise TypeError, 'No optional args expected'
+        _arguments['----'] = _object
+
+
+        _reply, _arguments, _attributes = self.send(_code, _subcode,
+                _arguments, _attributes)
+        if _arguments.has_key('errn'):
+            raise aetools.Error, aetools.decodeerror(_arguments)
+        # XXXX Optionally decode result
+        if _arguments.has_key('----'):
+            return _arguments['----']
+
+
+#
+# Indices of types declared in this module
+#
+_classdeclarations = {
+}
+
+_propdeclarations = {
+}
+
+_compdeclarations = {
+}
+
+_enumdeclarations = {
+}
