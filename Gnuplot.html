@@ -2,8 +2,11 @@
 <title>Gnuplot.py</title>
 </head>
 
-<body>
-<h1>Gnuplot.py</h1>
+<body bgcolor="#ffffff">
+
+<center><h1>Gnuplot.py on <a href="http://sourceforge.net"><img
+src="http://sourceforge.net/sflogo.php?group_id=17434&type=1"
+width="88" height="31" border="0" alt="SourceForge Logo"></a></h1></center>
 
 <table>
 <tr>
@@ -13,12 +16,21 @@
 <td>
 <ul>
   <li> Download the current version (version 1.4) as a <a
-       href="Gnuplot-1.4.tar.gz"> tar file</a> or as a <a
-       href="Gnuplot-1.4.zip"> zip file</a>
-  <li> View the <a href="Gnuplot-doc">online documentation</a>
+       href="http://download.sourceforge.net/gnuplot-py/Gnuplot-1.4.tar.gz">
+       tar file</a> or as a <a
+       href="http://download.sourceforge.net/gnuplot-py/Gnuplot-1.4.zip">
+       zip file</a>
   <li> Download the html documentation as a <a
-       href="Gnuplot-doc-1.4.tar.gz"> tar file</a> or as a <a
-       href="Gnuplot-doc-1.4.zip"> zip file</a>
+       href="http://download.sourceforge.net/gnuplot-py/Gnuplot-doc-1.4.tar.gz">
+       tar file</a> or as a <a
+       href="http://download.sourceforge.net/gnuplot-py/Gnuplot-doc-1.4.zip">
+       zip file</a>
+  <li> View the <a
+       href="http://monsoon.harvard.edu/~mhagger/Gnuplot/Gnuplot-doc">online
+       documentation</a>
+  <li> Go to the <a
+       href="https://sourceforge.net/projects/gnuplot-py/">Gnuplot.py
+       project page</a> on SourceForge.
 </ul>
 </td>
 </tr>
@@ -26,37 +38,50 @@
 
 <h2>Intro</h2>
 
-<a href="Gnuplot.tar.gz">Gnuplot.py</a> is a Python package that
-interfaces to <a
-href="ftp://ftp.gnuplot.vt.edu/pub/gnuplot/faq/index.html">
-gnuplot</a>, the popular plotting program.  It allows you to use
-gnuplot from within Python to plot arrays of data from memory, data
-files, or mathematical functions.  If you use Python to perform
-computations or as `glue' for numerical programs, you can use this
-package to plot data on the fly as they are computed.  And the
-combination with Python makes it is easy to automate things, including
-to create crude `animations' by plotting different datasets one after
-another.
+Gnuplot.py is a Python package that interfaces to <a
+href="http://www.gnuplot.org/">gnuplot</a>, the popular open-source
+plotting program.  It allows you to use gnuplot from within Python to
+plot arrays of data from memory, data files, or mathematical
+functions.  If you use Python to perform computations or as `glue' for
+numerical programs, you can use this package to plot data on the fly
+as they are computed.  And the combination with Python makes it is
+easy to automate things, including to create crude `animations' by
+plotting different datasets one after another. </p>
 
 <p> Commands are communicated to gnuplot through a pipe and data
 either through the same pipe (as "inline" data) or through temporary
-files.  It has been written and tested on a unix computer but should
-also work under MS Windows and possibly other operating systems
-(please give me feedback!)
+files.  It has been written and tested on a unix computer but is also
+reported to work on MS Windows and the Macintosh (please give me
+feedback!) </p>
 
 <p> This package has an object-oriented design that allows the user
 flexibility to set plot options and to run multiple gnuplot sessions
 simultaneously.  If you are more ambitious, it is not difficult to add
 entirely new types of plottable items by deriving from the
-`<tt>PlotItem</tt>' class.
+`<tt>PlotItem</tt>' class. </p>
 
-<p> For a demonstration, run the python file by typing `<tt>python
-demo.py</tt>'.
+<p> The package includes a demonstration that can be run by typing
+`<tt>python demo.py</tt>'. </p>
+
 
 <h2>News</h2>
 
-<a href="Gnuplot-1.4.tar.gz">Version 1.4</a> has been released (11 Oct
-1999).  This version includes the following changes:
+<p> (7 Jan 2001) The development of Gnuplot.py went through a lull
+during year 2000.  The main reason is that I've changed jobs and
+haven't been using Gnuplot.py, nor had much time to work on it.
+Another reason (I like to think) is that it works pretty well now and
+hasn't needed much work.  Nevertheless, several contributions from
+other users have accumulated and I'm working to incorporate them into
+the source.  At the same time, I am moving the project to <a
+href="http://sourceforge.net">SourceForge</a> because of their
+excellent facilities and to open up the development process.  The
+result should be a version 1.5 "real soon now" with a few minor new
+features, a better source code organization, a <a
+href="http://python.org/sigs/distutils-sig/">distutils</a>-based
+installation process, and better platform independence. </p>
+
+<p> Version 1.4 was released some time ago (11 Oct 1999).  This
+version included the following changes:
 
 <ul>
 <li> Added support for the Macintosh.
@@ -65,7 +90,7 @@ demo.py</tt>'.
 <li> Allow access to all of the postscript printer driver options
      through the <tt>hardcopy()</tt> command.
 <li> Fixed an import problem in <tt>test.py</tt>.
-</ul>
+</ul> </p>
 
 <p> Version 1.3 (released 23 Sep 1999) introduced the following
 features:
@@ -83,10 +108,10 @@ features:
 <li> Separated the demonstration code into a separate file,
      <tt>demo.py</tt>, and added a <tt>test.py</tt> module to test the
      features of <tt>Gnuplot.py</tt>.
-</ul>
+</ul> </p>
 
-To read about changes introduced in earlier versions, read the <a
-href="NEWS"> NEWS file</a>.
+<p> To read about changes introduced in earlier versions, read the
+<tt>NEWS.txt</tt> file in the distribution. </p>
 
 
 <h2>Documentation</h2>
@@ -94,17 +119,22 @@ href="NEWS"> NEWS file</a>.
 The quickest way to learn how to use Gnuplot.py is to run the simple
 demonstration by typing `<tt>python demo.py</tt>', then to look at the
 <tt>demo.py</tt> file to see the commands that create the demo.  One
-of the examples is probably similar to what you want to do.
+of the examples is probably similar to what you want to do. </p>
 
-<p> There is also <a href="Gnuplot-doc/"> online documentation</a> for
-Gnuplot.py, extracted automatically from the package's docstrings
-using <a href="http://starship.python.net/crew/danilo/pythondoc/">
+<p> There is also <a
+href="http://monsoon.harvard.edu/~mhagger/Gnuplot/Gnuplot-doc/">
+online documentation</a> for Gnuplot.py, extracted automatically from
+the package's docstrings using <a
+href="http://starship.python.net/crew/danilo/pythondoc/">
 pythondoc</a>.  Or you can download the html documentation to your
-machine in <a href="Gnuplot-doc.tar.gz"> tar</a> or <a
-href="Gnuplot-doc.zip"> zip</a> format.
+machine in <a
+href="http://download.sourceforge.net/gnuplot-py/Gnuplot-doc-1.4.tar.gz">
+tar</a> or <a
+href="http://download.sourceforge.net/gnuplot-py/Gnuplot-doc-1.4.zip">
+zip</a> format. </p>
 
 <p> Finally, you can look at the docstrings yourself by opening the
-file <tt>__init__.py</tt> in an editor.
+file <tt>__init__.py</tt> in an editor. </p>
 
 <p> To get good use out of Gnuplot.py, you will want to know something
 about gnuplot, for which a good source is the gnuplot help (run
@@ -112,82 +142,83 @@ gnuplot then type `help', or read it online at <a
 href="http://www.cs.dartmouth.edu/gnuplot/gnuplot.html"> this
 website</a>).  You might also want to check out Bernhard Reiter's <a
 href="http://www.usf.Uni-Osnabrueck.DE/~breiter/tools/gnuplot/index.en.html">
-gnuplot information page</a>, which has many more links.
+gnuplot information page</a>, which has many more links. </p>
 
 
 <h2>Installation</h2>
 
-More detailed installation instructions are contained in the <a
-href="README"> README file</a>.
+<p> More detailed installation instructions are contained in
+<tt>README.txt</tt></a>. </p>
 
-Before you can use Gnuplot.py, you will need working versions of
+<p> Before you can use Gnuplot.py, you will need working versions of
 <ul>
-  <li> the <a
-       href="ftp://ftp.gnuplot.vt.edu/pub/gnuplot/">gnuplot</a>
-       program,
-  <li> <a href="http://www.python.org">Python</a> (the version should
-       be at least 1.5), and
+  <li> the <a href="http://www.gnuplot.org">gnuplot</a> program,
+  <li> <a href="http://www.python.org">Python</a> (version 1.5 or
+       later), and
   <li> the <a href="http://numpy.sourceforge.net/"> Numeric Python
        extension</a>
-</ul>
+</ul> </p>
 
-If you want to run under MS Windows, make sure you have the <a
+<p> If you want to run under MS Windows, make sure you are either
+using Python version 2.0 or later or that you have the <a
 href="http://www.python.org/download/download_windows.html">Win32
 extensions</a> installed.  Also make sure you have
-<tt>pgnuplot.exe</tt> (see the <a href="README"> README file</a> for
-details).
+<tt>pgnuplot.exe</tt> (see the README.txt file for details). </p>
 
 <p> To install Gnuplot.py:
 <ol>
-  <li> Download either <a href="Gnuplot-1.4.tar.gz">
-       Gnuplot-1.4.tar.gz</a> or <a href="Gnuplot-1.4.zip">
+  <li> Download either <a
+       href="http://download.sourceforge.net/gnuplot-py/Gnuplot-1.4.tar.gz">
+       Gnuplot-1.4.tar.gz</a> or <a
+       href="http://download.sourceforge.net/gnuplot-py/Gnuplot-1.4.zip">
        Gnuplot-1.4.zip</a>.
   <li> Gunzip and untar (or unzip) it, which will create a directory
        called ``Gnuplot-1.4''.
-  <li> Refer to the <a href="README"> README</a> file in that
-       directory for further instructions.
-</ol>
+  <li> Refer to <tt>README.txt</tt> in that directory for further
+       instructions.  Basically it should be enough to type
+       <code>python setup.py install</code>.
+</ol> </p>
+
+<p> You can also access the latest Gnuplot.py sources via CVS.  Click
+<a href="https://sourceforge.net/cvs/?group_id=17434"> here</a> for
+more information. </p>
+
 
 <h2>Copyleft</h2>
 
-Gnuplot.py is released under the <a
+<p> Gnuplot.py is released under the <a
 href="http://www.fsf.org/copyleft/gpl.html"> GNU General Public
 License</a>, which means that it can be freely copied and used, but
 that there are some restrictions on your rights to incorporate it into
-commercial products.  See the <a href="LICENSE"> LICENCE</a> file for
+acommercial products.  See the <a href="LICENSE"> LICENCE</a> file for
 more information.  (If these restrictions are a problem for you,
 please contact me to discuss the issue.)
 
 <h2>Credits</h2>
 
-The Gnuplot.py package was written by <a
-href="http://monsoon.harvard.edu/~mhagger/">Michael Haggerty</a>.
+<p> The Gnuplot.py package was written by <a
+href="http://monsoon.harvard.edu/~mhagger/">Michael Haggerty</a>. </p>
 
 <p> The package was inspired by and partly derived from the Gnuplot.py
-module written by <a href="http://starship.skyport.net/crew/hinsen/">
+module written by <a href="http://starship.python.net/crew/hinsen/">
 Konrad Hinsen</a>.  The <tt>oldplot.py</tt> module is roughly
-backwards compatible with Konrad's version.
+backwards compatible with Konrad's version. </p>
 
-<p> Berthold H&ouml;llman helped get me started with the <a
+<p> Berthold H&ouml;llmann helped get me started with the <a
 href="http://starship.skyport.net/crew/danilo/pythondoc/pythondoc.htm">
-pythondoc</a> package.
+pythondoc</a> package and submitted a <tt>setup.py</tt> file to be
+used with <tt>distutils</tt>. </p>
 
 <p> Craig Schardt and Francois Ladouceur contributed changes that
 enable Gnuplot.py to work under MS-Windows.  Tony Ingraldi contributed
-changes for the Macintosh.
+changes for the Macintosh. </p>
 
-<hr>
-
-Go to <a href="/~mhagger/download/">other downloadable material</a><br>
-Back to my <a href="http://monsoon.harvard.edu/~mhagger/"><b>home
-page</b></a>
+<p> Jannie Hofmeyr submitted a fix for Windows under Python 2.0. </p>
 
 <hr>
 
 Written by <a href="http://monsoon.harvard.edu/~mhagger/">Michael
 Haggerty</a> (email <a href="mailto:mhagger@alum.mit.edu">
 &lt;<i>mhagger@alum.mit.edu</i>&gt;</a>)<br>
-<!-- hhmts start -->
-Last modified: Fri Mar 31 10:22:16 2000
-<!-- hhmts end -->
+
 </body> </html>
