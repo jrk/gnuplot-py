@@ -1,5 +1,6 @@
 *.pyc
 *.pyo
+build
 dist
 doc
 gp_test.ps
