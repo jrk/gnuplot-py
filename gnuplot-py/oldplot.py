@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # $Id$
 
-"""Gnuplot_plot.py -- Obsolete functional version of Gnuplot.py.
+"""oldplot.py -- Obsolete functional interface to Gnuplot.
 
 This module implements a function 'plot' that can be used to plot
 array data through the gnuplot program.  It is provided for backwards
@@ -24,11 +24,11 @@ Boston, MA 02111-1307, USA.
 
 See Gnuplot.py and the README file for more information.
 
-The module can be tested by typing 'python Gnuplot_plot.py'.
+The module can be tested by typing 'python plot.py'.
 
 """
 
-__version__ = '1.2'
+__version__ = '1.3'
 __cvs_version__ = '$Revision$'
 
 

@@ -12,8 +12,8 @@
 </td>
 <td>
 <ul>
-  <li> Download the <a href="Gnuplot-1.2.tar.gz">latest version</a>
-       (version 1.2)
+  <li> Download the <a href="Gnuplot-1.3.tar.gz">latest version</a>
+       (version 1.3)
   <li> View the <a href="Gnuplot-doc">online class documentation</a>
 </ul>
 </td>
@@ -22,16 +22,17 @@
 
 <h2>Intro</h2>
 
-<a href="Gnuplot.tar.gz">Gnuplot.py</a> is a Python module that
+<a href="Gnuplot.tar.gz">Gnuplot.py</a> is a Python package that
 interfaces to <a
-href="ftp://ftp.gnuplot.vt.edu/pub/gnuplot/faq/index.html">gnuplot</a>,
-the popular plotting program.  It allows you to use gnuplot from
-within Python to plot arrays of data from memory, data files, or
-mathematical functions.  If you use Python to perform computations or
-as `glue' for numerical programs, you can use this module to plot data
-on the fly as they are computed.  And the combination with Python
-makes it is easy to automate things, including to create crude
-`animations' by plotting different datasets one after another.
+href="ftp://ftp.gnuplot.vt.edu/pub/gnuplot/faq/index.html">
+gnuplot</a>, the popular plotting program.  It allows you to use
+gnuplot from within Python to plot arrays of data from memory, data
+files, or mathematical functions.  If you use Python to perform
+computations or as `glue' for numerical programs, you can use this
+package to plot data on the fly as they are computed.  And the
+combination with Python makes it is easy to automate things, including
+to create crude `animations' by plotting different datasets one after
+another.
 
 <p> Commands are communicated to gnuplot through a pipe and data
 either through the same pipe (as "inline" data) or through temporary
@@ -39,95 +40,57 @@ files.  It has been written and tested on a unix computer but should
 also work under MS Windows and possibly other operating systems
 (please give me feedback!)
 
-<p> This module has an object-oriented design that allows the user
+<p> This package has an object-oriented design that allows the user
 flexibility to set plot options and to run multiple gnuplot sessions
 simultaneously.  If you are more ambitious, it is not difficult to add
-entirely new types of plottable items by deriving from the `PlotItem'
-class.
+entirely new types of plottable items by deriving from the
+`<tt>PlotItem</tt>' class.
 
-<p> For a demonstration, run the python file by typing `python
-Gnuplot.py'.
+<p> For a demonstration, run the python file by typing `<tt>python
+demo.py</tt>'.
 
 <h2>News</h2>
 
-<a href="Gnuplot-1.2.tar.gz">Version 1.2</a> has been released and is
-now the current version (8 Aug 1999).  This version adds the following
-features:
+<a href="Gnuplot-1.3.tar.gz">Version 1.3</a> has been released (23 Sep
+1999).  This version includes the following changes:
 
 <ul>
-  <li> Support for MS Windows, using the `pgnuplot.exe' program.
-       Thanks go especially to Craig Schardt for help with this.
-  <li> Support for using binary files to send grid data to splot.
-       This saves a lot of time and usually saves space compared with
-       the old text files.  (Only works with recent versions of
-       gnuplot.)
-  <li> Support for sending data to gnuplot as `inline data'
-       (i.e., "plot '-'").  This method should be faster than the
-       alternate method, temporary files.  (Only works with recent
-       versions of gnuplot.)
-  <li> Allows PlotItem options to be modified after the PlotItem is
-       constructed.
-  <li> Simplified the PlotItem inheritance hierarchy (Data and
-       GridData are no longer derived from File).
-  <li> Added several configuration options (see top of Gnuplot.py).
-  <li> Separated function-based interface into a separate file
-       (Gnuplot_plot.py).
-  <li> Added a test module, Gnuplot_test.py, which tests most of the
-       features of Gnuplot.py.
-  <li> A README file, lots of documentation changes, etc.
+<li> Converted to package format.  The main file is now called
+     <tt>__init__.py</tt>, so that it can be loaded by typing
+     `<tt>import Gnuplot</tt>'.
+<li> Passing <tt>GridData</tt> a callable function was basically
+     broken because of the kludgey way of overloading the argument.
+     Instead of trying to fix it, I moved that functionality to a new
+     type of <tt>PlotItem</tt> called `<tt>GridFunc</tt>'.
+<li> Added a new keyword argument, `<tt>ufunc</tt>', to
+     <tt>grid_function</tt> and to <tt>GridFunc</tt>.  If that
+     argument is nonzero, then the function is evaluated matrix-wise
+     (in that case it must be composed only of ufunctions or
+     ufunction-like routines).
+<li> Fixed a 'typecode' problem with <tt>grid_function</tt> (typecode
+     is apparently a positional, not a keyword, argument in the
+     Numeric library).
+<li> Separated the demonstration code into a separate file,
+     <tt>demo.py</tt>, to shorten <tt>__init__.py</tt> a bit.
 </ul>
 
-<p> <a href="Gnuplot-1.1a.tar.gz">Version 1.1a</a> has been released (9
-Apr 1999).  This version just addresses a couple of minor portability
-issues.
+To read about changes introduced in earlier versions, read the <a
+href="NEWS"> NEWS file </a>.
 
-<p> <a href="Gnuplot-1.1.tar.gz">Version 1.1</a> has been released (31
-Jan 1999).  New features:
-
-<ul>
-  <li> 3-D plots are now supported through the new `splot' method:
-       <ul>
-	 <li> To create a scatter plot, pass splot a 2-D array
-	      containing (x,y,z) triplets;
-	 <li> To create a grid plot, pass a 3-D array consisting of a
-	      2-D array of (x,y,z) triplets; or
-	 <li> Use the new `GridData' PlotItem to plot gridded data
-	      (data tabulated on a rectangular grid).
-       </ul>
-  <li> It is now easier to pass data to gnuplot.  The `Data' PlotItem
-       now accepts multiple arguments representing subsequent
-       `columns' of the dataset; e.g., what used to be written as
-       <pre>
-          g = Gnuplot.Gnuplot()
-          x = Numeric.arange(100)/10.0
-          y = x**2
-          # Create an array of (x,y) pairs:
-          g.plot(Gnuplot.Data(Numeric.transpose((x, y))))
-       </pre>
-       can now be shortened to
-       <pre>
-          # Plot y vs. x directly:
-          g.plot(Gnuplot.Data(x, y))
-       </pre>
-       (both examples plot x squared vs. x).  Similarly, splot can be
-       passed three arrays representing the values of x, y, and z.
-       Note that the old interpretation is still used if a single
-       argument is passed to `Data'.
-</ul>
 
 <h2>Documentation</h2>
 
 The quickest way to learn how to use Gnuplot.py is to run the simple
-demonstration by typing `python Gnuplot.py', then to look at the
-bottom of the Gnuplot.py file to see the commands that create the
-demo.  One of the examples is probably similar to what you want to do.
+demonstration by typing `<tt>python demo.py</tt>', then to look at the
+<tt>demo.py</tt> file to see the commands that create the demo.  One
+of the examples is probably similar to what you want to do.
 
 <p> Thanks to <a
 href="http://starship.skyport.net/crew/danilo/pythondoc/">
 pythondoc</a>, there is now some <a href="Gnuplot-doc/"> online
-documentation</a> for Gnuplot.py, extracted from the module's
-docstrings.  Alternatively, you can look at the docstrings in
-Gnuplot.py yourself by opening the file in an editor.
+documentation</a> for Gnuplot.py, extracted from the package's
+docstrings.  Alternatively, you can look at the docstrings yourself by
+opening the file <tt>__init__.py</tt> in an editor.
 
 <p> To get good use out of Gnuplot.py, you will want to know something
 about gnuplot, for which a good source is the gnuplot help (run
@@ -136,6 +99,7 @@ href="http://www.cs.dartmouth.edu/gnuplot/gnuplot.html"> this
 website</a>).  You might also want to check out Bernhard Reiter's <a
 href="http://www.usf.Uni-Osnabrueck.DE/~breiter/tools/gnuplot/index.en.html">
 gnuplot information page</a>, which has many more links.
+
 
 <h2>Installation</h2>
 
@@ -147,18 +111,19 @@ Before you can use Gnuplot.py, you will need working versions of
   <li> the <a
        href="ftp://ftp.gnuplot.vt.edu/pub/gnuplot/">gnuplot</a>
        program,
-  <li> <a href="http://www.python.org">Python</a>, and
+  <li> <a href="http://www.python.org">Python</a> (the version should
+       be at least 1.5), and
   <li> the <a href="http://xfiles.llnl.gov/python.htm"> Numeric Python
        extension</a>
 </ul>
 If you want to run under MS Windows, you will also need pgnuplot.exe
 (see the README file for details).
 
-To install Gnuplot.py:
+<p> To install Gnuplot.py:
 <ol>
   <li> Download either <a href="Gnuplot.tar.gz"> Gnuplot.tar.gz</a>
-       or <a href="Gnuplot.zip"> Gnuplot.zip</a> (these are symlinks
-       to the most recent version).
+       or <a href="Gnuplot.zip"> Gnuplot.zip</a> (these are links to
+       the most recent version).
   <li> Gunzip and untar (or unzip) it, which will create a directory
        called ``Gnuplot-<i>version</i>'' where <i>version</i> is the
        current Gnuplot.py version.
@@ -178,12 +143,12 @@ please contact me to discuss the issue.)
 
 <h2>Credits</h2>
 
-The Gnuplot.py module was written by <a
+The Gnuplot.py package was written by <a
 href="http://monsoon.harvard.edu/~mhagger/">Michael Haggerty</a>.
 
-<p> The module was inspired by and partly derived from the Gnuplot.py
+<p> The package was inspired by and partly derived from the Gnuplot.py
 module written by <a href="http://starship.skyport.net/crew/hinsen/">
-Konrad Hinsen</a>.  There is a `plot' function in the Gnuplot_plot.py
+Konrad Hinsen</a>.  There is a `plot' function in the oldplot.py
 module that is roughly backwards compatible with the function in
 Konrad's version.
 
@@ -207,6 +172,6 @@ Written by <a href="http://monsoon.harvard.edu/~mhagger/">Michael
 Haggerty</a> (email <a href="mailto:mhagger@blizzard.harvard.edu">
 &lt;<i>mhagger@blizzard.harvard.edu</i>&gt;</a>)<br>
 <!-- hhmts start -->
-Last modified: Thu Aug 12 19:50:30 1999
+Last modified: Thu Sep 23 16:58:17 1999
 <!-- hhmts end -->
 </body> </html>

@@ -1,7 +1,10 @@
 #! /usr/bin/env python
 # $Id$
 
-"""Gnuplot_test.py -- Exercise the Gnuplot.py module.
+"""test.py -- Exercise the Gnuplot.py module.
+
+This module is not meant to be a flashy demonstration; rather it is a
+thorough test of many combinations of Gnuplot.py features.
 
 Copyright (C) 1999 Michael Haggerty
 
@@ -18,7 +21,7 @@ Boston, MA 02111-1307, USA.
 
 """
 
-__version__ = '1.2'
+__version__ = '1.3'
 __cvs_version__ = '$Revision$'
 
 import math, time

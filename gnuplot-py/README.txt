@@ -4,24 +4,22 @@ Documentation
 -------------
 
 The best way to get started is to run the demo by typing `python
-Gnuplot.py'.  This should pop up a few gnuplot windows, one after
+demo.py'.  This should pop up a few gnuplot windows, one after
 another, on your screen containing simple graphs, and also write a
 postscript file called `gp_test.ps' to the current directory.  Then
 look at the code for the demo which is in the function `demo()' at the
-bottom of Gnuplot.py.  This should be enough to get you started making
+bottom of demo.py.  This should be enough to get you started making
 simple plots of your own.
 
-More detailed documentation is contained in the module itself, as
+More detailed documentation is contained in the package itself, as
 documentation strings and comments.  Don't be shy, just open up
-Gnuplot.py with your favorite text editor and take a look.  Especially
-look at the demo() subroutine and learn by example.  Alternatively you
-can check out the documentation online at
+__init__.py with your favorite text editor and take a look.
+Alternatively you can check out the documentation online at
 <http://monsoon.harvard.edu/~mhagger/Gnuplot/Gnuplot-doc/>, which
 contains the same docstrings but in a prettier format.
 
-For a relatively thorough test of Gnuplot.py, type `python
-Gnuplot_test.py' which goes systematically through most Gnuplot.py
-features.
+For a relatively thorough test of Gnuplot.py, type `python test.py'
+which goes systematically through most Gnuplot.py features.
 
 
 Installation
@@ -31,31 +29,43 @@ Obviously, you must have the gnuplot program if Gnuplot.py is to be of
 any use to you.  Gnuplot can be obtained via
 <http://www.cs.dartmouth.edu/gnuplot_info.html>.
 
-This module itself consists of mainly one file, Gnuplot.py, which is
-pure Python.  There are a few configuration options near the beginning
-of the file that you might need to change (see the comments for
-details).  If your copy of gnuplot is started by typing something
-other than `gnuplot' you will have to specify the correct command
-there.  Otherwise most things will probably work OK without changes.
+You can try out the demonstration before installing the package.  Just
+untar or unzip the package, change to the directory that was created,
+and type `python demo.py'.
 
-To install the module, just place Gnuplot.py in any directory on your
-python path.  You can import it into your python programs using
-`import Gnuplot'.
+Gnuplot.py is structured as a python package.  That means that it must
+be installed as a subdirectory called `Gnuplot' within a directory
+that is in your python path.  Usually this means you should install it
+within your site-packages directory, which may be in
+/usr/local/lib/python1.5.  The easiest thing is to change to that
+directory then untar or unzip the distribution.  This will create a
+directory called `Gnuplot-<version>'.  Then either create a symbolic
+link to that directory called `Gnuplot' or change the name of that
+directory to `Gnuplot'.
+
+The Gnuplot.py package is pure Python.  The main file is __init__.py.
+There are a few configuration options near the beginning of the file
+that you might need to change (see the comments for details).  If your
+copy of gnuplot is started by typing something other than `gnuplot'
+you will have to specify the correct command there.  Otherwise most
+things will probably work OK without any changes.
+
+You can import the main part of the package into your python programs
+using `import Gnuplot'.
 
 The function-based interface (i.e., the plot() command) inherited from
 Konrad Hinsen's original Gnuplot.py has been separated into a separate
-file, `Gnuplot_plot.py'.  If you still use that interface, you will
-have to install both Gnuplot.py and Gnuplot_plot.py in your python
-path.  However, it is recommended that you try out the object-oriented
-interface since it is far more flexible and the old interface will no
-longer be developed.
+file, `plot.py'.  You can import it using `import Gnuplot.oldplot' or
+`from Gnuplot.oldplot import plot'.  However, it is recommended that
+you try out the object-oriented interface since it is far more
+flexible and the old interface will no longer be developed.
 
 
 Installation on Windows
 -----------------------
 
 I don't run Windows, but thanks to the help of users there is now a
-scheme that works on that platform.  Any feedback or additional
+way to use Gnuplot.py on that platform.  Any feedback or additional
 suggestions having to do with Windows would be especially appreciated,
 especially if you know how to make Gnuplot.py work under Windows
 without having to install pgnuplot.exe.
@@ -91,7 +101,7 @@ file.
 
 Gnuplot.py has been tested with gnuplot version 3.7, and I believe it
 should work with version 3.5 (though some features, like enhanced
-postscript mode, aren't available).  Let me know if you have trouble.
+postscript mode, are not available).  Let me know if you have trouble.
 
 Gnuplot.py was developed under Linux and Digital Unix; it should work
 without much problem on other unix computers.  If you need to modify
