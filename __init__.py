@@ -172,6 +172,26 @@ def test_persist():
     return _recognizes_persist
 
 
+# Type of a Numeric array:
+_arraytype = type(Numeric.array((1,)))
+
+def float_array(m):
+    """Return the argument as a Numeric array of type at least Float32.
+
+    Leave Float64 unchanged, but upcast all other types to Float32.
+    Allow also for the possibility that the argument is a python
+    native type that can be converted to a Numeric array using
+    Numeric.asarray(), but in that case don't worry about downcasting
+    to single-precision float."""
+
+    try:
+        # Try Float32 (this will refuse to downcast)
+        return Numeric.asarray(m, Numeric.Float32)
+    except TypeError:
+        # That failed for some reason; try to convert to a larger real type:
+        return Numeric.asarray(m, Numeric.Float)
+
+
 def write_array(f, set,
                 item_sep=' ',
                 nest_prefix='', nest_suffix='\n', nest_sep=''):
@@ -485,10 +505,12 @@ class Data(File):
 
         if len(set) == 1:
             # set was passed as a single structure
-            set = Numeric.asarray(set[0], Numeric.Float)
+            set = float_array(set[0])
         else:
-            # set was passed column by column (for example, Data(x,y))
-            set = Numeric.asarray(set, Numeric.Float)
+            # set was passed column by column (for example,
+            # Data(x,y)); pack it into one big array (this will test
+            # that sizes are all the same):
+            set = float_array(set)
             dims = len(set.shape)
             # transpose so that the last index selects x vs. y:
             set = Numeric.transpose(set, (dims-1,) + tuple(range(dims-1)))
@@ -532,21 +554,21 @@ class GridData(File):
 
         """
 
-        data = Numeric.asarray(data, Numeric.Float)
+        data = float_array(data)
         assert len(data.shape) == 2
         (numx, numy) = data.shape
 
         if xvals is None:
             xvals = Numeric.arange(numx)
         else:
-            xvals = Numeric.asarray(xvals, Numeric.Float)
+            xvals = float_array(xvals)
             assert len(xvals.shape) == 1
             assert xvals.shape[0] == numx
 
         if yvals is None:
             yvals = Numeric.arange(numy)
         else:
-            yvals = Numeric.asarray(yvals, Numeric.Float)
+            yvals = float_array(yvals)
             assert len(yvals.shape) == 1
             assert yvals.shape[0] == numy
 
@@ -931,7 +953,7 @@ def plot(*items, **keyw):
     newitems = []
     for item in items:
         # assume data is an array:
-        item = Numeric.asarray(item, Numeric.Float)
+        item = float_array(item)
         dim = len(item.shape)
         if dim == 1:
             newitems.append(Data(item[:, Numeric.NewAxis], with='lines'))
