@@ -46,7 +46,7 @@ class GnuplotOpts:
     default_term = 'pict'
 
     # I don't know how to print directly to a printer on the Mac:
-    default_lpr = None
+    default_lpr = '| lpr'
 
     # Used the 'enhanced' option of postscript by default?  Set to
     # None (*not* 0!) if your version of gnuplot doesn't support
