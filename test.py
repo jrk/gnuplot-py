@@ -187,22 +187,31 @@ def main():
                    title='cos(0.5*x^2)'))
     g.hardcopy('gp_test.ps')
 
+    wait('Testing hardcopy options: mode="eps"')
+    g.hardcopy('gp_test.ps', mode='eps')
     wait('Testing hardcopy options: mode="landscape"')
     g.hardcopy('gp_test.ps', mode='landscape')
     wait('Testing hardcopy options: mode="portrait"')
     g.hardcopy('gp_test.ps', mode='portrait')
-    wait('Testing hardcopy options: mode="eps"')
-    g.hardcopy('gp_test.ps', mode='eps')
     wait('Testing hardcopy options: eps=1')
     g.hardcopy('gp_test.ps', eps=1)
+    wait('Testing hardcopy options: mode="default"')
+    g.hardcopy('gp_test.ps', mode='default')
     wait('Testing hardcopy options: enhanced=1')
-    g.hardcopy('gp_test.ps', eps=0, enhanced=1)
+    g.hardcopy('gp_test.ps', enhanced=1)
     wait('Testing hardcopy options: enhanced=0')
     g.hardcopy('gp_test.ps', enhanced=0)
     wait('Testing hardcopy options: color=1')
     g.hardcopy('gp_test.ps', color=1)
+    # For some reason, 
+    #    g.hardcopy('gp_test.ps', color=0, solid=1)
+    # doesn't work here (it doesn't activate the solid option), even
+    # though the command sent to gnuplot looks correct.  I'll
+    # tentatively conclude that it is a gnuplot bug. ###
+    wait('Testing hardcopy options: color=0')
+    g.hardcopy('gp_test.ps', color=0)
     wait('Testing hardcopy options: solid=1')
-    g.hardcopy('gp_test.ps', color=0, solid=1)
+    g.hardcopy('gp_test.ps', solid=1)
     wait('Testing hardcopy options: duplexing="duplex"')
     g.hardcopy('gp_test.ps', solid=0, duplexing='duplex')
     wait('Testing hardcopy options: duplexing="defaultplex"')
@@ -211,8 +220,6 @@ def main():
     g.hardcopy('gp_test.ps', fontname='Times-Italic')
     wait('Testing hardcopy options: fontsize=20')
     g.hardcopy('gp_test.ps', fontsize=20)
-    wait('Testing hardcopy options: mode="default"')
-    g.hardcopy('gp_test.ps', mode='default')
 
     print '############### test shortcuts ###################################'
     wait('plot Func and Data using shortcuts')
