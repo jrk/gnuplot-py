@@ -10,8 +10,9 @@ following people for their contributions:
 
 Konrad Hinsen <hinsen@ibs.ibs.fr> wrote the first, procedural
 interface version of Gnuplot.py.  His code is still present in many
-components of the current version, and the oldplot.py module is meant
-to be (mostly) backwards compatible with his version.
+components of the current version.  The oldplot.py module, which used
+to be included in Gnuplot.py for backwards compatibility with his
+version, hasn't been supported for a while so I deleted it.
 
 Berthold Hoellmann <bhoel@starship.python.net> introduced me to the
 helpful `pythondoc' package, and contributed some docstring changes to

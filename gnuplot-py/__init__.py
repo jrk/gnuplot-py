@@ -45,10 +45,8 @@ To obtain the gnuplot plotting program itself, see "the gnuplot FAQ",
 ftp://ftp.gnuplot.vt.edu/pub/gnuplot/faq/index.html.  Obviously you
 need to have gnuplot installed if you want to use Gnuplot.py.
 
-The old command-based interface to gnuplot has been separated out into
-a separate module, oldplot.py.  If you are still using that interface
-you should 'import Gnuplot.oldplot'; otherwise you should stick to the
-more flexible object-oriented interface contained here.
+The old command-based interface to gnuplot (previously supported as
+'oldplot.py') has been removed from the package.
 
 Features:
 
@@ -162,7 +160,7 @@ __version__ = '1.6'
 __cvs_version__ = '$Revision$'
 
 # Other modules that should be loaded for 'from Gnuplot import *':
-__all__ = ['utils', 'funcutils', 'oldplot', ]
+__all__ = ['utils', 'funcutils', ]
 
 from gp import GnuplotOpts, GnuplotProcess, test_persist
 from Errors import Error, OptionError, DataError
