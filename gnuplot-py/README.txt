@@ -52,6 +52,17 @@ which goes systematically through most Gnuplot.py features.
 Installation
 ------------
 
+Quick instructions:
+
+1. Download gnuplot-py-1.7.tar.gz or gnuplot-py-1.7.zip.
+
+2. Extract the archive to a temporary directory.
+
+3. Install by changing to the directory and typing "python setup.py
+   install".
+
+More information:
+
 Obviously, you must have the gnuplot program if Gnuplot.py is to be of
 any use to you.  Gnuplot can be obtained via
 <http://www.gnuplot.info>.  You also need Python's Numerical
@@ -83,6 +94,26 @@ Import the main part of the package into your python programs using
 Gnuplot.funcutils and Gnuplot.PlotItems.
 
 
+Installation via RPM (for Linux/Unix)
+-------------------------------------
+
+I decided that it doesn't make sense to package up RPM versions of
+Gnuplot.py, since the place where the files need to be installed
+depends on what version of Python you are using.  But if you want the
+benefits of RPM management, it's easy for you to create your own RPM
+from the source distribution then install the RPM:
+
+1. Change into the source directory.
+
+2. Create the RPM:
+
+   $ python ./setup.py bdist --format=rpm
+
+3. Install it (as root):
+
+   # rpm -ivh dist/gnuplot-py-1.7-1.noarch.rpm
+
+
 Installation on Windows
 -----------------------
 
@@ -105,7 +136,7 @@ pgnuplot.exe is installed.  It comes with gnuplot since at least
 version 3.7.1.  Alternatively you can get pgnuplot.exe alone by
 downloading `testing/windows-stdin.zip' from one of the gnuplot
 archives (e.g.,
-<ftp://ftp.gnuplot.vt.edu/pub/gnuplot/testing/windows-stdin.zip>).
+<ftp://ftp.gnuplot.info/pub/gnuplot/testing/windows-stdin.zip>).
 
 Continue installing Gnuplot.py by following the instructions in the
 previous section.
@@ -114,9 +145,12 @@ previous section.
 Installation on the Macintosh
 -----------------------------
 
-Thanks to more user help, Gnuplot.py should now work on the Macintosh
-too.  Since pipes don't exist on the Mac, communication with gnuplot
-is via a python module called gnuplot_Suites.py (included) which uses
+Thanks to more user help, Gnuplot.py should work on the Macintosh too.
+(Here I am referring to Mac OS versions prior to OS X; OS X is unix so
+no special considerations apply there.)
+
+Since pipes don't exist on the Mac, communication with gnuplot is via
+a python module called gnuplot_Suites.py (included) which uses
 AppleEvents.  Note that you will have to convert the python files to
 Mac text files (different end-of-line character).  Currently it is not
 possible to print directly to a printer; however, it should be
@@ -205,3 +239,4 @@ of Gnuplot.py.
 --
 Michael Haggerty
 <mhagger@alum.mit.edu>
+(But please use the mailing list for Gnuplot.py-related issues.)
