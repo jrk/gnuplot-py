@@ -8,6 +8,10 @@ Version ?.?:
 
 * Added a 'pdf' terminal definition (using a patch from Jim Kleckner).
 
+* Added close() and __del__() methods to the Gnuplot class.  This
+  might help with some cases of premature temporary file deletion.
+  (Suggested by Jim Kleckner.)
+
 
 Version 1.7:
 
