@@ -20,6 +20,7 @@
 
 __cvs_version__ = '$Revision$'
 
+import os, string
 
 import Errors
 
@@ -82,7 +83,7 @@ class _GNUPLOT(aetools.TalkTo,
 class GnuplotProcess:
     """Unsophisticated interface to a running gnuplot program.
 
-    See gp.GnuplotProcess for usage information.
+    See gp_unix.GnuplotProcess for usage information.
 
     """
 
@@ -105,15 +106,19 @@ class GnuplotProcess:
 
         self.gnuplot = _GNUPLOT()
 
-        # forward write and flush methods:
-        self.write = self.gnuplot.gnuexec
+        # forward close method:
         self.close = self.gnuplot.quit
+
+    def write(self, s):
+        """Mac gnuplot apparently requires '\r' to end statements."""
+
+        self.gnuplot.gnuexec(string.replace(s, '\n', os.linesep))
 
     def flush(self):
 		pass
 		
     def __call__(self, s):
-        """Send a command string to gnuplot, followed by newline."""
+        """Send a command string to gnuplot, for immediate execution."""
 
         self.write(s)
         self.flush()
