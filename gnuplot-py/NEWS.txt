@@ -141,4 +141,9 @@ Version 1.1 (31 Jan 1999):
   Note that the old interpretation is still used if a single
   argument is passed to `Data'.
 
+* Following a suggestion by Jannie Hofmeyr <jhsh@iafrica.com>, try
+  using "from os import popen" in gp_win32.py if the win32 extensions
+  are not found.  This change should allow Gnuplot.py to work with
+  Python 2.0.  I don't use windows, so let me know if this doesn't
+  work.
 

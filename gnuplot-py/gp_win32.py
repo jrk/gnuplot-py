@@ -62,7 +62,14 @@ class GnuplotOpts:
 # ############ End of configuration options ############################
 
 
-from win32pipe import popen
+try:
+    # The win32 extensions provide a popen that can be used with
+    # gnuplot:
+    from win32pipe import popen
+except ImportError:
+    # Apparently at least as of Python 2.0b1, popen support for
+    # windows is adequate.  Give that a try:
+    from os import popen
 
 
 # Mac doesn't recognize persist.
