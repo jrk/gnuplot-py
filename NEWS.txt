@@ -6,6 +6,8 @@ Gnuplot.py package.
 
 Version x.x:
 
+* Relaxed license from GPL to LGPL.
+
 * Significant reorganization of PlotItem.py:
 
   + Deleted the AnyFile classes from PlotItem: AnyFile, TempFile,
