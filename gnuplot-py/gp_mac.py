@@ -42,7 +42,9 @@ class GnuplotOpts:
     # Apparently the Mac can not use inline data:
     prefer_inline_data = 0
 
-    # The default choice for the 'set term' command (to display on screen):
+    # The default choice for the 'set term' command (to display on screen).
+    # Terminal types are different in Gnuplot 3.7.1c.
+    # For earlier versions, this was default_term = 'macintosh'
     default_term = 'pict'
 
     # I don't know how to print directly to a printer on the Mac:
@@ -67,6 +69,7 @@ import aetools
 # Mac doesn't recognize persist.
 def test_persist():
     return 0
+
 
 class _GNUPLOT(aetools.TalkTo,
                Required_Suite.Required_Suite,
