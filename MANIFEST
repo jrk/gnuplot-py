@@ -4,4 +4,4 @@ LICENSE			# Your rights to use this package
 CREDITS			# Contributors to Gnuplot.py
 __init__.py		# The main module
 Gnuplot_plot.py		# Optional module for backwards compatibility
-Gnuplot_test.py		# This module tests most Gnuplot.py features
+test.py			# This module tests most Gnuplot.py features
