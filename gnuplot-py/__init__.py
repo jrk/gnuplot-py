@@ -349,15 +349,17 @@ class PlotItem:
     Members:
     
       '_basecommand' -- a string holding the elementary argument that
-                        must be passed to gnuplot's `plot' command for
-                        this item; e.g., 'sin(x)' or '"filename.dat"'.
+          must be passed to gnuplot's `plot' command for this item;
+          e.g., 'sin(x)' or '"filename.dat"'.
       '_options' -- a dictionary of (<option>,<string>) tuples
-                    corresponding to the plot options that have been
-                    specified for this object.  <option> is the option
-                    as specified by the user; <string> is the string
-                    that needs to be set in the command line to set
-                    that option (or None if no string is needed).
-                    E.g., {'title':'Data', 'with':'linespoints'}.
+          corresponding to the plot options that have been specified
+          for this object.  <option> is the option as specified by the
+          user; <string> is the string that needs to be set in the
+          command line to set that option (or None if no string is
+          needed).  Example:
+
+              {'title' : ('Data', 'title "Data"'),
+               'with' : ('linespoints', 'with linespoints')}
 
     """
 
@@ -367,9 +369,9 @@ class PlotItem:
         Keyword options:
 
           'with=<string>' -- choose how item will be plotted, e.g.,
-                             with='points 3 3'.
+              with='points 3 3'.
           'title=<string>' -- set the title to be associated with the item
-                              in the plot legend.
+              in the plot legend.
           'title=None' -- choose 'notitle' option (omit item from legend).
 
         Note that omitting the title option is different than setting
@@ -548,8 +550,8 @@ class ArrayFile(AnyFile):
 
           'set' -- a Numeric array of arbitrary dimension.
           'filename' -- the (optional) name of the file to which the
-                        array should be written.  If 'filename' is not
-                        specified, a random filename is chosen.
+              array should be written.  If 'filename' is not
+              specified, a random filename is chosen.
 
         """
 
@@ -567,8 +569,8 @@ class TempArrayFile(ArrayFile, TempFile):
 
           'set' -- a Numeric array of arbitrary dimension.
           'filename' -- the (optional) name of the file to which the
-                        array should be written.  If 'filename' is not
-                        specified, a random filename is chosen.
+              array should be written.  If 'filename' is not
+              specified, a random filename is chosen.
 
         When the 'TempArrayFile' is destroyed, the file is deleted
         automatically.
@@ -784,7 +786,7 @@ class GridData(PlotItem):
         Arguments:
 
             'data' -- the data to plot: a 2-d array with dimensions
-                      (numx,numy).
+                (numx,numy).
             'xvals' -- a 1-d array with dimension 'numx'
             'yvals' -- a 1-d array with dimension 'numy'
             'binary=<bool>' -- send data to gnuplot in binary format?
@@ -938,7 +940,7 @@ class GridFunc(GridData):
         Arguments:
 
             'f' -- the function to plot--a callable object for which
-                   f(x,y) returns a number.
+                f(x,y) returns a number.
             'xvals' -- a 1-d array with dimension 'numx'
             'yvals' -- a 1-d array with dimension 'numy'
             'binary=<bool>' -- send data to gnuplot in binary format?
@@ -984,15 +986,15 @@ class GnuplotFile:
 
     Members:
 
-    'gnuplot' -- the file object gathering the commands.
+        'gnuplot' -- the file object gathering the commands.
 
     Methods:
 
-    '__init__' -- open the file.
-    '__call__' -- write a gnuplot command to the file, followed by a
-                  newline.
-    'write' -- write an arbitrary string to the file.
-    'flush' -- cause pending output to be written immediately.
+        '__init__' -- open the file.
+        '__call__' -- write a gnuplot command to the file, followed by a
+            newline.
+        'write' -- write an arbitrary string to the file.
+        'flush' -- cause pending output to be written immediately.
 
     """
 
@@ -1022,50 +1024,51 @@ class Gnuplot(GnuplotProcess):
 
     Members:
 
-    'itemlist' -- a list of the PlotItems that are associated with the
-                  current plot.  These are deleted whenever a new plot
-                  command is issued via the `plot' method.
-    'plotcmd' -- 'plot' or 'splot', depending on what was the last
-                 plot command.
+        'itemlist' -- a list of the PlotItems that are associated with
+            the current plot.  These are deleted whenever a new plot
+            command is issued via the `plot' method.
+        'plotcmd' -- 'plot' or 'splot', depending on what was the last
+            plot command.
 
     Methods:
 
-    '__init__' -- if a filename argument is specified, the commands
-                  will be written to that file instead of being piped
-                  to gnuplot.
-    'plot' -- clear the old plot and old PlotItems, then plot the
-              arguments in a fresh plot command.  Arguments can be: a
-              PlotItem, which is plotted along with its internal
-              options; a string, which is plotted as a Func; or
-              anything else, which is plotted as a Data.
-    'splot' -- like 'plot', except for 3-d plots.
-    'hardcopy' -- replot the plot to a postscript file (if filename
-                  argument is specified) or pipe it to the printer as
-                  postscript othewise.  If the option `color' is set
-                  to true, then output color postscript.
-    'replot' -- replot the old items, adding any arguments as
-                additional items as in the plot method.
-    'refresh' -- issue (or reissue) the plot command using the current
-                 PlotItems.
-    '__call__' -- pass an arbitrary string to the gnuplot process,
-                  followed by a newline.
-    'xlabel', 'ylabel', 'title' -- set corresponding plot attribute.
-    'interact' -- read lines from stdin and send them, one by one, to
-                  the gnuplot interpreter.  Basically you can type
-                  commands directly to the gnuplot command processor.
-    'load' -- load a file (using the gnuplot `load' command).
-    'save' -- save gnuplot commands to a file (using gnuplot `save'
-              command) If any of the PlotItems is a temporary file, it
-              will be deleted at the usual time and the save file will
-              be pretty useless :-).
-    'clear' -- clear the plot window (but not the itemlist).
-    'reset' -- reset all gnuplot settings to their defaults and clear
-               the current itemlist.
-    'set_string' -- set or unset a gnuplot option whose value is a
-                    string.
-    '_clear_queue' -- clear the current PlotItem list.
-    '_add_to_queue' -- add the specified items to the current
-                       PlotItem list.
+        '__init__' -- if a filename argument is specified, the
+            commands will be written to that file instead of being
+            piped to gnuplot.
+        'plot' -- clear the old plot and old PlotItems, then plot the
+            arguments in a fresh plot command.  Arguments can be: a
+            PlotItem, which is plotted along with its internal
+            options; a string, which is plotted as a Func; or anything
+            else, which is plotted as a Data.
+        'splot' -- like 'plot', except for 3-d plots.
+        'hardcopy' -- replot the plot to a postscript file (if
+            filename argument is specified) or pipe it to the printer
+            as postscript othewise.  If the option `color' is set to
+            true, then output color postscript.
+        'replot' -- replot the old items, adding any arguments as
+            additional items as in the plot method.
+        'refresh' -- issue (or reissue) the plot command using the
+            current PlotItems.
+        '__call__' -- pass an arbitrary string to the gnuplot process,
+            followed by a newline.
+        'xlabel', 'ylabel', 'title' -- set corresponding plot
+            attribute.
+        'interact' -- read lines from stdin and send them, one by one,
+            to the gnuplot interpreter.  Basically you can type
+            commands directly to the gnuplot command processor.
+        'load' -- load a file (using the gnuplot `load' command).
+        'save' -- save gnuplot commands to a file (using gnuplot
+            `save' command) If any of the PlotItems is a temporary
+            file, it will be deleted at the usual time and the save
+            file will be pretty useless :-).
+        'clear' -- clear the plot window (but not the itemlist).
+        'reset' -- reset all gnuplot settings to their defaults and
+            clear the current itemlist.
+        'set_string' -- set or unset a gnuplot option whose value is a
+            string.
+        '_clear_queue' -- clear the current PlotItem list.
+        '_add_to_queue' -- add the specified items to the current
+            PlotItem list.
 
     """
 
@@ -1078,15 +1081,14 @@ class Gnuplot(GnuplotProcess):
         Keyword arguments:
 
           'filename=<string>' -- if a filename is specified, the
-                                 commands are instead written to that
-                                 file (e.g., for later use using
-                                 'load').
+              commands are instead written to that file (e.g., for
+              later use using 'load').
           'persist=1' -- start gnuplot with the '-persist' option
-                         (which creates a new plot window for each
-                         plot command).  (This option is not available
-                         on older versions of gnuplot.)
+              (which creates a new plot window for each plot command).
+              (This option is not available on older versions of
+              gnuplot.)
           'debug=1' -- echo the gnuplot commands to stderr as well as
-                       sending them to gnuplot.
+              sending them to gnuplot.
 
         """
 
@@ -1164,20 +1166,17 @@ class Gnuplot(GnuplotProcess):
         following types:
 
         'PlotItem' (e.g., 'Data', 'File', 'Func') -- This is the most
-                   flexible way to call plot because the PlotItems can
-                   contain suboptions.  Moreover, PlotItems can be
-                   saved to variables so that their lifetime is longer
-                   than one plot command; thus they can be replotted
-                   with minimal overhead.
+            flexible way to call plot because the PlotItems can
+            contain suboptions.  Moreover, PlotItems can be saved to
+            variables so that their lifetime is longer than one plot
+            command; thus they can be replotted with minimal overhead.
 
         'string' (e.g., 'sin(x)') -- The string is interpreted as
-                 'Func(string)' (a function that is computed by
-                 gnuplot).
+            'Func(string)' (a function that is computed by gnuplot).
 
         Anything else -- The object, which should be convertible to an
-                         array, is converted to a 'Data' item, and
-                         thus plotted as data.  If the conversion
-                         fails, an exception is raised.
+            array, is converted to a 'Data' item, and thus plotted as
+            data.  If the conversion fails, an exception is raised.
 
         """
 
@@ -1193,20 +1192,20 @@ class Gnuplot(GnuplotProcess):
         the specified items.  Arguments can be of the following types:
 
         'PlotItem' (e.g., 'Data', 'File', 'Func', 'GridData' ) -- This
-                   is the most flexible way to call plot because the
-                   PlotItems can contain suboptions.  Moreover,
-                   PlotItems can be saved to variables so that their
-                   lifetime is longer than one plot command--thus they
-                   can be replotted with minimal overhead.
+            is the most flexible way to call plot because the
+            PlotItems can contain suboptions.  Moreover, PlotItems can
+            be saved to variables so that their lifetime is longer
+            than one plot command--thus they can be replotted with
+            minimal overhead.
 
         'string' (e.g., 'sin(x*y)') -- The string is interpreted as a
-                 'Func()' (a function that is computed by gnuplot).
+            'Func()' (a function that is computed by gnuplot).
 
         Anything else -- The object is converted to a Data() item, and
-                thus plotted as data.  Note that each data point
-                should normally have at least three values associated
-                with it (i.e., x, y, and z).  If the conversion fails,
-                an exception is raised.
+            thus plotted as data.  Note that each data point should
+            normally have at least three values associated with it
+            (i.e., x, y, and z).  If the conversion fails, an
+            exception is raised.
 
         """
 
