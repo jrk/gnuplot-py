@@ -26,6 +26,8 @@ __cvs_version__ = '$Revision$'
 
 import math, time
 import Numeric
+from Numeric import NewAxis
+
 try:
     import Gnuplot
 except:
@@ -51,7 +53,7 @@ def main():
     # Make a temporary file:
     file1 = gp.TempFile() # will be deleted upon exit
     f = open(file1.filename, 'w')
-    for x in arange(100)/5. - 10.:
+    for x in Numeric.arange(100)/5. - 10.:
         f.write('%s %s %s\n' % (x, math.cos(x), math.sin(x)))
     f.close()
 
@@ -120,7 +122,7 @@ def main():
     g.plot(f)
 
     print '############### test Data ########################################'
-    x = arange(100)/5. - 10.
+    x = Numeric.arange(100)/5. - 10.
     y1 = Numeric.cos(x)
     y2 = Numeric.sin(x)
     d = Numeric.transpose((x,y1,y2))
@@ -167,14 +169,14 @@ def main():
 
     print '############### test GridData and GridFunc #######################'
     # set up x and y values at which the function will be tabulated:
-    x = arange(35)/2.0
-    y = arange(30)/10.0 - 1.5
+    x = Numeric.arange(35)/2.0
+    y = Numeric.arange(30)/10.0 - 1.5
     # Make a 2-d array containing a function of x and y.  First create
     # xm and ym which contain the x and y values in a matrix form that
     # can be `broadcast' into a matrix of the appropriate shape:
     xm = x[:,NewAxis]
     ym = y[NewAxis,:]
-    m = (sin(xm) + 0.1*xm) - ym**2
+    m = (Numeric.sin(xm) + 0.1*xm) - ym**2
     wait('a function of two variables from a GridData file')
     g('set parametric')
     g('set data style lines')
@@ -190,10 +192,10 @@ def main():
     g.splot(gp.GridData(m,x,y, binary=1))
 
     wait('The same thing using GridFunc to tabulate function')
-    g.splot(gp.GridFunc(lambda x,y: sin(x) + 0.1*x - y**2, x,y))
+    g.splot(gp.GridFunc(lambda x,y: math.sin(x) + 0.1*x - y**2, x,y))
 
     wait('Use GridFunc in ufunc mode')
-    g.splot(gp.GridFunc(lambda x,y: sin(x) + 0.1*x - y**2, x,y,
+    g.splot(gp.GridFunc(lambda x,y: Numeric.sin(x) + 0.1*x - y**2, x,y,
                         ufunc=1, binary=1))
 
     wait('And now rotate it a bit')
