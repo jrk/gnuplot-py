@@ -4,6 +4,19 @@ This file describes the changes introduced in each version of the
 Gnuplot.py package.
 
 
+Version 1.6:
+
+* Introduced a general mechanism to add support for multiple gnuplot
+  terminal types to Gnuplot.hardcopy() function.  Added definitions
+  for 'postscript', 'png', 'fig', and 'cgm'.  Other terminal types can
+  now be added easily.
+
+* Changed names of Exceptions to be more consistent with other
+  modules: OptionException -> OptionError and DataException ->
+  DataError.  Moved both to Errors.py and derive both from
+  Errors.Error.
+
+
 Version 1.5:
 
 * Broke up the module a bit for better maintainability.  The most

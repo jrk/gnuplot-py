@@ -24,7 +24,7 @@ __cvs_version__ = '$Revision$'
 
 import sys, string, types
 
-import gp, PlotItems
+import gp, PlotItems, termdefs
 
 
 class _GnuplotFile:
@@ -185,9 +185,10 @@ class Gnuplot:
         if filename is None:
             self.gnuplot = gp.GnuplotProcess(persist=persist)
         else:
-            assert persist is None, \
-                   OptionException('Gnuplot with output to file does not '
-                                   'allow persist option.')
+            if persist is not None:
+                raise Errors.OptionError(
+                    'Gnuplot with output to file does not allow '
+                    'persist option.')
             self.gnuplot = _GnuplotFile(filename)
         self._clear_queue()
         self.debug = debug
@@ -437,16 +438,7 @@ class Gnuplot:
 
         self.set_string('title', s)
 
-    def hardcopy(self, filename=None,
-                 mode=None,
-                 eps=None,
-                 enhanced=None,
-                 color=None,
-                 solid=None,
-                 duplexing=None,
-                 fontname=None,
-                 fontsize=None,
-                 ):
+    def hardcopy(self, filename=None, terminal='postscript', **keyw):
         """Create a hardcopy of the current plot.
 
         Create a postscript hardcopy of the current plot to the
@@ -464,6 +456,14 @@ class Gnuplot:
           'filename=<string>' -- if a filename is specified, save the
               output in that file; otherwise print it immediately
               using the 'default_lpr' configuration option.
+
+          'terminal=<string>' -- the type of gnuplot 'terminal' to use
+              for the output (e.g., 'postscript', 'png', 'latex',
+              etc).  At the moment only 'postscript' is implemented.
+
+        The rest of the keyword arguments depend on the terminal type.
+
+        Keyword arguments for 'postscript' terminal:
 
           'mode=<string>' -- set the postscript submode ('landscape',
               'portrait', 'eps', or 'default').  The default is
@@ -506,9 +506,9 @@ class Gnuplot:
         """
 
         if filename is None:
-            assert gp.GnuplotOpts.default_lpr is not None, \
-                   OptionException('default_lpr is not set, so you can only '
-                                   'print to a file.')
+            if gp.GnuplotOpts.default_lpr is None:
+                raise Errors.OptionError(
+                    'default_lpr is not set, so you can only print to a file.')
             filename = gp.GnuplotOpts.default_lpr
 
         # Be careful processing the options.  If the user didn't
@@ -519,35 +519,26 @@ class Gnuplot:
         # exception is 'enhanced', which is just too useful to have to
         # specify each time!
 
-        setterm = ['set', 'terminal', 'postscript']
-        if eps:
-            assert mode is None or mode=='eps', \
-                   OptionException('eps option and mode are incompatible')
-            setterm.append('eps')
-        else:
-            if mode is not None:
-                assert mode in ['landscape', 'portrait', 'eps', 'default'], \
-                       OptionException('illegal mode "%s"' % mode)
-                setterm.append(mode)
-        if enhanced is None:
-            enhanced = gp.GnuplotOpts.prefer_enhanced_postscript
-        if enhanced is not None:
-            if enhanced: setterm.append('enhanced')
-            else: setterm.append('noenhanced')
-        if color is not None:
-            if color: setterm.append('color')
-            else: setterm.append('monochrome')
-        if solid is not None:
-            if solid: setterm.append('solid')
-            else: setterm.append('dashed')
-        if duplexing is not None:
-            assert duplexing in ['defaultplex', 'simplex', 'duplex'], \
-                   OptionException('illegal duplexing mode "%s"' % duplexing)
-            setterm.append(duplexing)
-        if fontname is not None:
-            setterm.append('"%s"' % fontname)
-        if fontsize is not None:
-            setterm.append('%s' % fontsize)
+        # Build up the 'set terminal' command here:
+        setterm = ['set', 'terminal', terminal]
+        try:
+            opts = termdefs.terminal_opts[terminal]
+        except KeyError:
+            raise Errors.OptionError(
+                'Terminal "%s" is not configured in Gnuplot.py.' % (terminal,))
+
+        for opt in opts:
+            cmd = opt(keyw)
+            if cmd is not None:
+                setterm.extend(cmd)
+        if keyw:
+            # Not all options were consumed.
+            raise Errors.OptionError(
+                'The following options are unrecognized: %s'
+                % (string.join(keyw.keys(), ', '),)
+                )
+
+        print setterm ###
         self(string.join(setterm))
         self.set_string('output', filename)
         # replot the current figure (to the printer):
