@@ -15,3 +15,7 @@ documentation :
 distribution :
 	python setup.py sdist --formats=gztar,zip
 
+.PHONY : rpm
+rpm :
+	python setup.py bdist_rpm
+

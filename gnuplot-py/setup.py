@@ -24,14 +24,22 @@ from distutils.core import setup
 # Get the version number from the __init__ file:
 from __init__ import __version__
 
+long_description = """\
+Gnuplot.py is a Python package that allows you to create graphs from
+within Python using the gnuplot plotting program.
+"""
+
 setup (
     # Distribution meta-data
     name='Gnuplot',
     version=__version__,
     description='A Python interface to the gnuplot plotting program.',
+    long_description=long_description,
     author='Michael Haggerty',
     author_email='mhagger@alum.mit.edu',
-    url='http://monsoon.harvard.edu/~mhagger/Gnuplot/Gnuplot.html',
+    url='http://gnuplot-py.sourceforge.net',
+    license='GPL',
+    licence='GPL', # Spelling error in distutils
 
     # Description of the package in the distribution
     package_dir={'Gnuplot' : ''},
