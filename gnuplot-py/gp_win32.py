@@ -38,8 +38,9 @@ class GnuplotOpts:
     # information.
     #
     # If pgnuplot is in a subdirectory with spaces in its name, extra
-    # quoting is required for windows for it to launch
-    # gnuplot.  Example:
+    # quoting is required for windows for it to launch gnuplot.
+    # Moreover, any backslashes in the filename have to be escaped by
+    # writing them as "\\".  Example:
     #
     #     gnuplot_command = '"C:\\Program Files\\gp371w32\\pgnuplot.exe"'
     gnuplot_command = 'pgnuplot.exe'
