@@ -319,27 +319,43 @@ class PlotItem:
 
     """
 
-    def __init__(self, basecommand, with=None, **keyw):
+    def __init__(self, basecommand, **keyw):
         self.basecommand = basecommand
         self.options = {}
-        if keyw.has_key('title'):
-            title = keyw['title']
-            del keyw['title']
-            if title is None:
-                self.options['title'] = (title, 'notitle')
-            elif type(title) is type(''):
-                self.options['title'] = (title, 'title "%s"' % title)
-            else:
-                OptionException('title=%s' % title)
-        if with is not None:
-            assert type(with) is type(''), \
-                   OptionException('with=%s' % with)
-            self.options['with'] = (with, 'with %s' % with)
-        if keyw:
-            # unrecognized option
-            raise OptionException(keyw)
+        for (name,value) in keyw.items():
+            self.set_option(name, value)
 
-    # order in which options need to be specified:
+    def get_option(self, name):
+        try:
+            return self.options[name][0]
+        except:
+            raise KeyError('option %s is not set!' % name)
+
+    def set_option(self, name, value):
+        if name == 'title':
+            if value is None:
+                self.options[name] = (value, 'notitle')
+            elif type(value) is type(''):
+                self.options[name] = (value, 'title "%s"' % value)
+            else:
+                OptionException('title=%s' % (title,))
+        elif name == 'with':
+            assert type(value) is type(''), \
+                   OptionException('with=%s' % (value,))
+            self.options[name] = (value, 'with %s' % value)
+        else:
+            # unrecognized option
+            raise OptionException('%s=%s' % (name,value))
+
+    def clear_option(self, name):
+        """Clear (unset) a plot option."""
+
+        try:
+            del self.options[name]
+        except KeyError:
+            pass
+
+    # order in which options need to be passed to gnuplot:
     option_sequence = ['binary', 'using', 'title', 'with']
 
     def command(self):
@@ -376,7 +392,7 @@ class Func(PlotItem):
 
         g.plot(Func('sin(x)', with='line 3'))
 
-    or the shorthand example:
+    or a shorthand example:
 
         g.plot('sin(x)')
 
@@ -489,7 +505,7 @@ class File(PlotItem):
         Note that the 'using' option is interpreted by gnuplot, so
         columns must be numbered starting with 1.  Other keyword
         arguments are passed along to PlotItem.  The default 'title'
-        for an AnyFile PlotItem is 'notitle'.
+        for a TempFile is 'notitle'.
 
         """
 
@@ -504,17 +520,22 @@ class File(PlotItem):
             self.file = AnyFile(file)
         else:
             raise OptionException
-        apply(PlotItem.__init__, (self, '"' + self.file.filename + '"'), keyw)
-        if using is None:
-            pass
-        elif type(using) is type('') or type(using) is type(1):
-            self.options['using'] = (using, 'using %s' % using)
-        elif type(using) is type(()):
-            self.options['using'] = (using,
-                                     'using %s' %
-                                     string.join(map(repr, using), ':'))
+        apply(PlotItem.__init__, (self, '"%s"' % self.file.filename), keyw)
+
+    def set_option(self, name, value):
+        if name == 'using':
+            if value is None:
+                pass
+            elif type(value) in [type(''), type(1)]:
+                self.options[name] = (value, 'using %s' % value)
+            elif type(value) is type(()):
+                self.options[name] = (value,
+                                      'using %s' %
+                                      string.join(map(repr, value), ':'))
+            else:
+                raise OptionException('%s=%s' % (name,value))
         else:
-            raise OptionException('using=%s' % using)
+            PlotItem.set_option(self, name, value)
 
 
 class Data(PlotItem):
@@ -577,7 +598,13 @@ class Data(PlotItem):
         # the temporary filename as the title).
         if not keyw.has_key('title'):
             keyw['title'] = None
-        apply(PlotItem.__init__, (self, '"' + self.file.filename + '"'), keyw)
+        apply(PlotItem.__init__, (self, '"%s"' % self.file.filename), keyw)
+
+    def set_option(self, name, value):
+        if name == 'cols':
+            raise OptionException('Cannot modify cols option!')
+        else:
+            PlotItem.set_option(self, name, value)
 
 
 class GridData(PlotItem):
@@ -670,6 +697,13 @@ class GridData(PlotItem):
             # avoid using the temporary filename as the title:
             keyw['title'] = keyw.get('title', None)
             apply(PlotItem.__init__, (self, '"%s"' % self.file.filename), keyw)
+            self.options['binary'] = (0, None)
+
+    def set_option(self, name, value):
+        if name == 'binary':
+            raise OptionException('Cannot modify binary option!')
+        else:
+            PlotItem.set_option(self, name, value)
 
 
 def grid_function(f, xvals, yvals):
@@ -681,10 +715,10 @@ def grid_function(f, xvals, yvals):
     M where M[i,j] = f(xvals[i],yvals[j]), which can for example be
     used in the 'GridData' constructor.
 
-    Note that f is evaluated at each pair of points using a Python loop,
-    which can be slow if the number of points is large.  If speed is an
-    issue, you are better off computing functions matrix-wise using
-    Numeric's built-in ufuncs.
+    Note that f is evaluated at each pair of points using a Python
+    loop, which can be slow if the number of points is large.  If
+    speed is an issue, you should if possible compute functions
+    matrix-wise using Numeric's built-in ufuncs.
 
     """
 
