@@ -20,14 +20,14 @@ Boston, MA 02111-1307, USA.
 
 __cvs_version__ = 'CVS version $Revision$'
 
-import sys, math
+import sys, os, math, time
 import Numeric
 from Numeric import *
 import Gnuplot
 gp = Gnuplot # abbreviation
 
-def wait():
-    raw_input('Press return to show results...\n')
+def wait(str='Press return to show results...\n'):
+    raw_input(str)
 
 
 def main():
@@ -41,6 +41,7 @@ def main():
     f.close()
 
     g = gp.Gnuplot()
+    g.clear()
 
     ############### test Func ########################################
     print 'Plot a gnuplot-generated function'
@@ -130,11 +131,11 @@ def main():
     x = arange(100)/5. - 10.
     y1 = Numeric.cos(x)
     y2 = Numeric.sin(x)
-    d = Numeric.array((x,y1,y2))
+    d = Numeric.transpose((x,y1,y2))
 
     print 'Plot Data, specified column-by-column'
     wait()
-    g.plot(gp.Data(x,y1))
+    g.plot(gp.Data(x,y2))
     print 'Plot Data, specified by an array'
     wait()
     g.plot(gp.Data(d))
@@ -155,12 +156,27 @@ def main():
     wait()
     g.plot(gp.Data(d, title='Cosine of x'))
 
+    ############### test HardCopy ####################################
+    print 'testing hardcopy'
+    wait()
+    print '******** Generating postscript file ' \
+          '"gp_test.ps" ********'
+    g.hardcopy('gp_test.ps', enhanced=1, color=1)
+    print 'Listing file'
+    os.system('ls -la gp_test.ps')
+
     ############### test shortcuts ###################################
     print 'plot Func and Data using shortcuts'
     wait()
     g.plot('sin(x)', d)
 
+    ############### test splot #######################################
+    print 'testing splot:'
+    wait()
+    g.splot(gp.Data(d, with='linesp'))
+
     ############### test GridData ####################################
+    print 'testing GridData:'
     # set up x and y values at which the function will be tabulated:
     x = arange(35)/2.0
     y = arange(30)/10.0 - 1.5
@@ -170,26 +186,28 @@ def main():
     xm = x[:,NewAxis]
     ym = y[NewAxis,:]
     m = (sin(xm) + 0.1*xm) - ym**2
+    print 'a function of two variables from a GridData file'
+    wait()
     g('set parametric')
     g('set data style lines')
     g('set hidden')
     g('set contour base')
     g.xlabel('x')
     g.ylabel('y')
-    # The `binary=1' option would cause communication with gnuplot to
-    # be in binary format, which is considerably faster and uses less
-    # disk space.  (This only works with the splot command due to
-    # limitations of gnuplot.)  `binary=1' is the default, but here we
-    # disable binary because older versions of gnuplot don't allow
-    # binary data.  Change this to `binary=1' (or omit the binary
-    # option) to get the advantage of binary format.
     g.splot(gp.GridData(m,x,y, binary=0))
 
-    ############### test HardCopy ####################################
-    g.ylabel('x^2') # take advantage of enhanced postscript mode
-    print ('\n******** Generating postscript file '
-           '"gnuplot_test_plot.ps" ********\n')
-    g.hardcopy('gnuplot_test_plot.ps', enhanced=1, color=1)
+    print 'The same thing using binary mode'
+    wait()
+    g.splot(gp.GridData(m,x,y, binary=1))
+
+    print 'And now for a little fun'
+    wait()
+    for view in range(0,360,2):
+        g('set view 60, %d' % view)
+        g.replot()
+        time.sleep(0.25)
+
+    wait('Press return to end the test.\n')
 
 
 if __name__ == '__main__':
