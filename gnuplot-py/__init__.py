@@ -57,6 +57,8 @@
 #         additional option `using')
 #      *  Func("exp(4.0 * sin(x))") -- functions (passed as a string
 #         for gnuplot to evaluate)
+#      *  GridData(m, x, y) -- data tabulated on a grid of (x,y)
+#         values (usually to be plotted in 3-D)
 #     See those classes for more details.
 #  +  PlotItems are implemented as objects that can be assigned to
 #     variables (including their options) and plotted
@@ -70,14 +72,14 @@
 #     prematurely.
 #  +  Can use `replot' method to add datasets to an existing plot.
 #  +  Can make persistent gnuplot windows by using the constructor
-#     option `persist=1'.  (`persist' is no longer the default.)  Such
-#     windows stay around even after the gnuplot program is exited.
-#     Note that only newer version of gnuplot support this option.
+#     option `persist=1'.  Such windows stay around even after the
+#     gnuplot program is exited.  Note that only newer version of
+#     gnuplot support this option.
 #  +  Plotting to a postscript file is via new `hardcopy' method,
 #     which outputs the currently-displayed plot to either a
 #     postscript printer or to a postscript file.
 #  +  There is a `plot' command which is roughly compatible with the
-#     command from the old Gnuplot.py.
+#     command from Konrad Hinsen's old Gnuplot.py.
 #
 # Restrictions:
 #  -  Relies on the Numeric Python extension.  This can be obtained
@@ -85,10 +87,10 @@
 #     If you're interested in gnuplot, you would probably also want
 #     NumPy anyway.
 #  -  Probably depends on a unix-type environment.  Anyone who wants
-#     to remedy this situation should get in contact with me.
+#     to remedy this situation should contact me.
 #  -  Only a small fraction of gnuplot functionality is implemented as
-#     explicit Gnuplot method functions.  However, you can give
-#     arbitrary commands to gnuplot manually; for example:
+#     explicit method functions.  However, you can give arbitrary
+#     commands to gnuplot manually; for example:
 #         g = Gnuplot.Gnuplot()
 #         g('set data style linespoints')
 #         g('set pointsize 5')
@@ -100,14 +102,6 @@
 #     use NaN for machines that support IEEE floating point.
 #  -  There is no supported way to change the plotting options of
 #     PlotItems after they have been created.
-#  -  The object-oriented interface doesn't automatically plot
-#     datasets column-by-column using 1:2, 1:3, 1:4, etc as did the
-#     old version of Gnuplot.py.  Instead, make a temporary data file
-#     then plot that file multiple times with different `using='
-#     options:
-#         a = Gnuplot.TemparrayFile(array_nx3)
-#         g.plot(Gnuplot.File(a, using=(1,2)), Gnuplot.File(a, using=(1,3)))
-#  -  Does not support parallel axis plots, as did the old Gnuplot.py.
 #
 # Bugs:
 #  -  No attempt is made to check for errors reported by gnuplot (but
@@ -136,6 +130,14 @@ _recognizes_persist = None
 # correct.  If not, change the following line to the terminal type you
 # use.
 _default_term = 'x11'
+
+# Gnuplot can plot to a printer by using `set output "| ..."' where
+# ... is the name of a program that sends its stdin to a printer.  On
+# my machine the appropriate program is `lpr', as set below.  On your
+# computer it may be something different (like `lp'); you can set that
+# by changing the variable below.  You can also use the following
+# variable to add options to the print command.
+_default_lpr = '| lpr'
 
 # Test if gnuplot is new enough to know the option -persist.  It it
 # isn't, it will emit an error message with '-persist' in the first
@@ -765,7 +767,7 @@ class Gnuplot:
 
         self.set_string('title', s)
 
-    def hardcopy(self, filename='| lpr', eps=0, color=0):
+    def hardcopy(self, filename=None, eps=0, color=0):
         """Create a hardcopy of the current plot.
 
         Create a postscript hardcopy of the current plot.  If a
@@ -776,6 +778,8 @@ class Gnuplot:
         even though it might take gnuplot a while to actually finish
         working."""
 
+        if filename is None:
+            filename = _default_lpr
         setterm = ['set', 'term', 'postscript']
         if eps: setterm.append('eps')
         else: setterm.append('default')
