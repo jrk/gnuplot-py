@@ -50,9 +50,10 @@ class GnuplotOpts:
     # screen):
     default_term = 'windows'
 
-    # Gee, I wonder if the following can be used to print directly to
-    # a postscript printer under windows.  Anybody know?
-    default_lpr = 'prn:'
+    # According to the gnuplot help manual, the following can be used
+    # to print directly to a printer under windows.  (Of course it
+    # won't help if your printer can't handle postscript!)
+    default_lpr = 'PRN'
 
 # ############ End of configuration options ############################
 

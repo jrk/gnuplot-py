@@ -1,0 +1,45 @@
+$Id$
+
+Some ideas for future work.  I don't know whether I'll get around to
+any of these items; some of them are probably better left undone
+anyway.  Of course if anybody else wants to take one up...
+
+* Enhance the hardcopy() command so that it can handle more printer
+  options.  There are scads of postscript options that I haven't
+  implemented yet, not to mention the possibility of printing to other
+  printer types.  Also, the 'set terminal postscript default' is hokey
+  and I wonder if it might make pre-3.7 versions of gnuplot gag.
+
+* Implement missing values.  Gnuplot allows you to specify that values
+  are missing from data files via the `set missing' command.  I'm
+  thinking about implementing this as an optional 'mask' argument to
+  the Data PlotItem.  (Comments?)  The real benefit of missing values
+  is that (I think) gnuplot can still put a mesh on a surface even if
+  the surface has holes.
+
+* Add a more systematic way of setting arbitrary gnuplot options.  One
+  cute possibility that occurred to me (maybe too cute?) would be to
+  implement a magic Gnuplot.set object that could be used like:
+
+      g = Gnuplot.Gnuplot()
+      g.set.data.style('linespoints', 1, 2)
+      g.set.pointsize(2.0)
+
+  which I think could be accomplished with __setattr__ and
+  __getattr__.  But what the heck; it's easy enough to use the
+  __call__ method.
+
+* Figure out how to suck gnuplot error messages back into Python and
+  turn them into exceptions.  This would be tricky: for one thing, not
+  all gnuplot output is indicative of an error.  The output from the
+  'show' command could be processed in a similar manner.  Moreover,
+  implementation on Windows and Mac would require additional effort to
+  change their GnuplotProcess classes.
+
+* Implement multiple graphs on a single page.  I haven't used this
+  feature of gnuplot much myself, so I'm not sure how difficult it
+  would be to build it into the Gnuplot.py framework.  Ideally one
+  would like to be able to spawn multiple GnuplotWindow's from a
+  single Gnuplot instance, each one behaving much like a Gnuplot
+  object.  Or maybe treat sub-windows as a kind of meta-PlotItem.
+

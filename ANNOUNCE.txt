@@ -1,9 +1,9 @@
-This is to announce the release of version 1.3 of Gnuplot.py.
+This is to announce the release of version 1.4 of Gnuplot.py.
 
 Gnuplot.py is a Python [1] package that allows you to create graphs
 from within Python using the gnuplot [2] plotting program.  This
-version fixes plotting of function objects and moves to a package
-structure.
+version adds support for running gnuplot on the Macintosh (thanks to
+the work of Tony Ingraldi).
 
 Gnuplot.py can be obtained from
 
@@ -29,17 +29,6 @@ Some ways this package can be used:
    output on the fly.
 4. Compute a series of datasets in Python and plot them one after the
    other using Gnuplot.py to produce a crude animation.
-
-
-Features added in version 1.3:
-
-* Converted to package format.  The main file is now called
-  __init__.py, which can be loaded by typing 'import Gnuplot'.
-
-* Passing GridData a callable function was basically broken because of
-  the kludgey way of overloading the argument.  Instead of trying to
-  fix it, I moved that functionality to a new type of PlotItem called
-  'GridFunc'.
 
 
 Features already present in older versions:

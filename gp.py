@@ -2,9 +2,6 @@
 
 """gp -- an interface to gnuplot used for generic platforms.
 
-Note that you should probably rather use the more capable interface
-from __init__.py (i.e., import Gnuplot).
-
 Copyright (C) 1998,1999 Michael Haggerty
 
 This program is free software; you can redistribute it and/or modify
@@ -18,6 +15,13 @@ available at <http://www.fsf.org/copyleft/gpl.html>, or by writing to
 the Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 Boston, MA 02111-1307, USA.
 
+This file implements a low-level interface to a gnuplot program for a
+generic platform.  There are variations of this file for the Macintosh
+and for Windows called gp_mac.py and gp_win32.py, respectively.  Note
+that the end-user should probably use the more capable interface from
+__init__.py (i.e., import Gnuplot) rather than the low-level interface
+defined in this file.
+
 """
 
 __version__ = '1.3'
@@ -30,7 +34,14 @@ class GnuplotOpts:
     """The configuration options for gnuplot on generic platforms.
 
     Store the options in a class to make them easy to import and
-    modify en masse."""
+    modify en masse.  If you want to modify the options from the
+    command line or within a running program, do something like the
+    following:
+
+        import Gnuplot
+        Gnuplot.GnuplotOpts.gnuplot_command = '/bin/mygnuplot'
+
+    """
 
     # Command to start up the gnuplot program.  If your version of
     # gnuplot is run otherwise, specify the correct command here.  You
