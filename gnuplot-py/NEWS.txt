@@ -6,10 +6,10 @@ Gnuplot.py package.
 
 Version 1.6:
 
-* Introduced a general mechanism to add support for multiple gnuplot
-  terminal types to Gnuplot.hardcopy() function.  Added definitions
-  for 'postscript', 'png', 'fig', and 'cgm'.  Other terminal types can
-  now be added easily.
+* Introduced a general mechanism to make it easy to support multiple
+  gnuplot terminal types in the Gnuplot.hardcopy() function.  Added
+  definitions for 'postscript', 'png', 'fig', and 'cgm'.  Other
+  terminal types can now be added easily.
 
 * Changed names of Exceptions to be more consistent with other
   modules: OptionException -> OptionError and DataException ->
@@ -19,7 +19,7 @@ Version 1.6:
 * Incorporated several changes for Mac OS suggested by Jon Moody.
 
 * Added a gp_macosx.py file to support Mac OS X.  The only difference
-  to gp_unix.py is the default terminal selection.
+  between this and gp_unix.py is the default terminal selection.
 
 * Moved import statement in demo.py to global scope for Python 2.2.
 

@@ -1,4 +1,4 @@
-This is to announce the release of version 1.5 of Gnuplot.py.
+This is to announce the release of version 1.6 of Gnuplot.py.
 
 Gnuplot.py is a Python [1] package that allows you to create graphs
 from within Python using the gnuplot [2] plotting program.
@@ -29,33 +29,14 @@ Some ways this package can be used:
 
 New features in this version:
 
-  +  Added distutils support.
-  +  Broke up the module a bit for better maintainability.  The most
-     commonly-used facilities are still available through "import
-     Gnuplot", but some specialized things have been moved to separate
-     modules, in particular funcutils.py and PlotItems.py.
-  +  funcutils.tabulate_function() can be used to evaluate a function
-     on a 1-D or 2-D grid of points (this replaces grid_function,
-     which only worked with 2-D grids).
-  +  Added two helper functions, funcutils.compute_Data and
-     funcutils.compute_GridData, which compute a function's values on
-     a set of points and package the results into a PlotItem.
-  +  GridFunc is no longer an independent class; it is now a factory
-     function that returns a GridData.  GridFunc is deprecated in
-     favor of funcutils.compute_GridData.
-  +  Changed set_option to work from a table, so that it doesn't need
-     to be overloaded so often.
-  +  Implemented test_persist for each platform to make it easier for
-     users to determine whether the `-persist' option is supported.
-  +  Added a prefer_persist option to serve as the default `persist'
-     choice.
-  +  Following a suggestion by Jannie Hofmeyr, use "from os import
-     popen" for Python 2.0 under Windows.  I don't use Windows, so let
-     me know how this works.
-  +  Added support for the `axes' and `smooth' options of the `plot'
-     command.
-  +  Reworked the comment strings in an effort to make them work
-     nicely with happydoc.
+  + Changed the hardcopy() method to be table driven so that other
+    terminal types can be supported easily.  Currently includes
+    definitions for 'postscript', 'png', 'fig', and 'cgm'.
+  + Added gp_macosx.py to support Mac OS X.
+  + Miscellaneous fixes suggested by users.  Changes for Mac OS
+    suggested by Jon Moody.  Minor changes to work with Python 2.2.
+  + Renamed "Exceptions" to "Errors" to be more consistent with other
+    modules.  Moved them to a new Error.py module.
 
 Features already present in older versions:
 
@@ -71,6 +52,8 @@ Features already present in older versions:
   +  Support for sending data to gnuplot as `inline' or `binary' data.
      These are optimizations that also remove the need for temporary
      files.  Temporary files are still the default.
+  +  Partly table-driven to make it easy to extend.
+  +  Support for distutils.
 
 
 Footnotes:
