@@ -260,7 +260,7 @@ def write_array(f, set,
                 nest_prefix='', nest_suffix='\n', nest_sep=''):
     if len(set.shape) == 1:
         (columns,) = set.shape
-        assert(columns > 0)
+        assert columns > 0
         fmt = string.join(['%s'] * columns, item_sep)
         f.write(nest_prefix)
         f.write(fmt % tuple(set.tolist()))
@@ -269,8 +269,8 @@ def write_array(f, set,
         # This case could be done with recursion, but `unroll' for
         # efficiency.
         (points, columns) = set.shape
-        assert(points > 0)
-        assert(columns > 0)
+        assert points > 0
+        assert columns > 0
         fmt = string.join(['%s'] * columns, item_sep)
         f.write(nest_prefix + nest_prefix)
         f.write(fmt % tuple(set[0].tolist()))
@@ -281,7 +281,7 @@ def write_array(f, set,
             f.write(nest_suffix)
         f.write(nest_suffix)
     else:
-        assert(set.shape[0] > 0)
+        assert set.shape[0] > 0
         f.write(nest_prefix)
         write_array(f, set[0], item_sep, nest_prefix, nest_suffix, nest_sep)
         for subset in set[1:]:
@@ -295,9 +295,24 @@ class ArrayFile(AnyFile):
 
     When an ArrayFile is constructed, it creates a file and fills it
     with the contents of a 2-d or 3-d Numeric array in the format
-    expected by gnuplot (i.e., whitespace-separated columns).  The
-    filename can be specified, otherwise a random filename is chosen.
-    The file is NOT deleted automatically."""
+    expected by gnuplot; for 2-d,
+
+      set[0,0] set[0,1] ...
+      set[1,0] set[1,1] ...
+      etc.
+
+    for 3-d,
+
+      set[0,0,0] set[0,0,1] ...
+      set[0,1,0] set[0,1,1] ...
+
+      set[1,0,0] set[1,0,1] ...
+      set[1,1,0] set[1,1,1] ...
+
+      etc.
+
+    The filename can be specified, otherwise a random filename is
+    chosen.  The file is NOT deleted automatically."""
 
     def __init__(self, set, filename=None):
         if not filename:
@@ -364,20 +379,76 @@ class Data(File):
     """Used to plot array data with Gnuplot.
 
     Create a PlotItem out of a Python Numeric array (or something that
-    can be converted to a Float Numeric array).  The array is first
-    written to a temporary file, then that file is plotted.  Keyword
-    arguments recognized (in addition to those supplied by PlotItem):
+    can be converted to a Float Numeric array).  Convention for array:
+    The last index ranges over the values comprising a single data
+    point (e.g., [x, y, and sigma]) and the rest of the indices select
+    the data point.  For the output format, see the comments in
+    ArrayFile.
+
+    The array is first written to a temporary file, then that file is
+    plotted.  Keyword arguments recognized (in addition to those
+    supplied by PlotItem):
         cols=<tuple>
-    which outputs only the specified columns of the array to the file.
-    Since cols is used by python, the columns should be numbered in
-    the python style (starting from 0), not the gnuplot style
-    (starting from 1).  The data are written to the temp file; no copy
-    is kept in memory."""
+    which outputs only the specified columns from each data point to
+    the file.  Since cols is used by python, the columns should be
+    numbered in the python style (starting from 0), not the gnuplot
+    style (starting from 1).
+
+    The data are written to the temp file; no copy is kept in
+    memory."""
 
     def __init__(self, set, cols=None, **keyw):
         set = Numeric.asarray(set, Numeric.Float)
         if cols is not None:
-            set = Numeric.take(set, cols, 1)
+            set = Numeric.take(set, cols, -1)
+        apply(File.__init__, (self, TempArrayFile(set)), keyw)
+
+
+class GridData(File):
+    """Holds data representing a function of two variables.
+
+    Arguments:
+        data -- a 2-d array with dimensions (numx,numy)
+        xvals -- a 1-d array with dimension (numx)
+        yvals -- a 1-d array with dimension (numy)
+
+    data is meant to hold the values of a function f(x,y) tabulated on
+    a grid of points, such that data[i,j] = f(xvals[i], yvals[j]).
+    These data are written to a datafile in the format ('x y f(x,y)'
+    triplets) that can be used by gnuplot's splot command.  Thus if
+    you have three arrays in the above format and a Gnuplot instance
+    called g, you can plot your data by typing
+
+        g.splot(Gnuplot.GridData(data,xvals,yvals))
+
+    If xvals and/or yvals are omitted, integers (starting with 0) are
+    used for that coordinate."""
+
+    def __init__(self, data, xvals=None, yvals=None, **keyw):
+        data = Numeric.asarray(data, Numeric.Float)
+        assert len(data.shape) == 2
+        (numx, numy) = data.shape
+
+        if xvals is None:
+            xvals = Numeric.arange(numx)
+        else:
+            xvals = Numeric.asarray(xvals, Numeric.Float)
+            assert len(xvals.shape) == 1
+            assert xvals.shape[0] == numx
+
+        if yvals is None:
+            yvals = Numeric.arange(numy)
+        else:
+            yvals = Numeric.asarray(yvals, Numeric.Float)
+            assert len(yvals.shape) == 1
+            assert yvals.shape[0] == numy
+
+        set = Numeric.transpose(
+            Numeric.array(
+                (Numeric.transpose(Numeric.resize(xvals, (numy, numx))),
+                 Numeric.resize(yvals, (numx, numy)),
+                 data)), (1,2,0))
+
         apply(File.__init__, (self, TempArrayFile(set)), keyw)
 
 
@@ -521,7 +592,7 @@ class Gnuplot:
                 # assume data is an array:
                 self.itemlist.append(Data(item))
 
-    def plot(self, *items, **kw):
+    def plot(self, *items):
         """Draw a new plot.
 
         plot(item, ...): Clear the current plot and create a new one
@@ -548,7 +619,7 @@ class Gnuplot:
         self._add_to_queue(items)
         self.refresh()
 
-    def splot(self, *items, **kw):
+    def splot(self, *items):
         """Draw a new three-dimensional plot.
 
         splot(item, ...): Clear the current plot and create a new one
@@ -662,10 +733,10 @@ class Gnuplot:
         setterm.append('enhanced')
         if color: setterm.append('color')
         self(string.join(setterm))
-        self('set output "%s"' % (filename,))
+        self.set_string('output', filename)
         self.refresh()
         self('set term x11')
-        self('set output')
+        self.set_string('output')
 
 
 # The following is a command defined for compatibility with Hinson's
@@ -750,21 +821,34 @@ if __name__ == '__main__':
     y1 = x**2
     d = Data(transpose((x, y1)),
              title="calculated by python",
-             with="points 1 1")
+             with="points 2 2")
     g2.title('Data can be computed by python or gnuplot')
     g2.xlabel('x')
     g2.ylabel('x squared')
-    g2.plot(d, Func("x**2", title="calculated by gnuplot"))
+    g2.plot(Func("x**2", title="calculated by gnuplot"), d)
 
     # Save what we just plotted as a color postscript file:
     print "\n            Generating postscript file 'gnuplot_test1.ps'\n"
-    g2.hardcopy('gnuplot_test1.ps', color=1)
+    g2.hardcopy('gnuplot_test_plot.ps', color=1)
+
+    # Demonstrate a 3-d plot:
+    g3 = Gnuplot(debug=1)
+    x = arange(35)/2.0
+    y = arange(30)/10.0 - 1.5
+    # Make a 2-d array containing a function of x and y:
+    m = (sin(x) + 0.1*x)[:,NewAxis] - y**2
+    g3('set data style lines')
+    g3('set hidden')
+    g3('set contour base')
+    g3.xlabel('x')
+    g3.ylabel('y')
+    g3.splot(GridData(m,x,y))
 
     sys.stderr.write("Press return to continue...\n")
     sys.stdin.readline()
 
     # ensure processes and temporary files are cleaned up:
-    del g1, g2, d
+    del g1, g2, g3, d
 
     if 0:
         # Test old-style gnuplot interface
