@@ -244,10 +244,13 @@ class _FileItem(PlotItem):
 
     _option_list = PlotItem._option_list.copy()
     _option_list.update({
-        'smooth' : lambda self, smooth: self.set_string_option(
-            'smooth', smooth, None, 'smooth %s'),
-        'using' : lambda self, using: self.set_option_using(using),
         'binary' : lambda self, binary: self.set_option_binary(binary),
+        'index' : lambda self, value: self.set_option_colonsep('index', value),
+        'every' : lambda self, value: self.set_option_colonsep('every', value),
+        'using' : lambda self, value: self.set_option_colonsep('using', value),
+        'smooth' : lambda self, smooth: self.set_string_option(
+            'smooth', smooth, None, 'smooth %s'
+            ),
         })
 
     def __init__(self, filename, **keyw):
@@ -265,10 +268,18 @@ class _FileItem(PlotItem):
 
             'using=<int>' -- plot that column against line number
 
-            'using=<tuple>' -- plot using a:b:c:d etc.
+            'using=<tuple>' -- plot using a:b:c:d etc.  Elements in
+                the tuple that are None are output as the empty
+                string.
 
             'using=<string>' -- plot `using <string>' (allows gnuplot's
                 arbitrary column arithmetic)
+
+            'every=<value>' -- plot 'every <value>'.  <value> is
+                formatted as for 'using' option.
+
+            'index=<value>' -- plot 'index <value>'.  <value> is
+                formatted as for 'using' option.
 
             'binary=<boolean>' -- data in the file is in binary format
                 (this option is only allowed for grid data for splot).
@@ -297,17 +308,24 @@ class _FileItem(PlotItem):
     def get_base_command_string(self):
         return '\'%s\'' % (self.filename,)
 
-    def set_option_using(self, using):
-        if using is None:
-            self.clear_option('using')
-        elif type(using) in [types.StringType, types.IntType]:
-            self._options['using'] = (using, 'using %s' % (using,))
-        elif type(using) is types.TupleType:
-            self._options['using'] = (using,
-                                      'using %s' %
-                                      string.join(map(repr, using), ':'))
+    def set_option_colonsep(self, name, value):
+        if value is None:
+            self.clear_option(name)
+        elif type(value) in [types.StringType, types.IntType]:
+            self._options[name] = (value, '%s %s' % (name, value,))
+        elif type(value) is types.TupleType:
+            subopts = []
+            for subopt in value:
+                if subopt is None:
+                    subopts.append('')
+                else:
+                    subopts.append(str(subopt))
+            self._options[name] = (
+                value,
+                '%s %s' % (name, string.join(subopts, ':'),),
+                )
         else:
-            raise Errors.OptionError('using=%s' % (using,))
+            raise Errors.OptionError('%s=%s' % (name, value,))
 
     def set_option_binary(self, binary):
         if binary:
