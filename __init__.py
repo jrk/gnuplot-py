@@ -166,8 +166,7 @@ Bugs:
  -  All of these classes perform their resource deallocation when
     '__del__' is called.  Normally this works fine, but there are
     well-known cases when Python's automatic resource deallocation
-    fails, which can leave temporary files around.  If you delete
-    objects explicitly, there should be no problem.
+    fails, which can leave temporary files around.
 
 """
 
@@ -399,7 +398,8 @@ def grid_function(f, xvals, yvals, typecode=None, ufunc=0):
         return f(xvals[:,Numeric.NewAxis], yvals[Numeric.NewAxis,:])
     else:
         if typecode is None:
-            # choose a typecode based on what '+' would return:
+            # choose a result typecode based on what '+' would return
+            # (yecch!):
             typecode = (Numeric.zeros((1,), xvals.typecode()) +
                         Numeric.zeros((1,), yvals.typecode())).typecode()
 
@@ -987,9 +987,11 @@ class GridData(PlotItem):
 class GridFunc(GridData):
     """Holds data representing a function of two variables, for use in splot.
 
-    'GridFunc' computes a function of two variables on a rectangular
-    grid.  After calculation the data are written to a file; no copy
-    is kept in memory.
+    'GridFunc' computes a function f of two variables on a rectangular
+    grid using grid_function.  After calculation the data are written
+    to a file; no copy is kept in memory.  Note that this is quite
+    different than 'Func' (which tells gnuplot to evaluate the
+    function).
 
     """
 
@@ -1454,18 +1456,16 @@ def demo():
     raw_input('Please press return to continue...\n')
 
     # plot another function, but letting GridFunc tabulate its values
-    # automatically:
+    # automatically.  f could also be a lambda or a global function:
     def f(x,y):
-        import math
-        print x,y
-        return math.exp(- 0.01 * (x**2 + y**2))
+        return 1.0 / (1 + 0.01 * x**2 + 0.5 * y**2)
 
     g.splot(GridFunc(f, x,y, binary=0))
     raw_input('Please press return to continue...\n')
 
     # Explicit delete shouldn't be necessary, but if you are having
-    # trouble with temporary files being left behind, uncomment the
-    # following:
+    # trouble with temporary files being left behind, try uncommenting
+    # the following:
     #del g, d
 
 
