@@ -41,6 +41,8 @@ elif sys.platform == 'win32':
     from gp_win32 import GnuplotOpts, GnuplotProcess, test_persist
 elif sys.platform == 'darwin':
     from gp_macosx import GnuplotOpts, GnuplotProcess, test_persist
+elif sys.platform[:4] == 'java':
+    from gp_java import GnuplotOpts, GnuplotProcess, test_persist
 else:
     from gp_unix import GnuplotOpts, GnuplotProcess, test_persist
 
