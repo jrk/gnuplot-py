@@ -18,7 +18,8 @@ Some ways this package can be used:
    to create and manipulate arrays of numbers, and use Gnuplot.py to
    visualize the results.
 2. Web graphics: write CGI scripts in Python that use gnuplot to
-   output plots in GIF format and return them to the client.
+   output plots in (for example) PNG format and return them to the
+   client.
 3. Glue for numerical applications (this is my favorite): wrap your
    C++/C/Fortran subroutines so that they are callable from Python,
    then you can perform numerical computations interactively from
@@ -29,14 +30,13 @@ Some ways this package can be used:
 
 New features in this version:
 
-  + Changed the hardcopy() method to be table driven so that other
-    terminal types can be supported easily.  Currently includes
-    definitions for 'postscript', 'png', 'fig', and 'cgm'.
-  + Added gp_macosx.py to support Mac OS X.
-  + Miscellaneous fixes suggested by users.  Changes for Mac OS
-    suggested by Jon Moody.  Minor changes to work with Python 2.2.
-  + Renamed "Exceptions" to "Errors" to be more consistent with other
-    modules.  Moved them to a new Error.py module.
+  + Added support for sending data to gnuplot via FIFOs (named pipes).
+    This eliminates the ambiguity about when temporary files can be
+    deleted, and thereby removes a common source of problems with
+    Gnuplot.py.  Unfortunately, FIFOs only work under forms of unix.
+  + Added preliminary support for running Gnuplot.py under Jython, the
+    Java implementation of the Python language.  It partly works but
+    depends on JNumeric, which is still beta-level.
 
 Features already present in older versions:
 
@@ -48,11 +48,15 @@ Features already present in older versions:
      of plot items.
   +  Portable and easy to install (nothing to compile except on
      Windows).
-  +  Support for MS Windows, using the `pgnuplot.exe' program.
+  +  Support for Unix (including Linux and Mac OS X), MS Windows, and
+     Mac OS.  The platform-dependent layer is fairly well abstracted
+     out, so it shouldn't be too difficult to add support for other
+     platforms.
   +  Support for sending data to gnuplot as `inline' or `binary' data.
      These are optimizations that also remove the need for temporary
-     files.  Temporary files are still the default.
-  +  Partly table-driven to make it easy to extend.
+     files.
+  +  Partly table-driven to make it easy to extend.  Now new terminal
+     types can be supported easily by adding data to a table.
   +  Support for distutils.
 
 
