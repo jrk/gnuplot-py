@@ -531,7 +531,6 @@ class Gnuplot:
                 % (string.join(keyw.keys(), ', '),)
                 )
 
-        print setterm ###
         self(string.join(setterm))
         self.set_string('output', filename)
         # replot the current figure (to the printer):
