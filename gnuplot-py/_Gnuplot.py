@@ -105,7 +105,7 @@ class Gnuplot:
         '__call__' -- pass an arbitrary string to the gnuplot process,
             followed by a newline.
 
-        'xlabel', 'ylabel', 'title' -- set corresponding plot
+        'xlabel', 'ylabel', 'zlabel', 'title' -- set corresponding plot
             attribute.
 
         'interact' -- read lines from stdin and send them, one by one,
@@ -141,6 +141,7 @@ class Gnuplot:
         'title' : 'string',
         'xlabel' : 'string',
         'ylabel' : 'string',
+        'zlabel' : 'string',
         'xrange' : 'range',
         'yrange' : 'range',
         'zrange' : 'range',
@@ -462,6 +463,11 @@ class Gnuplot:
         """Set the plot's ylabel."""
 
         self.set_label('ylabel', s, offset=offset, font=font)
+
+    def zlabel(self, s=None, offset=None, font=None):
+        """Set the plot's zlabel."""
+
+        self.set_label('zlabel', s, offset=offset, font=font)
 
     def title(self, s=None, offset=None, font=None):
         """Set the plot's title."""
