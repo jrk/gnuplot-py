@@ -339,13 +339,22 @@ class _FileItem(PlotItem):
 
 class _TempFileItem(_FileItem):
     def __init__(self, content, **keyw):
-        filename = tempfile.mktemp()
-
         binary = keyw.get('binary', 0)
         if binary:
-            f = open(filename, 'wb')
+            mode = 'wb'
         else:
-            f = open(filename, 'w')
+            mode = 'w'
+        if hasattr(tempfile, 'mkstemp'):
+            # Use the new secure method of creating temporary files:
+            (fd, filename,) = tempfile.mkstemp(
+                suffix='.gnuplot', text=(not binary)
+                )
+            f = os.fdopen(fd, mode)
+        else:
+            # for backwards compatibility to pre-2.3:
+            filename = tempfile.mktemp()
+            f = open(filename, mode)
+
         f.write(content)
         f.close()
 
@@ -397,12 +406,28 @@ if gp.GnuplotOpts.support_fifo:
         the file so we can delete the file.  This technique removes the
         ambiguity about when the temporary files should be deleted.
 
+        Since the tempfile module does not provide an easy, secure way
+        to create a FIFO without race conditions, we instead create a
+        temporary directory using mkdtemp() then create the FIFO
+        within that directory.  When the writer thread has written the
+        full information to the FIFO, it deletes both the FIFO and the
+        temporary directory that contained it.
+
         """
 
         def __init__(self, content, mode='w'):
             self.content = content
             self.mode = mode
-            self.filename = tempfile.mktemp()
+            if hasattr(tempfile, 'mkdtemp'):
+                # Make the file within a temporary directory that is
+                # created securely:
+                self.dirname = tempfile.mkdtemp(suffix='.gnuplot')
+                self.filename = os.path.join(self.dirname, 'fifo')
+            else:
+                # For backwards compatibility pre-2.3, just use
+                # mktemp() to create filename:
+                self.dirname = None
+                self.filename = tempfile.mktemp()
             threading.Thread.__init__(
                 self,
                 name=('FIFO Writer for %s' % (self.filename,)),
@@ -415,6 +440,8 @@ if gp.GnuplotOpts.support_fifo:
             f.write(self.content)
             f.close()
             os.unlink(self.filename)
+            if self.dirname is not None:
+                os.rmdir(self.dirname)
 
 
     class _FIFOFileItem(_FileItem):
