@@ -205,6 +205,7 @@ def main():
     g.plot('sin(x)', d)
 
     print '############### test splot #######################################'
+    wait('a 3-d curve')
     g.splot(gp.Data(d, with='linesp', inline=0))
     wait('Same thing, inline data')
     g.splot(gp.Data(d, with='linesp', inline=1))
