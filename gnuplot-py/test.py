@@ -3,7 +3,7 @@
 
 """Gnuplot_test.py -- Exercise the Gnuplot.py module.
 
-Copyright (C) 1998,1999 Michael Haggerty
+Copyright (C) 1999 Michael Haggerty
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,7 +18,8 @@ Boston, MA 02111-1307, USA.
 
 """
 
-__cvs_version__ = 'CVS version $Revision$'
+__version__ = '1.2'
+__cvs_version__ = '$Revision$'
 
 import sys, os, math, time
 import Numeric

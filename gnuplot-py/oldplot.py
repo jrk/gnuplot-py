@@ -28,7 +28,7 @@ The module can be tested by typing 'python Gnuplot_plot.py'.
 
 """
 
-__version__ = '1.1a'
+__version__ = '1.2'
 __cvs_version__ = '$Revision$'
 
 
