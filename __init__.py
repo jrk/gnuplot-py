@@ -354,6 +354,7 @@ class gnuplot:
     def hardcopy(self, filename = '| lpr', eps = 0, color = 0):
         setterm = ['set', 'term', 'postscript']
         if eps: setterm.append('eps')
+        else: setterm.append('default')
         setterm.append('enhanced')
         if color: setterm.append('color')
         self(string.join(setterm))
