@@ -346,22 +346,55 @@ class PlotItem:
     yourself with additional keyword options, or derive new classes
     from 'PlotItem'.
 
+    The handling of options is complicated by the attempt to allow
+    options and their setting mechanism to be inherited conveniently.
+    Note first that there are some options that can only be set in the
+    constructor then never modified, and others that can be set in the
+    constructor and/or modified using the set_option() member
+    function.  The former are always processed within __init__.  The
+    latter are always processed within set_option, which is called by
+    the constructor.
+
+    set_option is driven by a class-wide dictionary called
+    _option_list, which maps option names to the function objects used
+    to set or change them.  <setter> is a function object that takes
+    two parameters: 'self' (the PlotItem instance) and the new 'value'
+    requested for the option.  If <setter> is None, then the option is
+    not allowed to be changed after construction and an exception is
+    raised.
+
+    Any PlotItem that needs to add options can add to this dictionary
+    within its class definition.  Follow one of the examples in this
+    file.  Alternatively it could override the set_option member
+    function if it needed to do wilder things.
+
     Members:
     
       '_basecommand' -- a string holding the elementary argument that
           must be passed to gnuplot's `plot' command for this item;
           e.g., 'sin(x)' or '"filename.dat"'.
       '_options' -- a dictionary of (<option>,<string>) tuples
-          corresponding to the plot options that have been specified
-          for this object.  <option> is the option as specified by the
-          user; <string> is the string that needs to be set in the
-          command line to set that option (or None if no string is
-          needed).  Example:
+          corresponding to the plot options that have been set for
+          this instance of the PlotItem.  <option> is the option as
+          specified by the user; <string> is the string that needs to
+          be set in the command line to set that option (or None if no
+          string is needed).  Example:
 
               {'title' : ('Data', 'title "Data"'),
                'with' : ('linespoints', 'with linespoints')}
 
     """
+
+    # For _option_list explanation, see docstring for PlotItem.
+    _option_list = {
+        'with' : lambda self, with: self.set_string_option(
+            'with', with, None, 'with %s'),
+        'title' : lambda self, title: self.set_string_option(
+            'title', title, 'notitle', 'title "%s"'),
+        }
+
+    # order in which options need to be passed to gnuplot:
+    _option_sequence = ['binary', 'using', 'smooth', 'title', 'with']
 
     def __init__(self, basecommand, **keyw):
         """Construct a 'PlotItem'.
@@ -392,35 +425,36 @@ class PlotItem:
         except:
             raise KeyError('option %s is not set!' % name)
 
-    def set_option(self, with=_unset, title=_unset, **keyw):
+    def set_option(self, **keyw):
         """Set or change a plot option for this PlotItem.
 
         See documentation for __init__ for information about allowed
-        options.  This function should be overridden by derived
-        classes to allow additional options, in which case those
-        options will also be allowed by __init__ for the derived
-        class.
+        options.  This function can be overridden by derived classes
+        to allow additional options, in which case those options will
+        also be allowed by __init__ for the derived class.  However,
+        it is easier to define a new _option_list variable for the
+        derived class.
 
         """
 
-        if with is not _unset:
-            if with is None:
-                self._options['with'] = (None, None)
-            elif type(with) is type(''):
-                self._options['with'] = (with, 'with %s' % with)
+        for (option, value) in keyw.items():
+            try:
+                setter = self._option_list[option]
+            except KeyError:
+                raise OptionException('%s=%s' % (option,value))
+            if setter is None:
+                raise OptionException('Cannot modify %s option after '
+                                      'construction!', option)
             else:
-                OptionException('with=%s' % (with,))
-        if title is not _unset:
-            if title is None:
-                self._options['title'] = (None, 'notitle')
-            elif type(title) is type(''):
-                self._options['title'] = (title, 'title "%s"' % title)
-            else:
-                OptionException('title=%s' % (title,))
-        if keyw:
-            # one or more unrecognized options; give error for one of them:
-            (name,value) = keyw.items()[0]
-            raise OptionException('%s=%s' % (name,value))
+                setter(self, value)
+
+    def set_string_option(self, option, value, default, fmt):
+        if value is None:
+            self._options[option] = (value, default)
+        elif type(value) is type(''):
+            self._options[option] = (value, fmt % value)
+        else:
+            OptionException('%s=%s' % (option, value,))
 
     def clear_option(self, name):
         """Clear (unset) a plot option.  No error if option was not set."""
@@ -429,9 +463,6 @@ class PlotItem:
             del self._options[name]
         except KeyError:
             pass
-
-    # order in which options need to be passed to gnuplot:
-    _option_sequence = ['binary', 'using', 'smooth', 'title', 'with']
 
     def command(self):
         """Build the 'plot' command to be sent to gnuplot.
@@ -585,6 +616,14 @@ class TempArrayFile(ArrayFile, TempFile):
 class File(PlotItem):
     """A PlotItem representing a file that contains gnuplot data."""
 
+    _option_list = PlotItem._option_list.copy()
+    _option_list.update({
+        'smooth' : lambda self, smooth: self.set_string_option(
+            'smooth', smooth, None, 'smooth %s'),
+        'using' : lambda self, using: self.set_option_using(using),
+        'binary' : lambda self, binary: self.set_option_binary(binary),
+        })
+
     def __init__(self, file, **keyw):
         """Construct a File object.
 
@@ -628,36 +667,26 @@ class File(PlotItem):
         # Use single-quotes so that pgnuplot can handle DOS filenames:
         apply(PlotItem.__init__, (self, "'%s'" % self.file.filename), keyw)
 
-    def set_option(self, using=_unset, binary=_unset, smooth=_unset, **keyw):
-        """Set or change options associated with this plotitem."""
+    def set_option_using(self, using):
+        if using is None:
+            self.clear_option('using')
+        elif type(using) in [type(''), type(1)]:
+            self._options['using'] = (using, 'using %s' % using)
+        elif type(using) is type(()):
+            self._options['using'] = (using,
+                                      'using %s' %
+                                      string.join(map(repr, using), ':'))
+        else:
+            raise OptionException('using=%s' % (using,))
 
-        if using is not _unset:
-            if using is None:
-                self.clear_option('using')
-            elif type(using) in [type(''), type(1)]:
-                self._options['using'] = (using, 'using %s' % using)
-            elif type(using) is type(()):
-                self._options['using'] = (using,
-                                          'using %s' %
-                                          string.join(map(repr, using), ':'))
-            else:
-                raise OptionException('using=%s' % (using,))
-        if binary is not _unset:
-            if binary:
-                assert GnuplotOpts.recognizes_binary_splot, \
-                       OptionException('Gnuplot.py is currently configured to '
-                                       'reject binary data!')
-                self._options['binary'] = (1, 'binary')
-            else:
-                self._options['binary'] = (0, None)
-        if smooth is not _unset:
-            if smooth is None:
-                self._options['smooth'] = (None, None)
-            elif type(smooth) is type(''):
-                self._options['smooth'] = (smooth, 'smooth %s' % smooth)
-            else:
-                OptionException('smooth=%s' % (smooth,))
-        apply(PlotItem.set_option, (self,), keyw)
+    def set_option_binary(self, binary):
+        if binary:
+            assert GnuplotOpts.recognizes_binary_splot, \
+                   OptionException('Gnuplot.py is currently configured to '
+                                   'reject binary data!')
+            self._options['binary'] = (1, 'binary')
+        else:
+            self._options['binary'] = (0, None)
 
 
 class Data(PlotItem):
@@ -667,6 +696,14 @@ class Data(PlotItem):
     file that can be plotted by gnuplot.
 
     """
+
+    _option_list = PlotItem._option_list.copy()
+    _option_list.update({
+        'smooth' : lambda self, smooth: self.set_string_option(
+            'smooth', smooth, None, 'smooth %s'),
+        'cols' : None,
+        'inline' : None,
+        })
 
     def __init__(self, *set, **keyw):
         """Construct a 'Data' object from a numeric array.
@@ -746,27 +783,6 @@ class Data(PlotItem):
             self._data = None
             apply(PlotItem.__init__, (self, "'%s'" % self.file.filename), keyw)
 
-    def set_option(self, smooth=_unset, cols=_unset, inline=_unset, **keyw):
-        """Set or change options associated with this plotitem.
-
-        Note that the 'cols' and the 'inline' options cannot be
-        changed via this routine.
-
-        """
-
-        if smooth is not _unset:
-            if smooth is None:
-                self._options['smooth'] = (None, None)
-            elif type(smooth) is type(''):
-                self._options['smooth'] = (smooth, 'smooth %s' % smooth)
-            else:
-                OptionException('smooth=%s' % (smooth,))
-        if cols is not _unset:
-            raise OptionException('Cannot modify cols option!')
-        if inline is not _unset:
-            raise OptionException('Cannot modify inline option!')
-        apply(PlotItem.set_option, (self,), keyw)
-
     def pipein(self, f):
         if self._data:
             f.write(self._data)
@@ -780,6 +796,12 @@ class GridData(PlotItem):
     in memory.
 
     """
+
+    _option_list = PlotItem._option_list.copy()
+    _option_list.update({
+        'binary' : None,
+        'inline' : None,
+        })
 
     def __init__(self, data, xvals=None, yvals=None,
                  binary=1, inline=_unset, **keyw):
@@ -908,17 +930,6 @@ class GridData(PlotItem):
                 self._data = None
 
             self._options['binary'] = (0, None)
-
-    def set_option(self, binary=_unset, inline=_unset, **keyw):
-        """Set or change options associated with this plotitem.
-
-        Note that the binary and inline options cannot be changed."""
-
-        if binary is not _unset:
-            raise OptionException('Cannot modify binary option!')
-        if inline is not _unset:
-            raise OptionException('Cannot modify inline option!')
-        apply(PlotItem.set_option, (self,), keyw)
 
     def pipein(self, f):
         if self._data:
