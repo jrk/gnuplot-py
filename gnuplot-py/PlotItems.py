@@ -33,21 +33,12 @@ except ImportError:
 
 import Numeric
 
-import gp, utils
+import gp, utils, Errors
 
 
 class _unset:
     """Used to represent unset keyword arguments."""
 
-    pass
-
-
-class OptionException(Exception):
-    """Raised for unrecognized option(s)"""
-    pass
-
-class DataException(Exception):
-    """Raised for data in the wrong format"""
     pass
 
 
@@ -158,10 +149,10 @@ class PlotItem:
             try:
                 setter = self._option_list[option]
             except KeyError:
-                raise OptionException('%s=%s' % (option,value))
+                raise Errors.OptionError('%s=%s' % (option,value))
             if setter is None:
-                raise OptionException('Cannot modify %s option after '
-                                      'construction!', option)
+                raise Errors.OptionError(
+                    'Cannot modify %s option after construction!', option)
             else:
                 setter(self, value)
 
@@ -173,7 +164,7 @@ class PlotItem:
         elif type(value) is type(''):
             self._options[option] = (value, fmt % value)
         else:
-            OptionException('%s=%s' % (option, value,))
+            Errors.OptionError('%s=%s' % (option, value,))
 
     def clear_option(self, name):
         """Clear (unset) a plot option.  No error if option was not set."""
@@ -389,7 +380,10 @@ class File(PlotItem):
         elif type(file) is type(''):
             self.file = AnyFile(file)
         else:
-            raise OptionException
+            raise Errors.OptionError(
+                'file argument (%s) must be a file object or filename'
+                % (file,)
+                )
         # Use single-quotes so that pgnuplot can handle DOS filenames:
         apply(PlotItem.__init__, (self, "'%s'" % self.file.filename), keyw)
 
@@ -403,13 +397,13 @@ class File(PlotItem):
                                       'using %s' %
                                       string.join(map(repr, using), ':'))
         else:
-            raise OptionException('using=%s' % (using,))
+            raise Errors.OptionError('using=%s' % (using,))
 
     def set_option_binary(self, binary):
         if binary:
-            assert gp.GnuplotOpts.recognizes_binary_splot, \
-                   OptionException('Gnuplot.py is currently configured to '
-                                   'reject binary data!')
+            if not gp.GnuplotOpts.recognizes_binary_splot:
+                raise Errors.OptionError(
+                    'Gnuplot.py is currently configured to reject binary data')
             self._options['binary'] = (1, 'binary')
         else:
             self._options['binary'] = (0, None)
@@ -583,28 +577,36 @@ class GridData(PlotItem):
 
         # Try to interpret data as an array:
         data = utils.float_array(data)
-        assert len(data.shape) == 2
-        (numx, numy) = data.shape
+        try:
+            (numx, numy) = data.shape
+        except ValueError:
+            raise Errors.DataError('data array must be two-dimensional')
 
         if xvals is None:
             xvals = Numeric.arange(numx)
         else:
             xvals = utils.float_array(xvals)
-            assert xvals.shape == (numx,)
+            if xvals.shape != (numx,):
+                raise Errors.DataError(
+                    'The size of xvals must be the same as the size of '
+                    'the first dimension of the data array')
 
         if yvals is None:
             yvals = Numeric.arange(numy)
         else:
             yvals = utils.float_array(yvals)
-            assert yvals.shape == (numy,)
+            if yvals.shape != (numy,):
+                raise Errors.DataError(
+                    'The size of yvals must be the same as the size of '
+                    'the second dimension of the data array')
 
         if inline is _unset:
             inline = (not binary) and gp.GnuplotOpts.prefer_inline_data
 
         # xvals, yvals, and data are now all filled with arrays of data.
         if binary and gp.GnuplotOpts.recognizes_binary_splot:
-            assert not inline, \
-                   OptionException('binary inline data not supported!')
+            if inline:
+                raise Errors.OptionError('binary inline data not supported')
             self._data = None
             # write file in binary format
 
