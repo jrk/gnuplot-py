@@ -456,3 +456,16 @@ terminal_opts['pict'] = [
 
     ]
 
+terminal_opts['mp'] = [
+    KeywordOrBooleanArg(options=['color', 'colour', 'monochrome']),
+    KeywordOrBooleanArg(options=['solid', 'dashed']),
+    KeywordOrBooleanArg(options=['notex', 'tex', 'latex']),
+    BareStringArg(argname='magnification'),
+    KeywordOrBooleanArg(options=['psnfss', 'psnfss-version7', 'nopsnfss']),
+    BareStringArg(argname='prologues'),
+    KeywordOrBooleanArg(options=['a4paper']),
+    KeywordOrBooleanArg(options=['amstex']),
+    StringArg(argname='fontname'),
+    BareStringArg(argname='fontsize'),
+    ]
+
