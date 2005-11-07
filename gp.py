@@ -22,7 +22,7 @@ gp_*.py modules.
 
 __cvs_version__ = '$Revision$'
 
-import sys
+import sys, string
 
 # Low-level communication with gnuplot is platform-dependent.  Import
 # the appropriate implementation of GnuplotProcess based on the
@@ -39,5 +39,14 @@ elif sys.platform == 'cygwin':
     from gp_cygwin import GnuplotOpts, GnuplotProcess, test_persist
 else:
     from gp_unix import GnuplotOpts, GnuplotProcess, test_persist
+
+
+def double_quote_string(s):
+    """Return string s quoted and surrounded by double-quotes for gnuplot."""
+
+    for c in ['\\', '\"']:
+        s = string.replace(s, c, '\\' + c)
+
+    return '"%s"' % (s,)
 
 

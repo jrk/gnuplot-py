@@ -305,8 +305,7 @@ class _FileItem(PlotItem):
         apply(PlotItem.__init__, (self,), keyw)
 
     def get_base_command_string(self):
-        # Use single-quotes so that pgnuplot can handle DOS filenames:
-        return '\'%s\'' % (self.filename,)
+        return gp.double_quote_string(self.filename)
 
     def set_option_colonsep(self, name, value):
         if value is None:
@@ -476,7 +475,7 @@ if gp.GnuplotOpts.support_fifo:
             # Create a new FIFO and a thread to write to it.  Retrieve the
             # filename of the FIFO to be used in the basecommand.
             fifo = _FIFOWriter(self.content, self.mode)
-            return '\'%s\'' % (fifo.filename,)
+            return gp.double_quote_string(fifo.filename)
 
 
 def File(filename, **keyw):
