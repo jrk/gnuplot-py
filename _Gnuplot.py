@@ -477,15 +477,16 @@ class Gnuplot:
     def hardcopy(self, filename=None, terminal='postscript', **keyw):
         """Create a hardcopy of the current plot.
 
-        Create a postscript hardcopy of the current plot to the
-        default printer (if configured) or to the specified filename.
+        Output the current plot to the default printer (if configured)
+        or to the specified filename.
 
-        Note that gnuplot remembers the postscript suboptions across
-        terminal changes.  Therefore if you set, for example, color=1
-        for one hardcopy then the next hardcopy will also be color
-        unless you explicitly choose color=0.  Alternately you can
-        force all of the options to their defaults by setting
-        mode='default'.  I consider this to be a bug in gnuplot.
+        Note that gnuplot remembers the printer suboptions across
+        terminal changes (at least for postscript).  Therefore if you
+        set, for example, color=1 for one hardcopy then the next
+        hardcopy will also be color unless you explicitly choose
+        color=0.  Alternately you can force all of the options to
+        their defaults by setting mode='default'.  I consider this to
+        be a bug in gnuplot.
 
         Keyword arguments:
 
@@ -495,7 +496,8 @@ class Gnuplot:
 
           'terminal=<string>' -- the type of gnuplot 'terminal' to use
               for the output (e.g., 'postscript', 'png', 'latex',
-              etc).  At the moment only 'postscript' is implemented.
+              etc).  Look in termdefs.py to see what terminal types
+              are defined, or check termdefs.terminal_opts.keys().
 
         The rest of the keyword arguments depend on the terminal type.
 
@@ -552,8 +554,8 @@ class Gnuplot:
         # terminal' line (don't even specify the default value for the
         # option).  This is to avoid confusing older versions of
         # gnuplot that do not support all of these options.  The
-        # exception is 'enhanced', which is just too useful to have to
-        # specify each time!
+        # exception is postscript's 'enhanced' option, which is just
+        # too useful to have to specify each time!
 
         # Build up the 'set terminal' command here:
         setterm = ['set', 'terminal', terminal]
