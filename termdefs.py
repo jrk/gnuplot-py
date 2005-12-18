@@ -303,14 +303,14 @@ class KeywordOrBooleanArg(Arg):
                'default must be a valid option'
 
     def __call__(self, keyw):
-        if self.argname is not None and keyw.has_key(self.argname):
+        if self.argname is not None and self.argname in keyw:
             k = keyw[self.argname]
             del keyw[self.argname]
             if k is None:
                 pass
             elif k in self.options:
                 # Make sure it isn't contradicted by the corresponding boolean:
-                if keyw.has_key(k) and not keyw[k]:
+                if k in keyw and not keyw[k]:
                     raise Errors.OptionError(
                         'Arguments %s and %s are contradictory'
                         % (self.argname, k,)
@@ -326,7 +326,7 @@ class KeywordOrBooleanArg(Arg):
         option = None
         for i in range(len(self.options)):
             k = self.options[i]
-            if keyw.has_key(k):
+            if k in keyw:
                 newval = keyw[k]
                 del keyw[k]
                 if newval:

@@ -367,7 +367,7 @@ class _NewFileItem(_FileItem):
 
         # If the user hasn't specified a title, set it to None so
         # that the name of the temporary file is not used:
-        if self.temp and not keyw.has_key('title'):
+        if self.temp and 'title' not in keyw:
             keyw['title'] = None
 
         _FileItem.__init__(self, filename, **keyw)
@@ -385,7 +385,7 @@ class _InlineFileItem(_FileItem):
     def __init__(self, content, **keyw):
         # If the user hasn't specified a title, set it to None so that
         # '-' is not used:
-        if not keyw.has_key('title'):
+        if 'title' not in keyw:
             keyw['title'] = None
 
         if keyw.get('binary', 0):
@@ -463,7 +463,7 @@ if gp.GnuplotOpts.support_fifo:
         def __init__(self, content, **keyw):
             # If the user hasn't specified a title, set it to None so that
             # the name of the temporary FIFO is not used:
-            if not keyw.has_key('title'):
+            if 'title' not in keyw:
                 keyw['title'] = None
 
             _FileItem.__init__(self, '', **keyw)
@@ -562,20 +562,20 @@ def Data(*set, **keyw):
         dims = len(set.shape)
         # transpose so that the last index selects x vs. y:
         set = Numeric.transpose(set, (dims-1,) + tuple(range(dims-1)))
-    if keyw.has_key('cols'):
+    if 'cols' in keyw:
         cols = keyw['cols']
         del keyw['cols']
         if type(cols) is types.IntType:
             cols = (cols,)
         set = Numeric.take(set, cols, -1)
 
-    if keyw.has_key('filename'):
+    if 'filename' in keyw:
         filename = keyw['filename'] or None
         del keyw['filename']
     else:
         filename = None
 
-    if keyw.has_key('inline'):
+    if 'inline' in keyw:
         inline = keyw['inline']
         del keyw['inline']
         if inline and filename:
