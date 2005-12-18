@@ -51,13 +51,15 @@ def main():
     g = Gnuplot.Gnuplot(debug=1)
     g.clear()
 
-    # Make a temporary file:
+    # Make two temporary files:
     if hasattr(tempfile, 'mkstemp'):
         (fd, filename1,) = tempfile.mkstemp(text=1)
         f = os.fdopen(fd, 'w')
+        (fd, filename2,) = tempfile.mkstemp(text=1)
     else:
         filename1 = tempfile.mktemp()
         f = open(filename1, 'w')
+        filename2 = tempfile.mktemp()
     try:
         for x in Numeric.arange(100)/5. - 10.:
             f.write('%s %s %s\n' % (x, math.cos(x), math.sin(x)))
@@ -151,11 +153,17 @@ def main():
 
         wait('Plot Data, specified column-by-column')
         g.plot(Gnuplot.Data(x,y2, inline=0))
+        wait('Same thing, saved to a file')
+        Gnuplot.Data(x,y2, inline=0, filename=filename1)
+        g.plot(Gnuplot.File(filename1))
         wait('Same thing, inline data')
         g.plot(Gnuplot.Data(x,y2, inline=1))
 
         wait('Plot Data, specified by an array')
         g.plot(Gnuplot.Data(d, inline=0))
+        wait('Same thing, saved to a file')
+        Gnuplot.Data(d, inline=0, filename=filename1)
+        g.plot(Gnuplot.File(filename1))
         wait('Same thing, inline data')
         g.plot(Gnuplot.Data(d, inline=1))
         wait('with="lp 4 4"')
@@ -165,6 +173,10 @@ def main():
         wait('cols=(0,1), cols=(0,2)')
         g.plot(Gnuplot.Data(d, cols=(0,1), inline=0),
                Gnuplot.Data(d, cols=(0,2), inline=0))
+        wait('Same thing, saved to files')
+        Gnuplot.Data(d, cols=(0,1), inline=0, filename=filename1)
+        Gnuplot.Data(d, cols=(0,2), inline=0, filename=filename2)
+        g.plot(Gnuplot.File(filename1), Gnuplot.File(filename2))
         wait('Same thing, inline data')
         g.plot(Gnuplot.Data(d, cols=(0,1), inline=1),
                Gnuplot.Data(d, cols=(0,2), inline=1))
@@ -180,7 +192,14 @@ def main():
         x = Numeric.arange(100)/5. - 10.
 
         wait('Plot Data, computed by Gnuplot.py')
-        g.plot(Gnuplot.funcutils.compute_Data(x, lambda x: math.cos(x), inline=0))
+        g.plot(
+            Gnuplot.funcutils.compute_Data(x, lambda x: math.cos(x), inline=0)
+            )
+        wait('Same thing, saved to a file')
+        Gnuplot.funcutils.compute_Data(
+            x, lambda x: math.cos(x), inline=0, filename=filename1
+            )
+        g.plot(Gnuplot.File(filename1))
         wait('Same thing, inline data')
         g.plot(Gnuplot.funcutils.compute_Data(x, math.cos, inline=1))
         wait('with="lp 4 4"')
@@ -234,6 +253,9 @@ def main():
         print '############### test splot ##################################'
         wait('a 3-d curve')
         g.splot(Gnuplot.Data(d, with='linesp', inline=0))
+        wait('Same thing, saved to a file')
+        Gnuplot.Data(d, inline=0, filename=filename1)
+        g.splot(Gnuplot.File(filename1, with='linesp'))
         wait('Same thing, inline data')
         g.splot(Gnuplot.Data(d, with='linesp', inline=1))
 
@@ -255,22 +277,39 @@ def main():
         g.xlabel('x')
         g.ylabel('y')
         g.splot(Gnuplot.GridData(m,x,y, binary=0, inline=0))
+        wait('Same thing, saved to a file')
+        Gnuplot.GridData(m,x,y, binary=0, inline=0, filename=filename1)
+        g.splot(Gnuplot.File(filename1, binary=0))
         wait('Same thing, inline data')
         g.splot(Gnuplot.GridData(m,x,y, binary=0, inline=1))
 
         wait('The same thing using binary mode')
         g.splot(Gnuplot.GridData(m,x,y, binary=1))
+        wait('Same thing, using binary mode and an intermediate file')
+        Gnuplot.GridData(m,x,y, binary=1, filename=filename1)
+        g.splot(Gnuplot.File(filename1, binary=1))
 
         wait('The same thing using compute_GridData to tabulate function')
         g.splot(Gnuplot.funcutils.compute_GridData(
             x,y, lambda x,y: math.sin(x) + 0.1*x - y**2,
             ))
+        wait('Same thing, with an intermediate file')
+        Gnuplot.funcutils.compute_GridData(
+            x,y, lambda x,y: math.sin(x) + 0.1*x - y**2,
+            filename=filename1)
+        g.splot(Gnuplot.File(filename1, binary=1))
 
         wait('Use compute_GridData in ufunc and binary mode')
         g.splot(Gnuplot.funcutils.compute_GridData(
             x,y, lambda x,y: Numeric.sin(x) + 0.1*x - y**2,
             ufunc=1, binary=1,
             ))
+        wait('Same thing, with an intermediate file')
+        Gnuplot.funcutils.compute_GridData(
+            x,y, lambda x,y: Numeric.sin(x) + 0.1*x - y**2,
+            ufunc=1, binary=1,
+            filename=filename1)
+        g.splot(Gnuplot.File(filename1, binary=1))
 
         wait('And now rotate it a bit')
         for view in range(35,70,5):
@@ -281,6 +320,7 @@ def main():
         wait(prompt='Press return to end the test.\n')
     finally:
         os.unlink(filename1)
+        os.unlink(filename2)
 
 
 # when executed, just run main():

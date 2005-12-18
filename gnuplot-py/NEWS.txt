@@ -6,6 +6,10 @@ Gnuplot.py package.
 
 Version ?.?:
 
+* Added an option "filename" to Data and GridData in PlotItems.py.
+  This allows saving the data to a permanent, rather than temporary,
+  file.  (Patch contributed by Matthew Fulmer.)
+
 * Added a 'pdf' terminal definition (using a patch from Jim Kleckner).
 
 * Added close() and __del__() methods to the Gnuplot class.  This

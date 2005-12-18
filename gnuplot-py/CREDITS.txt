@@ -39,3 +39,6 @@ Jon Moody suggested some changes for Mac OS.
 
 Andy Main contributed terminal_opts for metapost output.
 
+Matthew Fulmer contributed a patch to add the "filename" argument to
+Data and GridData.
+
