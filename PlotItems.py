@@ -336,36 +336,45 @@ class _FileItem(PlotItem):
             self._options['binary'] = (0, None)
 
 
-class _TempFileItem(_FileItem):
-    def __init__(self, content, **keyw):
+class _NewFileItem(_FileItem):
+    def __init__(self, content, filename=None, **keyw):
+
         binary = keyw.get('binary', 0)
         if binary:
             mode = 'wb'
         else:
             mode = 'w'
-        if hasattr(tempfile, 'mkstemp'):
-            # Use the new secure method of creating temporary files:
-            (fd, filename,) = tempfile.mkstemp(
-                suffix='.gnuplot', text=(not binary)
-                )
-            f = os.fdopen(fd, mode)
-        else:
-            # for backwards compatibility to pre-2.3:
-            filename = tempfile.mktemp()
+
+        if filename:
+            # This is a permanent file
+            self.temp = False
             f = open(filename, mode)
+        else:
+            self.temp = True
+            if hasattr(tempfile, 'mkstemp'):
+                # Use the new secure method of creating temporary files:
+                (fd, filename,) = tempfile.mkstemp(
+                    suffix='.gnuplot', text=(not binary)
+                    )
+                f = os.fdopen(fd, mode)
+            else:
+                # for backwards compatibility to pre-2.3:
+                filename = tempfile.mktemp()
+                f = open(filename, mode)
 
         f.write(content)
         f.close()
 
         # If the user hasn't specified a title, set it to None so
         # that the name of the temporary file is not used:
-        if not keyw.has_key('title'):
+        if self.temp and not keyw.has_key('title'):
             keyw['title'] = None
 
         _FileItem.__init__(self, filename, **keyw)
 
     def __del__(self):
-        os.unlink(self.filename)
+        if self.temp:
+            os.unlink(self.filename)
 
 
 class _InlineFileItem(_FileItem):
@@ -529,6 +538,8 @@ def Data(*set, **keyw):
             rather than through a temporary file.  The default is the
             value of gp.GnuplotOpts.prefer_inline_data.
 
+        'filename=<string>' -- save data to a permanent file.
+
     The keyword arguments recognized by '_FileItem' can also be used
     here.
 
@@ -558,11 +569,21 @@ def Data(*set, **keyw):
             cols = (cols,)
         set = Numeric.take(set, cols, -1)
 
+    if keyw.has_key('filename'):
+        filename = keyw['filename'] or None
+        del keyw['filename']
+    else:
+        filename = None
+
     if keyw.has_key('inline'):
         inline = keyw['inline']
         del keyw['inline']
+        if inline and filename:
+            raise Errors.OptionError(
+                'cannot pass data both inline and via a file'
+                )
     else:
-        inline = gp.GnuplotOpts.prefer_inline_data
+        inline = (not filename) and gp.GnuplotOpts.prefer_inline_data
 
     # Output the content into a string:
     f = StringIO()
@@ -570,13 +591,17 @@ def Data(*set, **keyw):
     content = f.getvalue()
     if inline:
         return _InlineFileItem(content, **keyw)
+    elif filename:
+        return _NewFileItem(content, filename=filename, **keyw)
     elif gp.GnuplotOpts.prefer_fifo_data:
         return _FIFOFileItem(content, **keyw)
     else:
-        return _TempFileItem(content, **keyw)
+        return _NewFileItem(content, **keyw)
 
 
-def GridData(data, xvals=None, yvals=None, inline=_unset, **keyw):
+def GridData(
+    data, xvals=None, yvals=None, inline=_unset, filename=None, **keyw
+    ):
     """Return a _FileItem representing a function of two variables.
 
     'GridData' represents a function that has been tabulated on a
@@ -595,6 +620,8 @@ def GridData(data, xvals=None, yvals=None, inline=_unset, **keyw):
         'binary=<bool>' -- send data to gnuplot in binary format?
 
         'inline=<bool>' -- send data to gnuplot "inline"?
+
+        'filename=<string>' -- save data to a permanent file.
 
     Note the unusual argument order!  The data are specified *before*
     the x and y values.  (This inconsistency was probably a mistake;
@@ -659,7 +686,14 @@ def GridData(data, xvals=None, yvals=None, inline=_unset, **keyw):
     keyw['binary'] = binary
 
     if inline is _unset:
-        inline = (not binary) and gp.GnuplotOpts.prefer_inline_data
+        inline = (
+            (not binary) and (not filename)
+            and gp.GnuplotOpts.prefer_inline_data
+            )
+    elif inline and filename:
+        raise Errors.OptionError(
+            'cannot pass data both inline and via a file'
+            )
 
     # xvals, yvals, and data are now all filled with arrays of data.
     if binary:
@@ -686,10 +720,10 @@ def GridData(data, xvals=None, yvals=None, inline=_unset, **keyw):
             mout[1:,1:] = Numeric.transpose(data.astype(Numeric.Float32))
 
         content = mout.tostring()
-        if gp.GnuplotOpts.prefer_fifo_data:
+        if (not filename) and gp.GnuplotOpts.prefer_fifo_data:
             return _FIFOFileItem(content, **keyw)
         else:
-            return _TempFileItem(content, **keyw)
+            return _NewFileItem(content, filename=filename, **keyw)
     else:
         # output data to file as "x y f(x)" triplets.  This
         # requires numy copies of each x value and numx copies of
@@ -709,9 +743,11 @@ def GridData(data, xvals=None, yvals=None, inline=_unset, **keyw):
 
         if inline:
             return _InlineFileItem(content, **keyw)
+        elif filename:
+            return _NewFileItem(content, filename=filename, **keyw)
         elif gp.GnuplotOpts.prefer_fifo_data:
             return _FIFOFileItem(content, **keyw)
         else:
-            return _TempFileItem(content, **keyw)
+            return _NewFileItem(content, **keyw)
 
 
