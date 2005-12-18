@@ -131,7 +131,7 @@ def compute_Data(xvals, f, ufunc=0, **keyw):
     # evaluate function:
     data = tabulate_function(f, xvals, ufunc=ufunc)
 
-    return apply(Gnuplot.Data, (xvals, data), keyw)
+    return Gnuplot.Data(xvals, data, **keyw)
 
 
 def compute_GridData(xvals, yvals, f, ufunc=0, **keyw):
@@ -177,11 +177,11 @@ def compute_GridData(xvals, yvals, f, ufunc=0, **keyw):
     # evaluate function:
     data = tabulate_function(f, xvals, yvals, ufunc=ufunc)
 
-    return apply(Gnuplot.GridData, (data, xvals, yvals), keyw)
+    return Gnuplot.GridData(data, xvals, yvals, **keyw)
 
 
 # For backwards compatibility:
 def GridFunc(f, xvals, yvals, **keyw):
-    return apply(compute_GridData, (xvals, yvals, f,), keyw)
+    return compute_GridData(xvals, yvals, f, **keyw)
 
 

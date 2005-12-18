@@ -279,7 +279,7 @@ class Gnuplot:
         """
 
         if keyw:
-            apply(self.set, (), keyw)
+            self.set(**keyw)
 
         self.plotcmd = 'plot'
         self._clear_queue()
@@ -311,7 +311,7 @@ class Gnuplot:
         """
 
         if keyw:
-            apply(self.set, (), keyw)
+            self.set(**keyw)
 
         self.plotcmd = 'splot'
         self._clear_queue()
@@ -329,7 +329,7 @@ class Gnuplot:
         """
 
         if keyw:
-            apply(self.set, (), keyw)
+            self.set(**keyw)
 
         self._add_to_queue(items)
         self.refresh()

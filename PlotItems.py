@@ -118,7 +118,7 @@ class PlotItem:
         """
 
         self._options = {}
-        apply(self.set_option, (), keyw)
+        self.set_option(**keyw)
 
     def get_option(self, name):
         """Return the setting of an option.  May be overridden."""
@@ -227,7 +227,7 @@ class Func(PlotItem):
     """
 
     def __init__(self, function, **keyw):
-        apply(PlotItem.__init__, (self,), keyw)
+        PlotItem.__init__(self, **keyw)
         self.function = function
 
     def get_base_command_string(self):
@@ -302,7 +302,7 @@ class _FileItem(PlotItem):
 
         self.filename = filename
 
-        apply(PlotItem.__init__, (self,), keyw)
+        PlotItem.__init__(self, **keyw)
 
     def get_base_command_string(self):
         return gp.double_quote_string(self.filename)
@@ -362,7 +362,7 @@ class _TempFileItem(_FileItem):
         if not keyw.has_key('title'):
             keyw['title'] = None
 
-        apply(_FileItem.__init__, (self, filename,), keyw)
+        _FileItem.__init__(self, filename, **keyw)
 
     def __del__(self):
         os.unlink(self.filename)
@@ -382,7 +382,7 @@ class _InlineFileItem(_FileItem):
         if keyw.get('binary', 0):
             raise Errors.OptionError('binary inline data is not supported')
 
-        apply(_FileItem.__init__, (self, '-',), keyw)
+        _FileItem.__init__(self, '-', **keyw)
 
         if content[-1] == '\n':
             self.content = content
@@ -457,7 +457,7 @@ if gp.GnuplotOpts.support_fifo:
             if not keyw.has_key('title'):
                 keyw['title'] = None
 
-            apply(_FileItem.__init__, (self, '',), keyw)
+            _FileItem.__init__(self, '', **keyw)
             self.content = content
             if keyw.get('binary', 0):
                 self.mode = 'wb'
@@ -494,7 +494,7 @@ def File(filename, **keyw):
         raise Errors.OptionError(
             'Argument (%s) must be a filename' % (filename,)
             )
-    return apply(_FileItem, (filename,), keyw)
+    return _FileItem(filename, **keyw)
 
 
 def Data(*set, **keyw):
@@ -569,11 +569,11 @@ def Data(*set, **keyw):
     utils.write_array(f, set)
     content = f.getvalue()
     if inline:
-        return apply(_InlineFileItem, (content,), keyw)
+        return _InlineFileItem(content, **keyw)
     elif gp.GnuplotOpts.prefer_fifo_data:
-        return apply(_FIFOFileItem, (content,), keyw)
+        return _FIFOFileItem(content, **keyw)
     else:
-        return apply(_TempFileItem, (content,), keyw)
+        return _TempFileItem(content, **keyw)
 
 
 def GridData(data, xvals=None, yvals=None, inline=_unset, **keyw):
@@ -687,9 +687,9 @@ def GridData(data, xvals=None, yvals=None, inline=_unset, **keyw):
 
         content = mout.tostring()
         if gp.GnuplotOpts.prefer_fifo_data:
-            return apply(_FIFOFileItem, (content,), keyw)
+            return _FIFOFileItem(content, **keyw)
         else:
-            return apply(_TempFileItem, (content,), keyw)
+            return _TempFileItem(content, **keyw)
     else:
         # output data to file as "x y f(x)" triplets.  This
         # requires numy copies of each x value and numx copies of
@@ -708,10 +708,10 @@ def GridData(data, xvals=None, yvals=None, inline=_unset, **keyw):
         content = f.getvalue()
 
         if inline:
-            return apply(_InlineFileItem, (content,), keyw)
+            return _InlineFileItem(content, **keyw)
         elif gp.GnuplotOpts.prefer_fifo_data:
-            return apply(_FIFOFileItem, (content,), keyw)
+            return _FIFOFileItem(content, **keyw)
         else:
-            return apply(_TempFileItem, (content,), keyw)
+            return _TempFileItem(content, **keyw)
 
 
