@@ -121,12 +121,6 @@ I don't run Windows, but thanks to the help of users there is now a
 way to use Gnuplot.py on that platform.  Any feedback or additional
 suggestions having to do with Windows would be especially appreciated.
 
-If you are using a version of Python prior to 2.0, you must install
-the quasi-standard Win32 extensions.  This can be obtained from the
-main Windows download page:
-
-    http://www.python.org/download/download_windows.html
-
 Because the main MS-Windows gnuplot executable (wgnuplot.exe) doesn't
 accept commands on standard input, Gnuplot.py cannot communicate with
 it directly.  However, there is a simple little program called
