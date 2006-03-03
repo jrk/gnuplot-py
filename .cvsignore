@@ -1,0 +1,9 @@
+*.class
+*.pyc
+*.pyo
+MANIFEST
+build
+dist
+doc
+docs.tar.gz
+gp_test.ps

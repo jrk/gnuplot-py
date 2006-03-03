@@ -1,0 +1,68 @@
+# $Id$
+
+These are my notes about the steps to make a new release of
+Gnuplot.py.
+
+1. Edit the following files for the release:
+
+   NEWS.txt -- add the version number at the top of the file and make
+       sure that the comments are up-to-date.
+
+   ANNOUNCE.txt -- add the version number at the top of the file and
+       update the blurbs as appropriate.
+
+   Gnuplot.html -- update the version number where it appears.  Update
+       the "News" section.
+
+   __init__.py -- increment the __version__ string.
+
+2. Check the changes into CVS.
+
+3. Tag the release in CVS:
+
+   $ cvs tag r_1_7
+
+4. Create new documentation using happydoc:
+
+   $ rm -rf doc
+   $ ( cd .. ; 
+       happydoc -d Gnuplot/doc -t 'Gnuplot.py' \
+         --author='Michael Haggerty <mhagger@alum.mit.edu>' Gnuplot )
+
+5. Generate the source distributions:
+
+   $ python2 ./setup.py sdist --formats=gztar,zip
+
+6. Generate the binary distributions.  [I don't think a binary
+   distribution is worthwhile because the place that the files need to
+   be installed is dependent on the version of python being used.]
+
+   $ python2 ./setup.py bdist --format=gztar,zip,rpm,wininst
+
+7. Release the files on SourceForge:
+
+   a. Go to the "Admin" page.
+
+   b. Go to the "File release system" page.
+
+   c. Click on "Add Release" for package Gnuplot-py.
+
+   d. Type a release name of the form "1.7".
+
+   e. Paste the "New features in this version" section of ANNOUNCE.txt
+      into the "release notes" text box.
+
+   f. Follow the instructions to release the files.
+
+   g. Send an email to people monitoring the project with the button
+      at the bottom of the release page.
+
+8. Send an announcement to gnuplot-py-users.
+
+9. Send an announcement to comp.lang.python.
+
+10. Append a '+' to the __version__ string in __init__.py to
+    distinguish intermediate CVS releases from official releases.  Add
+    a "Version ?.?:" line to NEWS.txt to receive future change notes.
+    Check the changes into CVS.
+
