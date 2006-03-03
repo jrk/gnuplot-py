@@ -19,8 +19,6 @@ Generated from Alpha:Desktop Folder:gnuplot.1:gnuplot 3.7.1a
 AETE/AEUT resource version 1/0, language 0, script 0
 """
 
-__cvs_version__ = '$Revision$'
-
 import aetools
 import MacOS
 

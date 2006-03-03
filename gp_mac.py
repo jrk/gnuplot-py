@@ -10,8 +10,6 @@
 
 """
 
-__cvs_version__ = '$Revision$'
-
 import os, string
 
 import Errors

@@ -14,9 +14,6 @@ low-level interfaces.
 
 """
 
-__cvs_version__ = '$Revision$'
-
-
 # ############ Configuration variables: ################################
 
 class GnuplotOpts:

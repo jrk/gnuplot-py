@@ -16,11 +16,12 @@ Gnuplot.py.
 
    __init__.py -- increment the __version__ string.
 
-2. Check the changes into CVS.
+2. Check the changes into Subversion.
 
-3. Tag the release in CVS:
+3. Tag the release in Subversion:
 
-   $ cvs tag r_1_7
+   $ svn cp https://svn.sourceforge.net/svnroot/gnuplot-py/trunk \
+            https://svn.sourceforge.net/svnroot/gnuplot-py/tags/release-1.7
 
 4. Create new documentation using happydoc:
 
@@ -62,7 +63,7 @@ Gnuplot.py.
 9. Send an announcement to comp.lang.python.
 
 10. Append a '+' to the __version__ string in __init__.py to
-    distinguish intermediate CVS releases from official releases.  Add
-    a "Version ?.?:" line to NEWS.txt to receive future change notes.
-    Check the changes into CVS.
+    distinguish intermediate Subversion releases from official
+    releases.  Add a "Version ?.?:" line to NEWS.txt to receive future
+    change notes.  Check the changes into Subversion.
 

@@ -9,9 +9,6 @@
 
 """
 
-__cvs_version__ = '$Revision$'
-
-
 import Errors
 
 # ############ Configuration variables: ################################

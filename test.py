@@ -14,8 +14,6 @@ thorough test of many combinations of Gnuplot.py features.
 
 """
 
-__cvs_version__ = '$Revision$'
-
 import os, time, math, tempfile
 import Numeric
 from Numeric import NewAxis

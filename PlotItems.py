@@ -14,8 +14,6 @@ behavior.
 
 """
 
-__cvs_version__ = '$Revision$'
-
 import os, string, tempfile, types
 
 try:

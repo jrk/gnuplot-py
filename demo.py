@@ -13,9 +13,6 @@ the Gnuplot package, see test.py.
 
 """
 
-__cvs_version__ = '$Revision$'
-
-
 from Numeric import *
 
 # If the package has been installed correctly, this should work:

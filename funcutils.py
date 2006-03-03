@@ -14,8 +14,6 @@ points and tabulate the output to be used with Gnuplot.
 
 """
 
-__cvs_version__ = '$Revision$'
-
 import Numeric
 
 import Gnuplot, utils

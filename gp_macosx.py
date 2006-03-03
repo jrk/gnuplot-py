@@ -18,9 +18,6 @@ directly.
 
 """
 
-__cvs_version__ = '$Revision$'
-
-
 # ############ Configuration variables: ################################
 
 class GnuplotOpts:

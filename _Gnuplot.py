@@ -12,8 +12,6 @@ interface to a running gnuplot process.
 
 """
 
-__cvs_version__ = '$Revision$'
-
 import sys, string, types
 
 import gp, PlotItems, termdefs

@@ -14,8 +14,6 @@ particularly gnuplot-related.
 
 """
 
-__cvs_version__ = '$Revision$'
-
 import string
 import Numeric
 

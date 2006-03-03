@@ -20,8 +20,6 @@ gp_*.py modules.
 
 """
 
-__cvs_version__ = '$Revision$'
-
 import sys, string
 
 # Low-level communication with gnuplot is platform-dependent.  Import
