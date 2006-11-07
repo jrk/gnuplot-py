@@ -1,3 +1,5 @@
+## Automatically adapted for numpy.oldnumeric Sep 22, 2006 by alter_code1.py
+
 #! /usr/bin/env python
 
 # $Id$
@@ -15,29 +17,33 @@ particularly gnuplot-related.
 """
 
 import string
-import Numeric
-
+import numpy
 
 def float_array(m):
-    """Return the argument as a Numeric array of type at least 'Float32'.
+    """Return the argument as a numpy array of type at least 'Float32'.
 
     Leave 'Float64' unchanged, but upcast all other types to
     'Float32'.  Allow also for the possibility that the argument is a
-    python native type that can be converted to a Numeric array using
-    'Numeric.asarray()', but in that case don't worry about
+    python native type that can be converted to a numpy array using
+    'numpy.asarray()', but in that case don't worry about
     downcasting to single-precision float.
 
     """
 
     try:
         # Try Float32 (this will refuse to downcast)
-        return Numeric.asarray(m, Numeric.Float32)
+        return numpy.asarray(m, numpy.float32)
     except TypeError:
         # That failure might have been because the input array was
-        # of a wider data type than Float32; try to convert to the
+        # of a wider data type than float32; try to convert to the
         # largest floating-point type available:
-        return Numeric.asarray(m, Numeric.Float)
-
+        # NOTE TBD: I'm not sure float_ is the best data-type for this...
+        try:
+            return numpy.asarray(m, numpy.float_)
+        except TypeError:
+            # TBD: Need better handling of this error!
+            print "Fatal: array dimensions not equal!"
+            return None
 
 def write_array(f, set,
                 item_sep=' ',

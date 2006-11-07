@@ -1,3 +1,5 @@
+## Automatically adapted for numpy.oldnumeric Sep 22, 2006 by alter_code1.py
+
 #! /usr/bin/env python
 
 # $Id$
@@ -14,19 +16,19 @@ points and tabulate the output to be used with Gnuplot.
 
 """
 
-import Numeric
+import numpy
 
 import Gnuplot, utils
 
 
-def tabulate_function(f, xvals, yvals=None, typecode=None, ufunc=0):
+def tabulate_function(f, xvals, yvals=None, dtype=None, ufunc=0):
     """Evaluate and tabulate a function on a 1- or 2-D grid of points.
 
     f should be a function taking one or two floating-point
     parameters.
 
     If f takes one parameter, then xvals should be a 1-D array and
-    yvals should be None.  The return value is a Numeric array
+    yvals should be None.  The return value is a numpy array
     '[f(x[0]), f(x[1]), ..., f(x[-1])]'.
 
     If f takes two parameters, then 'xvals' and 'yvals' should each be
@@ -37,7 +39,7 @@ def tabulate_function(f, xvals, yvals=None, typecode=None, ufunc=0):
 
     If 'ufunc=0', then 'f' is evaluated at each point using a Python
     loop.  This can be slow if the number of points is large.  If
-    speed is an issue, you should write 'f' in terms of Numeric ufuncs
+    speed is an issue, you should write 'f' in terms of numpy ufuncs
     and use the 'ufunc=1' feature described next.
 
     If called with 'ufunc=1', then 'f' should be a function that is
@@ -49,34 +51,34 @@ def tabulate_function(f, xvals, yvals=None, typecode=None, ufunc=0):
 
     if yvals is None:
         # f is a function of only one variable:
-        xvals = Numeric.asarray(xvals, typecode)
+        xvals = numpy.asarray(xvals, dtype)
 
         if ufunc:
             return f(xvals)
         else:
-            if typecode is None:
-                typecode = xvals.typecode()
+            if dtype is None:
+                dtype = xvals.dtype.char
 
-            m = Numeric.zeros((len(xvals),), typecode)
+            m = numpy.zeros((len(xvals),), dtype)
             for xi in range(len(xvals)):
                 x = xvals[xi]
                 m[xi] = f(x)
             return m
     else:
         # f is a function of two variables:
-        xvals = Numeric.asarray(xvals, typecode)
-        yvals = Numeric.asarray(yvals, typecode)
+        xvals = numpy.asarray(xvals, dtype)
+        yvals = numpy.asarray(yvals, dtype)
 
         if ufunc:
-            return f(xvals[:,Numeric.NewAxis], yvals[Numeric.NewAxis,:])
+            return f(xvals[:,numpy.newaxis], yvals[numpy.newaxis,:])
         else:
-            if typecode is None:
-                # choose a result typecode based on what '+' would return
+            if dtype is None:
+                # choose a result dtype based on what '+' would return
                 # (yecch!):
-                typecode = (Numeric.zeros((1,), xvals.typecode()) +
-                            Numeric.zeros((1,), yvals.typecode())).typecode()
+                dtype = (numpy.zeros((1,), xvals.dtype.char) +
+                            numpy.zeros((1,), yvals.dtype.char)).dtype.char
 
-            m = Numeric.zeros((len(xvals), len(yvals)), typecode)
+            m = numpy.zeros((len(xvals), len(yvals)), dtype)
             for xi in range(len(xvals)):
                 x = xvals[xi]
                 for yi in range(len(yvals)):

@@ -65,8 +65,8 @@ More information:
 
 Obviously, you must have the gnuplot program if Gnuplot.py is to be of
 any use to you.  Gnuplot can be obtained via
-<http://www.gnuplot.info>.  You also need Python's Numerical
-extension, which is available from <http://numpy.sourceforge.net>.
+<http://www.gnuplot.info>.  You also need a copy of the numpy package, which
+is available from the Scipy group at <http://www.scipy.org/Download>.
 
 Gnuplot.py uses Python distutils
 <http://www.python.org/doc/current/inst/inst.html> and can be

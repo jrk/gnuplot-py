@@ -235,10 +235,10 @@ Version 1.1 (31 Jan 1999):
   dataset; e.g., what used to be written as
 
       g = Gnuplot.Gnuplot()
-      x = Numeric.arange(100)/10.0
+      x = numpy.arange(100)/10.0
       y = x**2
       # Create an array of (x,y) pairs:
-      g.plot(Gnuplot.Data(Numeric.transpose((x, y))))
+      g.plot(Gnuplot.Data(numpy.transpose((x, y))))
 
   can now be shortened to
 

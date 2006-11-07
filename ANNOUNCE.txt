@@ -9,7 +9,7 @@ Gnuplot.py can be obtained from
 
 Prerequisites (see footnotes):
     the Python interpreter [1]
-    the Python Numeric module [3]
+    the Python numpy module [3]
     the gnuplot program [2]
 
 or, to use it under Java (experimental):
@@ -20,7 +20,7 @@ or, to use it under Java (experimental):
 
 Some ways this package can be used:
 
-1. Interactive data processing: Use Python's excellent Numeric package
+1. Interactive data processing: Use Python's excellent numpy package
    to create and manipulate arrays of numbers, and use Gnuplot.py to
    visualize the results.
 2. Web graphics: write CGI scripts in Python that use gnuplot to
@@ -76,7 +76,7 @@ Footnotes:
     portable plotting program with a command-line interface.  It can
     make 2-d and 3-d plots and can output to myriad printers and
     graphics terminals.
-[3] The Numeric Python extension <http://numpy.sourceforge.net/> is a
+[3] The numpy Python extension <http://www.scipy.org> is a
     Python module that adds fast and convenient array manipulations to
     the Python language.
 [4] Jython <http://www.jython.org> is a Python interpreter that runs

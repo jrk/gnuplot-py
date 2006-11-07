@@ -239,8 +239,8 @@ class Gnuplot:
 
         'items' is a sequence of items, each of which should be a
         'PlotItem' of some kind, a string (interpreted as a function
-        string for gnuplot to evaluate), or a Numeric array (or
-        something that can be converted to a Numeric array).
+        string for gnuplot to evaluate), or a numpy array (or
+        something that can be converted to a numpy array).
 
         """
 

@@ -33,4 +33,3 @@ anyway.  Of course if anybody else wants to take one up...
 * Support gnuplot's new abilities to allow user interaction via the
   mouse.  I believe this will require 2-way communication between
   Gnuplot.py and gnuplot.
-

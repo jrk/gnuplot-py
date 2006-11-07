@@ -128,9 +128,9 @@ Features:
 
 Restrictions:
 
- -  Relies on the Numeric Python extension.  This can be obtained from
-    "SourceForge", http://sourceforge.net/projects/numpy/.  If you're
-    interested in gnuplot, you would probably also want NumPy anyway.
+ -  Relies on the numpy Python extension.  This can be obtained from
+    the Scipy group at <http://www.scipy.org/Download>.  If you're
+    interested in gnuplot, you would probably also want numpy anyway.
 
  -  Only a small fraction of gnuplot functionality is implemented as
     explicit method functions.  However, you can give arbitrary

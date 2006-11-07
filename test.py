@@ -1,3 +1,5 @@
+## Automatically adapted for numpy.oldnumeric Sep 22, 2006 by alter_code1.py
+
 #! /usr/bin/env python
 
 # $Id$
@@ -15,8 +17,7 @@ thorough test of many combinations of Gnuplot.py features.
 """
 
 import os, time, math, tempfile
-import Numeric
-from Numeric import NewAxis
+import numpy
 
 try:
     import Gnuplot, Gnuplot.PlotItems, Gnuplot.funcutils
@@ -59,7 +60,7 @@ def main():
         f = open(filename1, 'w')
         filename2 = tempfile.mktemp()
     try:
-        for x in Numeric.arange(100)/5. - 10.:
+        for x in numpy.arange(100.)/5. - 10.:
             f.write('%s %s %s\n' % (x, math.cos(x), math.sin(x)))
         f.close()
 
@@ -141,10 +142,10 @@ def main():
         g.plot(f)
 
         print '############### test Data ###################################'
-        x = Numeric.arange(100)/5. - 10.
-        y1 = Numeric.cos(x)
-        y2 = Numeric.sin(x)
-        d = Numeric.transpose((x,y1,y2))
+        x = numpy.arange(100)/5. - 10.
+        y1 = numpy.cos(x)
+        y2 = numpy.sin(x)
+        d = numpy.transpose((x,y1,y2))
 
         wait('Plot Data against its index')
         g.plot(Gnuplot.Data(y2, inline=0))
@@ -187,7 +188,7 @@ def main():
         g.plot(Gnuplot.Data(d, title='Cosine of x'))
 
         print '############### test compute_Data ###########################'
-        x = Numeric.arange(100)/5. - 10.
+        x = numpy.arange(100)/5. - 10.
 
         wait('Plot Data, computed by Gnuplot.py')
         g.plot(
@@ -259,14 +260,14 @@ def main():
 
         print '############### test GridData and compute_GridData ##########'
         # set up x and y values at which the function will be tabulated:
-        x = Numeric.arange(35)/2.0
-        y = Numeric.arange(30)/10.0 - 1.5
+        x = numpy.arange(35)/2.0
+        y = numpy.arange(30)/10.0 - 1.5
         # Make a 2-d array containing a function of x and y.  First create
         # xm and ym which contain the x and y values in a matrix form that
         # can be `broadcast' into a matrix of the appropriate shape:
-        xm = x[:,NewAxis]
-        ym = y[NewAxis,:]
-        m = (Numeric.sin(xm) + 0.1*xm) - ym**2
+        xm = x[:,numpy.newaxis]
+        ym = y[numpy.newaxis,:]
+        m = (numpy.sin(xm) + 0.1*xm) - ym**2
         wait('a function of two variables from a GridData file')
         g('set parametric')
         g('set data style lines')
@@ -299,12 +300,12 @@ def main():
 
         wait('Use compute_GridData in ufunc and binary mode')
         g.splot(Gnuplot.funcutils.compute_GridData(
-            x,y, lambda x,y: Numeric.sin(x) + 0.1*x - y**2,
+            x,y, lambda x,y: numpy.sin(x) + 0.1*x - y**2,
             ufunc=1, binary=1,
             ))
         wait('Same thing, with an intermediate file')
         Gnuplot.funcutils.compute_GridData(
-            x,y, lambda x,y: Numeric.sin(x) + 0.1*x - y**2,
+            x,y, lambda x,y: numpy.sin(x) + 0.1*x - y**2,
             ufunc=1, binary=1,
             filename=filename1)
         g.splot(Gnuplot.File(filename1, binary=1))

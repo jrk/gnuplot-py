@@ -13,7 +13,7 @@ the Gnuplot package, see test.py.
 
 """
 
-from Numeric import *
+from numpy import *
 
 # If the package has been installed correctly, this should work:
 import Gnuplot, Gnuplot.funcutils
@@ -28,7 +28,7 @@ def demo():
     g = Gnuplot.Gnuplot(debug=1)
     g.title('A simple example') # (optional)
     g('set data style linespoints') # give gnuplot an arbitrary command
-    # Plot a list of (x, y) pairs (tuples or a Numeric array would
+    # Plot a list of (x, y) pairs (tuples or a numpy array would
     # also be OK):
     g.plot([[0,1.1], [1,5.8], [2,3.3], [3,4.2]])
     raw_input('Please press return to continue...\n')
@@ -36,7 +36,7 @@ def demo():
     g.reset()
     # Plot one dataset from an array and one via a gnuplot function;
     # also demonstrate the use of item-specific options:
-    x = arange(10, typecode=Float)
+    x = arange(10, dtype='float_')
     y1 = x**2
     # Notice how this plotitem is created here but used later?  This
     # is convenient if the same dataset has to be plotted multiple
@@ -71,8 +71,8 @@ def demo():
     # Make a 2-d array containing a function of x and y.  First create
     # xm and ym which contain the x and y values in a matrix form that
     # can be `broadcast' into a matrix of the appropriate shape:
-    xm = x[:,NewAxis]
-    ym = y[NewAxis,:]
+    xm = x[:,newaxis]
+    ym = y[newaxis,:]
     m = (sin(xm) + 0.1*xm) - ym**2
     g('set parametric')
     g('set data style lines')

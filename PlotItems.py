@@ -1,3 +1,5 @@
+## Automatically adapted for numpy.oldnumeric Sep 22, 2006 by alter_code1.py
+
 # $Id$
 
 # Copyright (C) 1998-2003 Michael Haggerty <mhagger@alum.mit.edu>
@@ -21,7 +23,7 @@ try:
 except ImportError:
     from StringIO import StringIO
 
-import Numeric
+import numpy
 
 import gp, utils, Errors
 
@@ -504,12 +506,12 @@ def File(filename, **keyw):
     return _FileItem(filename, **keyw)
 
 
-def Data(*set, **keyw):
-    """Create and return a _FileItem representing the data from *set.
+def Data(*data, **keyw):
+    """Create and return a _FileItem representing the data from *data.
 
     Create a '_FileItem' object (which is a type of 'PlotItem') out of
-    one or more Float Python Numeric arrays (or objects that can be
-    converted to a Float Numeric array).  If the routine is passed a
+    one or more Float Python numpy arrays (or objects that can be
+    converted to a float numpy array).  If the routine is passed a
     single with multiple dimensions, then the last index ranges over
     the values comprising a single data point (e.g., [<x>, <y>,
     <sigma>]) and the rest of the indices select the data point.  If
@@ -543,29 +545,29 @@ def Data(*set, **keyw):
 
     """
 
-    if len(set) == 1:
-        # set was passed as a single structure
-        set = utils.float_array(set[0])
+    if len(data) == 1:
+        # data was passed as a single structure
+        data = utils.float_array(data[0])
 
         # As a special case, if passed a single 1-D array, then it is
         # treated as one value per point (by default, plotted against
         # its index):
-        if len(set.shape) == 1:
-            set = set[:,Numeric.NewAxis]
+        if len(data.shape) == 1:
+            data = data[:,numpy.newaxis]
     else:
-        # set was passed column by column (for example,
+        # data was passed column by column (for example,
         # Data(x,y)); pack it into one big array (this will test
         # that sizes are all the same):
-        set = utils.float_array(set)
-        dims = len(set.shape)
+        data = utils.float_array(data)
+        dims = len(data.shape)
         # transpose so that the last index selects x vs. y:
-        set = Numeric.transpose(set, (dims-1,) + tuple(range(dims-1)))
+        data = numpy.transpose(data, (dims-1,) + tuple(range(dims-1)))
     if 'cols' in keyw:
         cols = keyw['cols']
         del keyw['cols']
-        if type(cols) is types.IntType:
+        if isinstance(cols, types.IntType):
             cols = (cols,)
-        set = Numeric.take(set, cols, -1)
+        data = numpy.take(data, cols, -1)
 
     if 'filename' in keyw:
         filename = keyw['filename'] or None
@@ -585,7 +587,7 @@ def Data(*set, **keyw):
 
     # Output the content into a string:
     f = StringIO()
-    utils.write_array(f, set)
+    utils.write_array(f, data)
     content = f.getvalue()
     if inline:
         return _InlineFileItem(content, **keyw)
@@ -661,7 +663,7 @@ def GridData(
         raise Errors.DataError('data array must be two-dimensional')
 
     if xvals is None:
-        xvals = Numeric.arange(numx)
+        xvals = numpy.arange(numx)
     else:
         xvals = utils.float_array(xvals)
         if xvals.shape != (numx,):
@@ -670,7 +672,7 @@ def GridData(
                 'the first dimension of the data array')
 
     if yvals is None:
-        yvals = Numeric.arange(numy)
+        yvals = numpy.arange(numy)
     else:
         yvals = utils.float_array(yvals)
         if yvals.shape != (numy,):
@@ -705,17 +707,17 @@ def GridData(
         # documentation has the roles of x and y exchanged.  We ignore
         # the documentation and go with the code.
 
-        mout = Numeric.zeros((numy + 1, numx + 1), Numeric.Float32)
+        mout = numpy.zeros((numy + 1, numx + 1), numpy.float32)
         mout[0,0] = numx
-        mout[0,1:] = xvals.astype(Numeric.Float32)
-        mout[1:,0] = yvals.astype(Numeric.Float32)
+        mout[0,1:] = xvals.astype(numpy.float32)
+        mout[1:,0] = yvals.astype(numpy.float32)
         try:
             # try copying without the additional copy implied by astype():
-            mout[1:,1:] = Numeric.transpose(data)
+            mout[1:,1:] = numpy.transpose(data)
         except:
             # if that didn't work then downcasting from double
             # must be necessary:
-            mout[1:,1:] = Numeric.transpose(data.astype(Numeric.Float32))
+            mout[1:,1:] = numpy.transpose(data.astype(numpy.float32))
 
         content = mout.tostring()
         if (not filename) and gp.GnuplotOpts.prefer_fifo_data:
@@ -726,10 +728,10 @@ def GridData(
         # output data to file as "x y f(x)" triplets.  This
         # requires numy copies of each x value and numx copies of
         # each y value.  First reformat the data:
-        set = Numeric.transpose(
-            Numeric.array(
-                (Numeric.transpose(Numeric.resize(xvals, (numy, numx))),
-                 Numeric.resize(yvals, (numx, numy)),
+        set = numpy.transpose(
+            numpy.array(
+                (numpy.transpose(numpy.resize(xvals, (numy, numx))),
+                 numpy.resize(yvals, (numx, numy)),
                  data)), (1,2,0))
 
         # Now output the data with the usual routine.  This will
