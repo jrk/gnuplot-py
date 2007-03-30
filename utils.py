@@ -1,5 +1,3 @@
-## Automatically adapted for numpy.oldnumeric Sep 22, 2006 by alter_code1.py
-
 #! /usr/bin/env python
 
 # $Id$
