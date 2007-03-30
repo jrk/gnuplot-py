@@ -29,8 +29,11 @@ setup (
     author_email='mhagger@alum.mit.edu',
     url='http://gnuplot-py.sourceforge.net',
     license='LGPL',
-    # fixed as of python2.3
-    # licence='LGPL', # Spelling error in distutils
+    # This line is a workaround for a spelling error in earlier
+    # versions of distutils.  The error has been fixed as of
+    # python2.3, but we leave this line here for compatibility with
+    # older python versions.
+    licence='LGPL',
 
     # Description of the package in the distribution
     package_dir={'Gnuplot' : '.'},
