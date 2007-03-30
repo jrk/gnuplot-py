@@ -83,11 +83,12 @@ class PlotItem:
     _option_list = {
         'axes' : lambda self, axes: self.set_string_option(
             'axes', axes, None, 'axes %s'),
-        'with' : lambda self, with: self.set_string_option(
-            'with', with, None, 'with %s'),
+        'with' : lambda self, with_: self.set_string_option(
+            'with', with_, None, 'with %s'),
         'title' : lambda self, title: self.set_string_option(
             'title', title, 'notitle', 'title "%s"'),
         }
+    _option_list['with_'] = _option_list['with']
 
     # order in which options need to be passed to gnuplot:
     _option_sequence = [
@@ -101,8 +102,8 @@ class PlotItem:
 
         Keyword options:
 
-          'with=<string>' -- choose how item will be plotted, e.g.,
-              with='points 3 3'.
+          'with_=<string>' -- choose how item will be plotted, e.g.,
+              with_='points 3 3'.
 
           'title=<string>' -- set the title to be associated with the item
               in the plot legend.
@@ -215,7 +216,7 @@ class Func(PlotItem):
     into gnuplot itself.  The argument to the contructor is a string
     that should be a mathematical expression.  Example::
 
-        g.plot(Func('sin(x)', with='line 3'))
+        g.plot(Func('sin(x)', with_='line 3'))
 
     As shorthand, a string passed to the plot method of a Gnuplot
     object is also treated as a Func::

@@ -73,7 +73,7 @@ def main():
         g.replot()
 
         wait('Style linespoints')
-        g.plot(Gnuplot.Func('sin(x)', with='linespoints'))
+        g.plot(Gnuplot.Func('sin(x)', with_='linespoints'))
         wait('title=None')
         g.plot(Gnuplot.Func('sin(x)', title=None))
         wait('title="Sine of x"')
@@ -86,7 +86,7 @@ def main():
         wait('Original')
         g.plot(f)
         wait('Style linespoints')
-        f.set_option(with='linespoints')
+        f.set_option(with_='linespoints')
         g.plot(f)
         wait('title=None')
         f.set_option(title=None)
@@ -103,20 +103,20 @@ def main():
         g.plot(Gnuplot.File(filename1))
 
         wait('Style lines')
-        g.plot(Gnuplot.File(filename1, with='lines'))
+        g.plot(Gnuplot.File(filename1, with_='lines'))
 
         wait('using=1, using=(1,)')
-        g.plot(Gnuplot.File(filename1, using=1, with='lines'),
-               Gnuplot.File(filename1, using=(1,), with='points'))
+        g.plot(Gnuplot.File(filename1, using=1, with_='lines'),
+               Gnuplot.File(filename1, using=(1,), with_='points'))
         wait('using=(1,2), using="1:3"')
         g.plot(Gnuplot.File(filename1, using=(1,2)),
                Gnuplot.File(filename1, using='1:3'))
 
         wait('every=5, every=(5,)')
-        g.plot(Gnuplot.File(filename1, every=5, with='lines'),
-               Gnuplot.File(filename1, every=(5,), with='points'))
+        g.plot(Gnuplot.File(filename1, every=5, with_='lines'),
+               Gnuplot.File(filename1, every=(5,), with_='points'))
         wait('every=(10,None,0), every="10::5"')
-        g.plot(Gnuplot.File(filename1, with='lines'),
+        g.plot(Gnuplot.File(filename1, with_='lines'),
                Gnuplot.File(filename1, every=(10,None,0)),
                Gnuplot.File(filename1, every='10::5'))
 
@@ -130,7 +130,7 @@ def main():
         wait('Original')
         g.plot(f)
         wait('Style linespoints')
-        f.set_option(with='linespoints')
+        f.set_option(with_='linespoints')
         g.plot(f)
         wait('using=(1,3)')
         f.set_option(using=(1,3))
@@ -163,8 +163,8 @@ def main():
         g.plot(Gnuplot.File(filename1))
         wait('Same thing, inline data')
         g.plot(Gnuplot.Data(d, inline=1))
-        wait('with="lp 4 4"')
-        g.plot(Gnuplot.Data(d, with='lp 4 4'))
+        wait('with_="lp 4 4"')
+        g.plot(Gnuplot.Data(d, with_='lp 4 4'))
         wait('cols=0')
         g.plot(Gnuplot.Data(d, cols=0))
         wait('cols=(0,1), cols=(0,2)')
@@ -199,13 +199,13 @@ def main():
         g.plot(Gnuplot.File(filename1))
         wait('Same thing, inline data')
         g.plot(Gnuplot.funcutils.compute_Data(x, math.cos, inline=1))
-        wait('with="lp 4 4"')
-        g.plot(Gnuplot.funcutils.compute_Data(x, math.cos, with='lp 4 4'))
+        wait('with_="lp 4 4"')
+        g.plot(Gnuplot.funcutils.compute_Data(x, math.cos, with_='lp 4 4'))
 
         print '############### test hardcopy ###############################'
         print '******** Generating postscript file "gp_test.ps" ********'
         wait()
-        g.plot(Gnuplot.Func('cos(0.5*x*x)', with='linespoints 2 2',
+        g.plot(Gnuplot.Func('cos(0.5*x*x)', with_='linespoints 2 2',
                        title='cos(0.5*x^2)'))
         g.hardcopy('gp_test.ps')
 
@@ -249,12 +249,12 @@ def main():
 
         print '############### test splot ##################################'
         wait('a 3-d curve')
-        g.splot(Gnuplot.Data(d, with='linesp', inline=0))
+        g.splot(Gnuplot.Data(d, with_='linesp', inline=0))
         wait('Same thing, saved to a file')
         Gnuplot.Data(d, inline=0, filename=filename1)
-        g.splot(Gnuplot.File(filename1, with='linesp'))
+        g.splot(Gnuplot.File(filename1, with_='linesp'))
         wait('Same thing, inline data')
-        g.splot(Gnuplot.Data(d, with='linesp', inline=1))
+        g.splot(Gnuplot.Data(d, with_='linesp', inline=1))
 
         print '############### test GridData and compute_GridData ##########'
         # set up x and y values at which the function will be tabulated:

@@ -44,7 +44,7 @@ def demo():
     # written to a temporary file once.
     d = Gnuplot.Data(x, y1,
                      title='calculated by python',
-                     with='points 3 3')
+                     with_='points 3 3')
     g.title('Data can be computed by python or gnuplot')
     g.xlabel('x')
     g.ylabel('x squared')
