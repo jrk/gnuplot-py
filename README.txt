@@ -54,7 +54,7 @@ Installation
 
 Quick instructions:
 
-1. Download gnuplot-py-1.7.tar.gz or gnuplot-py-1.7.zip.
+1. Download gnuplot-py-1.8.tar.gz or gnuplot-py-1.8.zip.
 
 2. Extract the archive to a temporary directory.
 
