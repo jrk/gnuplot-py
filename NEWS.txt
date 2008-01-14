@@ -7,6 +7,8 @@ Version ?.?
 
 Version 1.8:
 
+* hardcopy allows for terminal='svg' (using a patch from Spyros Blanas)
+
 * Use with_ instead of with as that will be a python keyword in the
   future.
 

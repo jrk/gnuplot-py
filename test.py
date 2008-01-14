@@ -243,6 +243,16 @@ def main():
         wait('Testing hardcopy options: fontsize=20')
         g.hardcopy('gp_test.ps', fontsize=20)
 
+        print '******** Generating svg file "gp_test.svg" ********'
+        wait()
+        g.plot(Gnuplot.Func('cos(0.5*x*x)', with_='linespoints 2 2',
+                       title='cos(0.5*x^2)'))
+        g.hardcopy('gp_test.svg', terminal='svg')
+
+        wait('Testing hardcopy svg options: enhanced')
+        g.hardcopy('gp_test.ps', terminal='svg', enhanced='1')
+        
+
         print '############### test shortcuts ##############################'
         wait('plot Func and Data using shortcuts')
         g.plot('sin(x)', d)

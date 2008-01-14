@@ -469,3 +469,11 @@ terminal_opts['mp'] = [
     BareStringArg(argname='fontsize'),
     ]
 
+terminal_opts['svg'] = [
+    BareStringArg(argname='size', fixedword='size'),  # tuple of two doubles
+    KeywordOrBooleanArg(options=['fixed', 'dynamic']),
+    StringArg(argname='fname', fixedword='fname'),
+    BareStringArg(argname='fsize', fixedword='fsize'),
+    KeywordOrBooleanArg(options=['enhanced', 'noenhanced']),
+    StringArg(argname='fontfile', fixedword='fontfile'),
+    ]
