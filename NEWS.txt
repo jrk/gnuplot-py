@@ -3,8 +3,12 @@ $Id$
 This file describes the changes introduced in each version of the
 Gnuplot.py package.
 
+Version ?.?
 
-Version ?.?:
+Version 1.8:
+
+* Use with_ instead of with as that will be a python keyword in the
+  future.
 
 * Added an option "filename" to Data and GridData in PlotItems.py.
   This allows saving the data to a permanent, rather than temporary,

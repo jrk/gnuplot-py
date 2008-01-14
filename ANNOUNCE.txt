@@ -1,4 +1,4 @@
-This is to announce the release of version 1.7 of Gnuplot.py.
+This is to announce the release of version 1.8 of Gnuplot.py.
 
 Gnuplot.py is a Python [1] package that allows you to create graphs
 from within Python using the gnuplot [2] plotting program.
@@ -35,15 +35,10 @@ Some ways this package can be used:
    other using Gnuplot.py to produce a crude animation.
 
 New features in this version:
-
-  + Relaxed license from GPL to LGPL.
-  + Added support for sending data to gnuplot via FIFOs (named pipes).
-    This eliminates the ambiguity about when temporary files can be
-    deleted, and thereby removes a common source of problems with
-    Gnuplot.py.  Unfortunately, FIFOs only work under forms of unix.
-  + Added preliminary support for running Gnuplot.py under Jython, the
-    Java implementation of the Python language.  It partly works but
-    depends on JNumeric, which is still beta-level.
+  + Various bug fixes
+  + an option "filename" to Data and GridDat
+    This allows saving the data to a permanent, rather than temporary
+  + pdf terminal definition
 
 Features already present in older versions:
 
@@ -65,7 +60,9 @@ Features already present in older versions:
   +  Partly table-driven to make it easy to extend.  New terminal
      types can be supported easily by adding data to a table.
   +  Install via distutils.
-
+  +  LGPL license .
+  +  Support for sending data to gnuplot via FIFOs (named pipes, linux only).
+  + Preliminary support for running Gnuplot.py under Jython
 
 Footnotes:
 ----------
