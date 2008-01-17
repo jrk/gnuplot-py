@@ -574,8 +574,8 @@ class Gnuplot:
                 % (string.join(keyw.keys(), ', '),)
                 )
 
-        self(string.join(setterm))
         self.set_string('output', filename)
+        self(string.join(setterm))
         # replot the current figure (to the printer):
         self.refresh()
         # reset the terminal to its `default' setting:
