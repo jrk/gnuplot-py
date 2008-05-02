@@ -156,7 +156,7 @@ Bugs:
 
 """
 
-__version__ = '1.7+'
+__version__ = '1.8'
 
 # Other modules that should be loaded for 'from Gnuplot import *':
 __all__ = ['utils', 'funcutils', ]
