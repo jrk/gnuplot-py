@@ -1,26 +1,27 @@
 # $Id$
 
-These are my notes about the steps to make a new release of
-Gnuplot.py.
+These are notes about the steps to make a new release of Gnuplot.py.
 
-0. Get the current SVN version, and put it in a directory called Gnuplot
+0. Get the current SVN version, and put it in a local directory called Gnuplot
    $ svn co --username=SFNAME https://gnuplot-py.svn.sourceforge.net/svnroot/gnuplot-py/trunk Gnuplot
    where SFNAME is your sourceforge username.
 
 1. Edit the following files for the release:
 
    NEWS.txt -- add the version number at the top of the file and make
-       sure that the comments are up-to-date.
+       sure that the comments are up to date. 
+       Remove the "Version ?.?:" line.
 
    ANNOUNCE.txt -- add the version number at the top of the file and
        update the blurbs as appropriate.
 
-   Gnuplot.html -- update the version number where it appears.  Update
-       the "News" section.
+   Gnuplot.html -- update the version number where it appears.  
+       Update the "News" section.
 
-   __init__.py -- increment the __version__ string. No "+" on the end.
+   __init__.py -- increment the __version__ string. If there is a
+       "+" on the end, remove it.
 
-2. Check the changes into Subversion.
+2. Check the changes into Subversion, with an appropriate comment
    $ svn commit  -m "Official version 1.8"
 
 3. Tag the release in Subversion:
@@ -30,31 +31,32 @@ Gnuplot.py.
 4. Create new documentation using happydoc. cd to the Gnuplot directory, then
    $ rm -rf doc
    $ cd .. 
-   $  happydoc -d Gnuplot/doc -t 'Gnuplot.py' Gnuplot 
-
+   $ happydoc -d Gnuplot/doc -t 'Gnuplot.py' Gnuplot
+   Note:
+   To install happydoc, you download its source from sourceforge,
+   and unpack it, then 
+     $ cp -r happydoclib/ /usr/lib/python2.5/site-packages/
+     $ cp happydoc /usr/local/bin
+   
 5. Generate the source distributions in Gnuplot/dist; cd to Gnuplot and then:
-
    $ python2 ./setup.py sdist --formats=gztar,zip
 
 6. [OMIT THIS] Generate the binary distributions.  [I don't think a binary
    distribution is worthwhile because the place that the files need to
    be installed is dependent on the version of python being used.]
-
    $ python2 ./setup.py bdist --format=gztar,zip,rpm,wininst
 
-
-
 7. Release the files on SourceForge:
-
    $ cd dist
    $ ftp upload.sourceforge.net   (username anonymous)
      cd incoming
      put gnuplot-py-1.8.tar.gz  
      put gnuplot-py-1.8.zip
 
-   a. Go to the "Admin" page.
+   a. Log in to the sourceforge web interface, choose Gnuplot.py
+      from "My projects"
 
-   b. Go to the "File release system" page.
+   b. Select Admin -> "File release system"
 
    c. Click on "Add Release" for package Gnuplot-py.
 
@@ -62,7 +64,7 @@ Gnuplot.py.
 
       Click on "Create This Release"
       
-   e. In "Step 1:   Edit Existing Release",
+   e. In "Step 1: Edit Existing Release",
       check the "Preserve my pre-formatted text." button below the text boxes
       Paste the "New features in this version" section of ANNOUNCE.txt
       into the "Paste the notes in" text box.
@@ -70,11 +72,11 @@ Gnuplot.py.
       "Paste The Change Log In" text box
       Click "Submit/refresh"
 
-   f. In "Step 2:   Add Files To This Release" section,
-      Select gnuplot-py-1.8.tar.gz  and gnuplot-py-1.8.zip in the then click 
-      "Add files or refresh view"
+   f. In "Step 2: Add Files To This Release" section,
+      Select gnuplot-py-1.8.tar.gz  and gnuplot-py-1.8.zip in the 
+      list of files, then click   "Add files or refresh view"
 
-   g. In step 3 "Edit Files In This Release", 
+   g. In "Step 3: Edit Files In This Release", 
       For gnuplot-py-1.8.tar.gz, under "Processor" select
       "Platform-Independent" and under "file type" select "source .gz",
       then click "Update/refresh"
@@ -85,15 +87,42 @@ Gnuplot.py.
    h. In "Step 4: Email release notice", check "I'm sure", then
       click "Send Notice".
 
-8. Send an announcement to gnuplot-py-users@lists.sourceforge.net
+8. Upload the new web page files (modified in step 1) to sourceforge:
+   $ sftp SFNAME@shell.sf.net
+     cd /home/groups/g/gn/gnuplot-py/htdocs
+     put Gnuplot.html
+     put ANNOUNCE.txt
+     put NEWS.txt
+     quit
+   This updates the Gnuplot.html home page, http://gnuplot-py.sourceforge.net/
+     
+9. Update the project news page (http://sourceforge.net/projects/gnuplot-py/)
+   - log in to sourceforge on the web
+   - select Gnuplot.py from "My projects"
+   - Admin -> News -> Submit
+       Subject: Gnuplot.py version 1.8 released
+       For the "Details" box, select some stuff from NEWS.txt, eg:
+          ----
+          Version 1.8 of Gnuplot.py has just been released.
+          Highlights:
+          + Compatible with NumPy
+          + Compatible with future python where "with" will be a reserved word
+          + Added a 'pdf' terminal definition 
+          + hardcopy allows for terminal='svg'
+          See NEWS.txt for more details.
+          ----
+      Then delete the News item for the previous release: return to
+      Admin -> News, click on the item for the previous release,
+      select "displayed", select "delete", and click "submit".
 
-9. Send an announcement to comp.lang.python.
+10. Send an announcement to gnuplot-py-users@lists.sourceforge.net
 
-10. Append a '+' to the __version__ string in __init__.py to
+11. Send an announcement to comp.lang.python.
+
+12. Append a '+' to the __version__ string in __init__.py to
     distinguish intermediate Subversion releases from official
     releases.  Add a "Version ?.?:" line to NEWS.txt to receive future
     change notes.  
-    [Remove backup files (ending with '~')]
-    Check the changes into Subversion:
+    Check the changes into Subversion, with a suitable comment, eg:
     svn commit  -m "Version 1.8+"
 
