@@ -1,5 +1,3 @@
-#! /usr/bin/env python
-
 # $Id$
 
 # Copyright (C) 1998-2003 Michael Haggerty <mhagger@alum.mit.edu>

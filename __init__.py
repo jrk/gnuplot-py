@@ -1,4 +1,3 @@
-#! /usr/bin/env python
 # $Id$
 
 # Copyright (C) 1998-2003 Michael Haggerty <mhagger@alum.mit.edu>
@@ -165,10 +164,5 @@ from gp import GnuplotOpts, GnuplotProcess, test_persist
 from Errors import Error, OptionError, DataError
 from PlotItems import PlotItem, Func, File, Data, GridData
 from _Gnuplot import Gnuplot
-
-
-if __name__ == '__main__':
-    import demo
-    demo.demo()
 
 
